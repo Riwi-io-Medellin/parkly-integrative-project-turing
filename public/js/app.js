@@ -215,3 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </p>
                 <div style="text-align:left; display:flex; align-items:flex-start; gap:10px; padding:12px; border-radius:10px; background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.2)">
                     <input type="checkbox" id="swal-terms-guard-check" style="margin-top:3px; width:16px; height:16px; cursor:pointer; flex-shrink:0">
+                    <label for="swal-terms-guard-check" style="font-size:13px; cursor:pointer; line-height:1.5">
+                        I have read and accept the
+                        <a href="legalidad.html" target="_blank" style="color:#6366f1; font-weight:600; text-decoration:underline">Parkly Terms and Conditions</a>
