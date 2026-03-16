@@ -21,7 +21,7 @@
     const sendBtn    = document.getElementById("chatbox-send");
     const inputArea  = document.getElementById("chat-input-area");
     const backBtn    = document.getElementById("back-btn");
-    const modeBadge  = document.getElementById("mode-badge");}
+    const modeBadge  = document.getElementById("mode-badge");
 
 
       /* ─────────────────────────────────────────
