@@ -198,3 +198,43 @@ app.get('/api/admin/metrics-all', async (req, res) => {
                 topSpots = topData.top_spots || [];
             }
         } catch (pyError) {
+            console.warn("Python Service Unreachable, falling back to SQL:", pyError.message);
+            const [monthlyRows] = await connection.execute(`
+                SELECT MONTH(date) as m, SUM(total) as t 
+                FROM reservations 
+                WHERE status != 'cancelled' AND YEAR(date) = YEAR(CURDATE())
+                GROUP BY MONTH(date)
+            `);
+            monthlyRows.forEach(row => { monthly_revenue[row.m - 1] = parseFloat(row.t); });
+
+            const [totalSpots] = await connection.execute('SELECT COUNT(*) as total FROM parking_spots WHERE verified = 1');
+            const [activeRes] = await connection.execute('SELECT COUNT(*) as total FROM reservations WHERE status IN ("active", "in-use")');
+            occupancy_rate = (activeRes[0].total / (totalSpots[0].total || 1)) * 100;
+        }
+
+        // Always use SQL for the historical monthly revenue array if Python doesn't provide it
+        // (Python currently only provides a single projection number)
+        if (monthly_revenue.every(v => v === 0)) {
+            const [monthlyRows] = await connection.execute(`
+                SELECT MONTH(date) as m, SUM(total) as t 
+                FROM reservations 
+                WHERE status != 'cancelled' AND YEAR(date) = YEAR(CURDATE())
+                GROUP BY MONTH(date)
+            `);
+            monthlyRows.forEach(row => { monthly_revenue[row.m - 1] = parseFloat(row.t); });
+        }
+
+        const [userStats] = await connection.execute('SELECT COUNT(*) as total_users FROM users WHERE status != "deleted"');
+        const total_users = userStats[0].total_users || 0;
+
+        res.json({
+            total_earnings: parseFloat(parseFloat(real_total).toFixed(2)),
+            monthly_revenue: monthly_revenue,
+            occupancy_rate: parseFloat(Number(occupancy_rate).toFixed(1)),
+            total_users: total_users,
+            top_spots: topSpots,
+            projection: proj_projection
+        });
+    } catch (error) {
+        console.error("Metrics All Error:", error.message);
+        res.status(500).json({ error: "Metrics calculation failed." });
