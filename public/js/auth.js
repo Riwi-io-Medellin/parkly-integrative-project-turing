@@ -60,3 +60,5 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnRoleClient = document.getElementById('btn-role-client');
         const btnRoleOwner = document.getElementById('btn-role-owner');
 
+        const goToStep2 = (role) => {
+            selectedRoleInput.value = role;
