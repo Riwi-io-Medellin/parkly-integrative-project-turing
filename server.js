@@ -558,3 +558,43 @@ app.get('/api/users/:id', async (req, res) => {
         );
         if (rows.length > 0) {
             const u = rows[0];
+            // Normalize: if no avatar_url but has photo (Google OAuth), use photo
+            if (!u.avatar_url && u.photo) u.avatar_url = u.photo;
+            res.json(u);
+        } else {
+            res.status(404).json({ error: "User not found." });
+        }
+    } catch (error) {
+        console.error("Fetch User by ID Error:", error.message);
+        res.status(500).json({ error: "Failed to retrieve user." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Update user
+app.put('/api/users/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, email, phone, role, password } = req.body;
+    let connection;
+    try {
+        connection = await getConnection();
+        let updateFields = [];
+        let updateValues = [];
+
+        if (name) { updateFields.push('name = ?'); updateValues.push(name); }
+        if (email) { updateFields.push('email = ?'); updateValues.push(email); }
+        if (phone) { updateFields.push('phone = ?'); updateValues.push(phone); }
+        if (role) { updateFields.push('role = ?'); updateValues.push(role); }
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updateFields.push('password = ?'); updateValues.push(hashedPassword);
+        }
+
+        if (updateFields.length === 0) {
+            return res.status(400).json({ error: "No fields to update." });
+        }
+
+        updateValues.push(id);
+        const query = `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`;
+        const [result] = await connection.execute(query, updateValues);
