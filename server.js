@@ -238,3 +238,43 @@ app.get('/api/admin/metrics-all', async (req, res) => {
     } catch (error) {
         console.error("Metrics All Error:", error.message);
         res.status(500).json({ error: "Metrics calculation failed." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+
+// --- WOMPI SIGNATURE GENERATOR ---
+app.post('/api/wompi/signature', (req, res) => {
+    const { reference, amountInCents, currency } = req.body;
+    const secret = process.env.WOMPI_INTEGRITY_SECRET;
+
+    if (!secret) {
+        return res.status(500).json({ error: 'WOMPI_INTEGRITY_SECRET not configured' });
+    }
+
+    try {
+        // Formula: reference + amountInCents + currency + secret
+        const stringToSign = `${reference}${amountInCents}${currency}${secret}`;
+
+        // Debug (hiding sensitive parts)
+        console.log(`Signing: ${reference}${amountInCents}${currency}${secret.substring(0, 10)}...`);
+        console.log(`Secret length: ${secret.length}`);
+
+        const signature = crypto.createHash('sha256').update(stringToSign).digest('hex');
+
+        res.json({ signature });
+    } catch (error) {
+        console.error('Signature calculation error:', error);
+        res.status(500).json({ error: 'Error calculating signature' });
+    }
+});
+
+// --- 2. AUTHENTICATION ---
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute(
+            'SELECT id, name, email, role, phone, avatar_url, status, password FROM users WHERE email = ?',
