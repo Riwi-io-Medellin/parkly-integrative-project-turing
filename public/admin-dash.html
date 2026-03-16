@@ -25,3 +25,55 @@
                     <i data-lucide="circle-parking"
                         class="h-6 w-6 text-primary group-hover:scale-110 transition-transform"></i>
                 </div>
+                <span class="text-xl font-black tracking-tighter text-foreground">PARK<span
+                        class="text-primary">LY</span></span>
+            </a>
+
+            <div class="flex-1 max-w-xl hidden md:block">
+                <div class="relative group">
+                    <i data-lucide="search"
+                        class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground group-focus-within:text-primary transition-colors"></i>
+                    <input type="text" id="admin-table-filter" placeholder="Search users, spots, or bookings..."
+                        class="w-full bg-input border border-border rounded-xl py-2 pl-10 pr-4 text-sm text-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all">
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button id="btn-nav-search"
+                    class="hidden md:flex items-center gap-2 px-4 py-2 bg-primary/5 text-primary-light hover:bg-primary/10 rounded-xl text-sm font-bold transition-all border border-primary/15">
+                    <i data-lucide="compass" class="w-4 h-4"></i> View App
+                </button>
+                <button id="theme-toggle" aria-label="Toggle theme"
+                    class="p-2 rounded-lg bg-input border border-border hover:border-primary/50 transition-all"></button>
+                <div class="h-8 w-px bg-card mx-1"></div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold text-foreground leading-none">Admin Panel</p>
+                        <p class="text-[10px] text-primary uppercase font-black tracking-widest mt-0.5">Superuser</p>
+                    </div>
+                    <div
+                        class="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-primary-dark flex items-center justify-center text-foreground font-bold shadow-lg shadow-primary/20">
+                        A
+                    </div>
+                </div>
+                <button id="btn-logout"
+                    class="p-2 text-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors ml-2">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ── ADMIN DASHBOARD MAIN CONTAINER ───────────────────────────────────── -->
+    <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
+        
+        <!-- Dashboard Header -->
+        <header class="mb-8">
+            <h1 class="text-2xl font-black text-foreground mb-2">Control Center</h1>
+            <p class="text-sm text-foreground font-medium opacity-80">Manage the entire platform from one place.</p>
+        </header>
+
+        <!-- ── TAB NAVIGATION (Dynamically toggles section visibility via admin.js) ── -->
+        <nav id="tabs-container" class="flex overflow-x-auto border-b border-border mb-8 scrollbar-hide"
+            aria-label="Admin Sections">
+            <button data-tab="summary"
