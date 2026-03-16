@@ -8,3 +8,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parkly - Find your perfect spot</title>
     
+    <!-- Tailwind CSS loaded from CDN; tailwind-config.js adds our custom design tokens -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    
+    <!-- Global stylesheet for custom components and typography overrides -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Lucide icon library -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="flex flex-col min-h-screen bg-background text-foreground font-sans antialiased">
+
+    <!-- Global Header / Navbar -->
+    <header class="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+        <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4" aria-label="Main Navigation">
+            
+            <!-- Logo area -->
+            <a href="index.html" class="flex items-center gap-2 group">
+                <i data-lucide="circle-parking" class="h-6 w-6 text-primary"></i>
+                <span class="text-xl font-bold tracking-tight">
+                    PARK<span class="text-primary">LY</span>
+                </span>
+            </a>
+            
+            <!-- Navigation Actions: Theme toggle, Login link, Sign up button -->
+            <div id="nav-actions" class="flex items-center gap-4">
+                <button id="theme-toggle" aria-label="Toggle theme" class="p-2 rounded-lg border border-border hover:border-primary/50 transition-colors">
+                    <i data-lucide="moon" class="w-4 h-4 text-foreground font-medium"></i>
+                </button>
+                <a href="./login.html" id="btn-nav-login" class="text-sm font-medium text-foreground font-medium hover:text-foreground transition-colors cursor-pointer">Log in</a>
+                <a href="register.html" class="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition-all hover:bg-primary-dark shadow-lg shadow-primary/20">Sign up</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-1">
+        
+        <!-- ── HERO SECTION ───────────────────────────────────────────────────────── -->
+        <section class="relative pt-24 pb-20 overflow-hidden text-center px-4">
+            <!-- Decorative blurred background element -->
+            <div
+                class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-primary/20 blur-[120px] rounded-full opacity-20 pointer-events-none">
+            </div>
+
+            <div class="relative z-10 max-w-5xl mx-auto">
+                <header>
+                    <!-- Small badge above the main title -->
+                    <div
+                        class="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary mb-8">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                        </span>
+                        The #1 parking platform in Colombia
+                    </div>
+                    
+                    <!-- Main headline -->
+                    <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 text-foreground leading-tight">
+                        Find your <span class="text-primary">perfect spot</span><br>in seconds
+                    </h1>
+                </header>
+
+                <p class="text-lg text-foreground/90 mb-10 max-w-2xl mx-auto">
+                    Verified, secure, and illuminated parking spots across the city.
+                    Pay easily and verify your arrival.
+                </p>
+
+                <!-- Call to action buttons -->
+                <div class="flex flex-col sm:flex-row justify-center gap-4 mb-16">
+                    <a href="register.html" class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 text-base font-bold text-primary-foreground transition-all hover:bg-primary-dark hover:scale-105 shadow-lg shadow-primary/25">
+                        Get Started Free
+                        <i data-lucide="arrow-right" class="h-5 w-5"></i>
+                    </a>
+                    <a href="./login.html" id="btn-hero-login" class="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card/50 px-8 py-4 text-base font-bold text-foreground transition-all hover:bg-card cursor-pointer">
+                        I have an account
+                    </a>
+                </div>
+
+                <!-- Hero Images Grid -->
+                <!-- The middle image floats slightly higher due to -mt-8 on md screens -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 opacity-90">
+                    <article class="h-48 rounded-2xl border border-border overflow-hidden relative group">
+                        <img src="https://images.unsplash.com/photo-1545179605-1296651e9d43?q=80&w=800"
+                            alt="Modern Covered Parking"
+                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
