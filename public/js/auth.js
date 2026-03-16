@@ -21,3 +21,5 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (btn) {
                 btn.disabled = true;
+                btn.textContent = 'Signing in...';
+            }
