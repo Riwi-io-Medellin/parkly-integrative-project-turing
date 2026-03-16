@@ -330,3 +330,102 @@ document.addEventListener('DOMContentLoaded', () => {
         if (titleEl) titleEl.innerText = "Publish a new spot";
 
         document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('border-primary', 'bg-primary/10'));
+        const fLabel = document.getElementById('cert-file-label');
+        if (fLabel) fLabel.innerText = "Click to upload PDF or Photo";
+
+        const photosPreview = document.getElementById('photos-preview-container');
+        if (photosPreview) {
+            photosPreview.innerHTML = '';
+            photosPreview.classList.add('hidden');
+        }
+        document.getElementById('main-photo-hint')?.classList.add('hidden');
+        document.getElementById('photos-label').innerText = "Select multiple photos of your spot";
+
+        wizardData = {
+            type: '',
+            schedule: '24h',
+            days: [],
+            features: [],
+            certFile: null,
+            vehicleTypes: [],
+            maxWidth: '',
+            maxLength: '',
+            maxHeight: '',
+            photos: [],
+            existingPhotos: [],
+            mainIdx: 0
+        };
+    }
+
+    // Checks localStorage for pending notifications (approved/rejected spot requests) and renders them
+    function renderOwnerNotifications() {
+        const notifContainer = document.getElementById('owner-notifications');
+        const tpl = document.getElementById('tpl-owner-notif');
+        if (!notifContainer || !tpl) return;
+
+        const user = JSON.parse(localStorage.getItem('parkly_session'));
+        if (!user) return;
+
+        const notifications = JSON.parse(localStorage.getItem('parkly_owner_notifications')) || [];
+        const myNotifs = notifications.filter(n => (n.ownerId == user.id || n.ownerId === user.email) && !n.dismissed);
+
+        notifContainer.innerHTML = '';
+
+        myNotifs.forEach(n => {
+            const clone = tpl.content.cloneNode(true);
+            const card = clone.querySelector('.notif-card');
+            const iconBox = clone.querySelector('.notif-icon-box');
+            const icon = clone.querySelector('.notif-icon');
+
+            if (n.type === 'rejected') {
+                card.classList.add('bg-red-900/20', 'border-red-800/50');
+                iconBox.classList.add('bg-red-500/20', 'text-red-400');
+                icon.setAttribute('data-lucide', 'x-circle');
+                clone.querySelector('.notif-title').classList.add('text-red-300');
+                clone.querySelector('.notif-title').textContent = 'Spot Request Rejected';
+            } else {
+                card.classList.add('bg-green-900/20', 'border-green-800/50');
+                iconBox.classList.add('bg-green-500/20', 'text-green-400');
+                icon.setAttribute('data-lucide', 'check-circle');
+                clone.querySelector('.notif-title').classList.add('text-green-300');
+                clone.querySelector('.notif-title').textContent = 'Spot Approved!';
+            }
+
+            clone.querySelector('.notif-spot-name').textContent = n.spotName;
+            clone.querySelector('.notif-msg-text').textContent = n.message;
+
+            if (n.reason) {
+                clone.querySelector('.notif-reason-box').classList.remove('hidden');
+                clone.querySelector('.notif-reason-text').textContent = n.reason;
+            }
+
+            clone.querySelector('.btn-dismiss').addEventListener('click', () => {
+                const allNotifs = JSON.parse(localStorage.getItem('parkly_owner_notifications')) || [];
+                const idx = allNotifs.findIndex(item => item.id === n.id);
+                if (idx !== -1) {
+                    allNotifs[idx].dismissed = true;
+                    localStorage.setItem('parkly_owner_notifications', JSON.stringify(allNotifs));
+                }
+                renderOwnerNotifications();
+            });
+
+            notifContainer.appendChild(clone);
+        });
+
+        if (window.lucide) lucide.createIcons();
+    }
+
+    // Fetches the owner's spots and renders the spot card list with earnings stats
+    async function renderTab() {
+        const user = JSON.parse(localStorage.getItem('parkly_session'));
+        const content = document.getElementById('owner-tab-content');
+        const countEl = document.getElementById('stat-spots-count');
+        const earningsEl = document.getElementById('stat-total-earnings');
+        const tplSpot = document.getElementById('tpl-owner-spot');
+        const tplEmpty = document.getElementById('tpl-empty-spots');
+
+        if (!content || !tplSpot || !tplEmpty) return;
+
+        let mySpots = [];
+        try {
+            const res = await fetch(`/api/users/${user.id}/spots`);
