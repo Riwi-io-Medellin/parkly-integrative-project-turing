@@ -758,3 +758,43 @@ app.get('/api/admin/spots', async (_req, res) => {
                 ps.price_hour AS price, ps.image, ps.images, ps.schedule,
                 ps.services AS features, ps.dimensions, ps.rating,
                 ps.owner_id AS ownerId, ps.verified,
+                ps.available,
+                ps.vehicle_types,
+                u.name AS ownerName, u.email AS ownerEmail
+            FROM parking_spots ps
+            LEFT JOIN users u ON ps.owner_id = u.id
+            WHERE ps.deleted_at IS NULL
+            ORDER BY ps.available ASC, ps.id DESC
+        `);
+        const parsedRows = rows.map(r => {
+            try { r.images = r.images ? JSON.parse(r.images) : []; } catch (e) { r.images = []; }
+            return r;
+        });
+        res.json(parsedRows);
+    } catch (error) {
+        console.error("Admin Spots Error:", error.message);
+        res.status(500).json({ error: "Unable to retrieve spots." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Owner: all spots for a specific owner (all statuses)
+app.get('/api/users/:userId/spots', async (req, res) => {
+    const { userId } = req.params;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute(`
+            SELECT
+                id, name, address, zone,
+                price_hour AS price, price_day, price_month,
+                image, images, schedule, services AS features,
+                dimensions, whatsapp, rating,
+                owner_id AS ownerId,
+                verified,
+                available,
+                vehicle_types, max_width, max_length, max_height
+            FROM parking_spots
+            WHERE owner_id = ? AND deleted_at IS NULL
+            ORDER BY id DESC
