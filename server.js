@@ -718,3 +718,43 @@ app.get('/api/spots', async (req, res) => {
                 ps.id, ps.name, ps.address, ps.zone,
                 ps.price_hour AS price, ps.price_day, ps.price_month,
                 ps.image, ps.images, ps.schedule, ps.services AS features,
+                ps.dimensions, ps.whatsapp, ps.rating,
+                ps.owner_id AS ownerId,
+                ps.verified,
+                ps.available AS status,
+                ps.vehicle_types, ps.max_width, ps.max_length, ps.max_height,
+                u.name AS ownerName
+            FROM parking_spots ps
+            LEFT JOIN users u ON ps.owner_id = u.id
+            WHERE ps.deleted_at IS NULL AND ps.available = 1
+        `);
+
+        const parsedRows = rows.map(r => {
+            try {
+                r.images = r.images ? JSON.parse(r.images) : (r.image ? [r.image] : []);
+            } catch (e) {
+                r.images = [r.image];
+            }
+            return r;
+        });
+
+        res.json(parsedRows);
+    } catch (error) {
+        console.error("Load Spots Error:", error.message);
+        res.status(500).json({ error: "Unable to retrieve parking spot data." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Admin: all spots including pending (available=0) and rejected (available=-1)
+app.get('/api/admin/spots', async (_req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute(`
+            SELECT
+                ps.id, ps.name, ps.address, ps.zone,
+                ps.price_hour AS price, ps.image, ps.images, ps.schedule,
+                ps.services AS features, ps.dimensions, ps.rating,
+                ps.owner_id AS ownerId, ps.verified,
