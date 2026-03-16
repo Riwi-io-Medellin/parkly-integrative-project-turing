@@ -183,3 +183,28 @@ document.addEventListener('DOMContentLoaded', () => {
             profileDropdown.classList.add('hidden');
         });
 
+        profileDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
+    // Floating chat button — always navigates to the chat hub
+    const floatingChatBtn = document.getElementById('floating-chat-btn');
+    if (floatingChatBtn) {
+        floatingChatBtn.addEventListener('click', () => {
+            window.location.href = 'chat.html';
+        });
+    }
+
+    if (window.lucide) lucide.createIcons();
+
+    // Terms and Conditions guard — if the user is logged in but hasn't accepted the terms,
+    // I block the page with a modal. If they refuse, they get logged out.
+    const protectedPages = ['search.html', 'owner-dash.html', 'admin-dash.html', 'profile.html', 'payment.html', 'chat.html', 'booking.html'];
+    const currentPage = window.location.pathname.split('/').pop();
+    const termsAccepted = localStorage.getItem('parkly_terms_accepted') === 'true';
+    const hasSession = !!JSON.parse(localStorage.getItem('parkly_session'));
+
+    if (hasSession && !termsAccepted && protectedPages.includes(currentPage)) {
+        document.body.style.overflow = 'hidden';
+        Swal.fire({
