@@ -885,3 +885,66 @@
                                 <small class="block text-[11px] font-medium text-foreground/60">How to get paid</small>
                             </div>
                         </button>
+                    </li>
+                    <li
+                        class="w-full rounded-xl border border-primary/30 bg-gradient-to-r from-primary/10 to-accent/10 transition-all duration-300 hover:border-primary/60 hover:shadow-lg hover:shadow-accent/10">
+                        <button data-flow="ai"
+                            class="flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition-transform active:scale-95">
+                            <div
+                                class="shrink-0 rounded-lg border border-primary/50 bg-gradient-to-br from-primary/20 to-primary/20 p-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor"
+                                    class="w-5 h-5 text-purple-600 dark:text-purple-300 ai-glow">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" />
+                                </svg>
+                            </div>
+                            <div class="whitespace-nowrap flex items-center gap-2">
+                                <div>
+                                    <strong class="block text-[13px] font-bold text-foreground">Talk to AI</strong>
+                                    <small class="block text-[11px] font-medium text-foreground/60">Free chat with the
+                                        assistant</small>
+                                </div>
+                                <span
+                                    class="shrink-0 bg-gradient-to-r from-primary to-accent text-white text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wide shadow-sm">AI</span>
+                            </div>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="chat-input-area hidden" id="chat-input-area">
+            <button class="back-btn" id="back-btn" title="Back to menu" aria-label="Back to menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                    aria-hidden="true">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+            </button>
+            <textarea id="chatbox-input" rows="1" placeholder="Type a message..." aria-label="Type your message"
+                autocomplete="off" spellcheck="true" maxlength="500">
+            </textarea>
+            <button id="chatbox-send" aria-label="Send message">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+            </button>
+        </div>
+    </div>
+    <!-- ── FIN CHATBOX ── -->
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js?v=3"></script>
+    <script src="IA/chatbox.js"></script>
+    <script src="js/owner.js?v=3"></script>
+
+    <!-- SweetAlert2 + Parkly Custom Alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/alerts.js"></script>
+
+</body>
+
+</html>
