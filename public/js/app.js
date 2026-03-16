@@ -239,3 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('parkly_terms_accepted', 'true');
             } else {
                 // User declined — log them out
+                localStorage.removeItem('parkly_session');
+                localStorage.removeItem('parkly_terms_accepted');
+                window.location.href = 'login.html';
+            }
