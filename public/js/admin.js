@@ -350,3 +350,238 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         const tpl = document.getElementById('tpl-table-row');
+        filtered.forEach(item => {
+            const clone = tpl.content.cloneNode(true);
+            clone.querySelector('.cell-primary').textContent = item.name || item.email || item.spotName || `ID: ${item.id}`;
+
+            if (type === 'users') {
+                const isBlocked = item.status === 'suspended';
+                const span = document.createElement('span');
+                span.className = `px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${isBlocked ? 'bg-red-100 text-red-700 border border-red-200 dark:bg-red-900/40 dark:text-red-400 dark:border-red-900/50' : 'bg-green-100 text-green-700 border border-green-200 dark:bg-green-900/40 dark:text-green-400 dark:border-green-900/50'}`;
+                span.textContent = isBlocked ? 'Blocked' : (item.role || 'Active');
+                clone.querySelector('.cell-secondary').appendChild(span);
+            } else {
+                clone.querySelector('.cell-secondary').textContent = item.verified ? 'Verified' : (item.role || item.status || 'Active');
+            }
+
+            const actionsCell = clone.querySelector('.cell-actions');
+            if (actionsCell) {
+                actionsCell.className = 'p-4 text-right flex gap-2 justify-end';
+
+                if (type === 'users') {
+                    const isBlocked = item.status === 'suspended';
+                    const btnBlock = document.createElement('button');
+                    const blockIcon = document.createElement('i');
+                    blockIcon.setAttribute('data-lucide', isBlocked ? 'unlock' : 'ban');
+                    blockIcon.className = 'w-3 h-3';
+                    btnBlock.appendChild(blockIcon);
+                    btnBlock.appendChild(document.createTextNode(isBlocked ? ' Unblock' : ' Block'));
+
+                    btnBlock.className = `flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-lg border transition-all ${isBlocked
+                        ? 'border-green-600 text-green-600 hover:bg-green-600/10 dark:border-green-800 dark:text-green-400'
+                        : 'border-red-600 text-red-600 hover:bg-red-600/10 dark:border-red-900 dark:text-red-400'
+                        }`;
+                    btnBlock.addEventListener('click', () => handleUserStatus(item.id, isBlocked ? 'active' : 'suspended'));
+
+                    const btnDelete = document.createElement('button');
+                    const delIcon = document.createElement('i');
+                    delIcon.setAttribute('data-lucide', 'trash-2');
+                    delIcon.className = 'w-3 h-3';
+                    btnDelete.appendChild(delIcon);
+                    btnDelete.appendChild(document.createTextNode(' Delete'));
+                    btnDelete.className = 'flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-lg border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-red-600/10 hover:text-red-600 transition-all';
+                    btnDelete.addEventListener('click', () => handleUserStatus(item.id, 'deleted'));
+
+                    actionsCell.appendChild(btnBlock);
+                    actionsCell.appendChild(btnDelete);
+                }
+
+                if (type === 'reservations' && item.status !== 'cancelled' && item.status !== 'completed') {
+                    const btnComplete = document.createElement('button');
+                    btnComplete.textContent = 'Complete';
+                    btnComplete.className = 'px-3 py-1 text-xs font-bold rounded-lg border border-green-800 text-green-400 hover:bg-green-900/30 transition-all';
+                    btnComplete.addEventListener('click', () => handleReservationStatus(item.id, 'completed'));
+                    actionsCell.appendChild(btnComplete);
+
+                    const btnCancel = document.createElement('button');
+                    btnCancel.textContent = 'Cancel';
+                    btnCancel.className = 'px-3 py-1 text-xs font-bold rounded-lg border border-red-800 text-red-400 hover:bg-red-900/30 transition-all';
+                    btnCancel.addEventListener('click', () => handleCancelReservation(item.id));
+                    actionsCell.appendChild(btnCancel);
+                }
+
+                if (type === 'spots') {
+                    const btnRemove = document.createElement('button');
+                    btnRemove.textContent = 'Remove';
+                    btnRemove.className = 'px-3 py-1 text-xs font-bold rounded-lg border border-red-800 text-red-400 hover:bg-red-900/30 transition-all';
+                    btnRemove.addEventListener('click', () => handleDeleteSpot(item.id, item.name));
+                    actionsCell.appendChild(btnRemove);
+                }
+            }
+
+            tbody.appendChild(clone);
+        });
+    }
+
+    // Renders Chart.js charts and the top spots list using real data from /api/admin/metrics-all.
+    // Only runs once per session — re-runs if the user forces it by resetting ownerChartsInit.
+    let chartsInitialized = false;
+    async function renderAnalytics() {
+        if (chartsInitialized) return;
+        chartsInitialized = true;
+
+        try {
+            const res = await fetch('/api/admin/metrics-all');
+            const metrics = await res.json();
+
+            const ctx1 = document.getElementById('chart-revenue').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Real Monthly Revenue (COP)',
+                        data: metrics.monthly_revenue,
+                        backgroundColor: 'rgba(59,130,246,0.8)',
+                        borderColor: '#3b82f6',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { weight: 'bold' } } },
+                        tooltip: { backgroundColor: '#1e293b', titleFont: { weight: 'bold' }, padding: 12 }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(30,41,59,0.5)' } },
+                        y: { ticks: { color: '#64748b' }, grid: { color: 'rgba(30,41,59,0.5)' } }
+                    }
+                }
+            });
+
+            const ctx2 = document.getElementById('chart-occupancy').getContext('2d');
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Occupied', 'Available'],
+                    datasets: [{
+                        data: [metrics.occupancy_rate, 100 - metrics.occupancy_rate],
+                        backgroundColor: ['#3b82f6', 'rgba(30,41,59,0.5)'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { weight: 'bold' } } }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            const container = document.getElementById('top-spots-container');
+            container.innerHTML = '';
+            const tplSpot = document.getElementById('tpl-top-spot');
+            if (tplSpot) {
+                metrics.top_spots.forEach((s, i) => {
+                    const medals = ['🥇', '🥈', '🥉'];
+                    const clone = tplSpot.content.cloneNode(true);
+                    clone.querySelector('.spot-medal').textContent = medals[i] || '📈';
+                    clone.querySelector('.spot-name').textContent = s.name;
+                    clone.querySelector('.spot-bookings').textContent = `${s.reservation_count} bookings`;
+                    container.appendChild(clone);
+                });
+            }
+
+            console.log("Analytics: Global KPIs synchronized with database.");
+
+        } catch (e) {
+            console.error("Metrics UI Error:", e);
+            const err = document.createElement('p');
+            err.className = 'p-8 text-foreground/40 text-sm text-center italic';
+            err.textContent = 'Failed to calculate live analytics.';
+            document.getElementById('top-spots-container').replaceChildren(err);
+        }
+    }
+
+    // Fetches and renders all PQR support tickets. Open tickets get a response textarea.
+    async function renderPQR() {
+        const container = document.getElementById('pqr-list');
+        const empty = document.getElementById('pqr-empty');
+        container.innerHTML = '';
+        try {
+            const res = await fetch('/api/pqr');
+            const pqrs = res.ok ? await res.json() : [];
+            const pqrBadge = document.getElementById('badge-pqr');
+            const openPQRs = pqrs.filter(p => p.status !== 'resolved');
+            if (pqrBadge) pqrBadge.textContent = openPQRs.length;
+
+            if (pqrs.length === 0) { empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+
+            const tplPQR = document.getElementById('tpl-admin-pqr');
+            pqrs.forEach(p => {
+                if (!tplPQR) return;
+                const clone = tplPQR.content.cloneNode(true);
+                const card = clone.querySelector('article');
+
+                const isRespond = p.status !== 'resolved';
+
+                clone.querySelector('.pqr-type').textContent = p.type;
+                clone.querySelector('.pqr-subject').textContent = p.subject || 'No subject';
+                clone.querySelector('.pqr-user').textContent = p.user_name;
+                clone.querySelector('.pqr-date').textContent = new Date(p.created_at).toLocaleDateString();
+
+                const badge = clone.querySelector('.pqr-badge');
+                badge.textContent = p.status.toUpperCase();
+                badge.className += p.status === 'open' ? ' text-red-700 bg-red-100 border-red-200 dark:text-red-400 dark:bg-red-900/20 dark:border-red-800/30' : ' text-yellow-700 bg-yellow-100 border-yellow-200 dark:text-yellow-400 dark:bg-yellow-900/20 dark:border-yellow-800/30';
+
+                clone.querySelector('.pqr-desc').textContent = p.description || '-';
+
+                const actionArea = clone.querySelector('.pqr-action-area');
+                if (isRespond) {
+                    const wrap = document.createElement('div');
+                    wrap.className = 'flex gap-2';
+
+                    const textarea = document.createElement('textarea');
+                    textarea.dataset.pqrId = p.id;
+                    textarea.className = 'flex-1 bg-background border border-border rounded-xl px-3 py-2 text-xs text-foreground placeholder-foreground/30 focus:outline-none focus:border-primary resize-none';
+                    textarea.rows = 2;
+                    textarea.placeholder = 'Write your response...';
+
+                    const btn = document.createElement('button');
+                    btn.dataset.respond = p.id;
+                    btn.className = 'px-4 py-2 bg-primary hover:opacity-90 text-primary-foreground text-xs font-bold rounded-xl transition-all';
+                    btn.textContent = 'Respond';
+
+                    wrap.appendChild(textarea);
+                    wrap.appendChild(btn);
+                    actionArea.appendChild(wrap);
+                } else {
+                    const pResp = document.createElement('p');
+                    pResp.className = 'text-xs text-green-400 border border-green-800/30 bg-green-900/20 rounded-xl p-3';
+                    pResp.textContent = p.admin_response;
+                    actionArea.appendChild(pResp);
+                }
+
+                const respondBtn = card.querySelector('[data-respond]');
+                if (respondBtn) {
+                    respondBtn.addEventListener('click', async () => {
+                        const textarea = card.querySelector(`[data-pqr-id="${p.id}"]`);
+                        const response = textarea?.value?.trim();
+                        if (!response) return Alerts.toast('Please write a response.', 'warning');
+                        await fetch(`/api/pqr/${p.id}/respond`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ admin_response: response, status: 'resolved' })
+                        });
+                        renderPQR();
+                    });
+                }
+                container.appendChild(card);
+            });
+        } catch (e) {
+            empty.classList.remove('hidden');
+        }
