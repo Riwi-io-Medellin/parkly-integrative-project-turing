@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const spot = spots.find(s => s.id == id);
 
     if (!spot) {
-        alert('Parking spot not found.');
+        Alerts.error('Parking spot not found.');
         window.location.href = 'search.html';
         return;
     }
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const session = JSON.parse(localStorage.getItem('parkly_session'));
 
         if (!session) {
-            alert('You must log in to complete the payment.');
+            Alerts.toast('You must log in to complete the payment.', 'warning');
             window.location.href = 'login.html';
             return;
         }
@@ -108,13 +108,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (result.transaction.status === 'APPROVED') {
                         ejecutarFlujoExito(session, resId);
                     } else {
-                        alert('Payment not completed: ' + result.transaction.status);
+                        Alerts.toast('Payment not completed: ' + result.transaction.status, 'warning');
                     }
                 });
             })
             .catch(err => {
                 console.error(err);
-                alert('Error starting payment: ' + err.message);
+                Alerts.error('Error starting payment: ' + err.message);
             });
     });
 
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         localStorage.removeItem('parkly_booking');
-        alert(`Payment successful! Receipt sent to: ${session.email}`);
+        Alerts.success(`Payment successful! Receipt sent to: ${session.email}`);
         window.location.href = 'search.html';
     }
 });
