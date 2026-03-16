@@ -318,3 +318,43 @@ app.post('/api/login', async (req, res) => {
         console.log(`Access granted: ${email} (role: ${user.role})`);
         res.json(user);
 
+    } catch (error) {
+        console.error("Auth Error:", error.message);
+        res.status(500).json({ error: "Authentication service unavailable." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Request password reset (forgot-password)
+app.post('/api/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute('SELECT id, name FROM users WHERE email = ?', [email]);
+
+        if (rows.length === 0) {
+            // We return 200 even if user doesn't exist for security (don't reveal email existence)
+            return res.json({ message: "If an account exists with this email, a reset link has been sent." });
+        }
+
+        const user = rows[0];
+        const token = crypto.randomBytes(32).toString('hex');
+        const expires = new Date(Date.now() + 3600000); // 1 hour from now
+
+        await connection.execute(
+            'UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?',
+            [token, expires, user.id]
+        );
+
+        // Send email
+        const resetLink = `http://localhost:3000/reset-password.html?token=${token}`;
+        await sendEmail({
+            to: email,
+            subject: '🔑 Reset your PARKLY password',
+            html: `                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
+                    <div style="background-color: #3b82f6; padding: 30px; text-align: center;">
+                        <span style="color: #ffffff; font-size: 28px; font-weight: bold; letter-spacing: -1px;">PARK<span style="color: #dbeafe;">LY</span></span>
+                    </div>
+                    <div style="padding: 40px 30px;">
