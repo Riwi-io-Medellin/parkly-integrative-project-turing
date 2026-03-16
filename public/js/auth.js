@@ -3,3 +3,9 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    const step1 = document.getElementById('step-1');
+    const step2 = document.getElementById('step-2');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const btnBack = document.getElementById('btn-back');
+
