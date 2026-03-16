@@ -1718,3 +1718,43 @@ app.get('/api/export/reservations', async (req, res) => {
     }
 });
 
+// --- PQR (Claims, Questions, Suggestions) ---
+app.get('/api/pqr', async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute(
+            'SELECT pqr.*, users.name as user_name, users.email as user_email FROM pqr LEFT JOIN users ON pqr.user_id = users.id ORDER BY pqr.created_at DESC'
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error("PQR GET Error:", error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+app.post('/api/pqr', async (req, res) => {
+    const { userId, reservationId, type, subject, description } = req.body;
+    if (!userId || !subject) return res.status(400).json({ error: 'userId and subject are required' });
+    let connection;
+    try {
+        connection = await getConnection();
+        const [result] = await connection.execute(
+            'INSERT INTO pqr (user_id, reservation_id, type, subject, description) VALUES (?, ?, ?, ?, ?)',
+            [userId, reservationId || null, type || 'claim', subject, description || '']
+        );
+        // Fetch full PQR to send to automation
+        const [rows] = await connection.execute('SELECT * FROM pqr WHERE id = ?', [result.insertId]);
+        const pqrData = rows[0];
+        triggerAutomation('pqr_created', {
+            id: pqrData.id,
+            subject: pqrData.subject,
+            type: pqrData.type,
+            description: pqrData.description,
+            user_id: pqrData.user_id
+        });
+
+        res.status(201).json({ id: result.insertId, message: 'PQR submitted successfully', ...rows[0] });
+    } catch (error) {
