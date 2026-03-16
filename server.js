@@ -1398,3 +1398,43 @@ app.post('/api/reviews', async (req, res) => {
 
         res.status(201).json({ id: result.insertId, message: "Review posted successfully." });
     } catch (error) {
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ error: "You have already reviewed this service." });
+        }
+        console.error("Post Review Error:", error.message);
+        res.status(500).json({ error: "Failed to post review." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// --- 7. WAITLIST ---
+// Add user to waitlist for a spot
+app.post('/api/waitlist', async (req, res) => {
+    const { userId, parkingId, requestedTime } = req.body; // requestedTime could be a specific time or just a general interest
+    let connection;
+    try {
+        connection = await getConnection();
+        // Check if user is already on waitlist for this spot
+        const [existing] = await connection.execute(
+            'SELECT id FROM waitlist WHERE user_id = ? AND parking_id = ? AND status = "pending"',
+            [userId, parkingId]
+        );
+        if (existing.length > 0) {
+            return res.status(409).json({ error: "You are already on the waitlist for this parking spot." });
+        }
+
+        const [result] = await connection.execute(
+            'INSERT INTO waitlist (user_id, parking_id, requested_time, status) VALUES (?, ?, ?, "pending")',
+            [userId, parkingId, requestedTime]
+        );
+        console.log(`User ${userId} added to waitlist for spot ${parkingId}.`);
+        res.status(201).json({ id: result.insertId, message: "Added to waitlist successfully." });
+    } catch (error) {
+        console.error("Add to Waitlist Error:", error.message);
+        res.status(500).json({ error: "Failed to add to waitlist." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
