@@ -438,3 +438,43 @@ app.post('/api/register', async (req, res) => {
                         <div style="background-color: #3b82f6; padding: 30px; text-align: center;">
                             <span style="color: #ffffff; font-size: 28px; font-weight: bold; letter-spacing: -1px;">PARK<span style="color: #dbeafe;">LY</span></span>
                         </div>
+                        <div style="padding: 40px 30px;">
+                            <h2 style="color: #111827; margin-top: 0; font-size: 24px;">🚀 Welcome to the family!</h2>
+                            <p style="font-size: 16px; color: #4b5563;">Hello <b>${name}</b>,</p>
+                            <p style="font-size: 16px; color: #4b5563;">Thank you for joining Parkly. We're excited to help you find the best parking spots or help you earn money with yours.</p>
+                            
+                            <div style="background-color: #f3f4f6; border-radius: 10px; padding: 25px; margin: 30px 0;">
+                                <h3 style="margin-top: 0; font-size: 18px; color: #111827;">What's next?</h3>
+                                <ul style="padding-left: 20px; color: #4b5563; line-height: 1.6;">
+                                    <li><b>Find Parking:</b> Use our interactive map to find spots near you.</li>
+                                    <li><b>Book instantly:</b> Pay securely and save your spot.</li>
+                                    <li><b>List your spot:</b> Start earning by renting your empty garage.</li>
+                                </ul>
+                            </div>
+
+                            <div style="text-align: center; margin: 35px 0;">
+                                <a href="http://localhost:3000" style="background-color: #3b82f6; color: white; padding: 14px 32px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);">Start Exploring</a>
+                            </div>
+                            
+                            <p style="font-size: 16px; color: #4b5563;">If you have any questions, just reply to this email. We're here to help!</p>
+                        </div>
+                        <div style="background-color: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                            <p style="font-size: 13px; color: #6b7280; margin: 0;">© 2024 Parkly. Urban parking made simple.</p>
+                        </div>
+                    </div>
+                `
+            });
+        } catch (emailErr) {
+            console.error("Welcome Email Error:", emailErr.message);
+        }
+
+        res.status(201).json({ id: result.insertId, name, email, phone, role });
+    } catch (error) {
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ error: "Email already registered." });
+        }
+        console.error("User Registration Error:", error.message);
+        res.status(500).json({ error: "Failed to register user." });
+    } finally {
+        if (connection) await connection.end();
+    }
