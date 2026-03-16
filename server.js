@@ -598,3 +598,43 @@ app.put('/api/users/:id', async (req, res) => {
         updateValues.push(id);
         const query = `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`;
         const [result] = await connection.execute(query, updateValues);
+
+        if (result.affectedRows > 0) {
+            console.log(`User ${id} updated.`);
+            res.json({ message: "User updated successfully." });
+        } else {
+            res.status(404).json({ error: "User not found or no changes made." });
+        }
+    } catch (error) {
+        console.error("Update User Error:", error.message);
+        res.status(500).json({ error: "Failed to update user." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Partial update user (PATCH) — used by profile.js
+app.patch('/api/users/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, phone, avatar_url, status, password, vehicle_type, license_plate } = req.body;
+    let connection;
+    try {
+        connection = await getConnection();
+        let updateFields = [];
+        let updateValues = [];
+
+        if (name !== undefined) { updateFields.push('name = ?'); updateValues.push(name); }
+        if (phone !== undefined) { updateFields.push('phone = ?'); updateValues.push(phone); }
+        if (avatar_url !== undefined) {
+            updateFields.push('avatar_url = ?'); updateValues.push(avatar_url);
+            // Also update legacy 'photo' column for consistency with Google OAuth
+            updateFields.push('photo = ?'); updateValues.push(avatar_url);
+        }
+        if (status !== undefined) { updateFields.push('status = ?'); updateValues.push(status); }
+        if (vehicle_type !== undefined) { updateFields.push('vehicle_type = ?'); updateValues.push(vehicle_type); }
+        if (license_plate !== undefined) { updateFields.push('license_plate = ?'); updateValues.push(license_plate); }
+        if (password) {
+            const hashed = await bcrypt.hash(password, 10);
+            updateFields.push('password = ?'); updateValues.push(hashed);
+        }
+
