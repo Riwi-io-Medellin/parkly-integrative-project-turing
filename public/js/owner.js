@@ -826,3 +826,103 @@ document.addEventListener('DOMContentLoaded', () => {
                     else if (res.status === 'in-use') badge.className += ' bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-transparent';
                     else if (res.status === 'completed') badge.className += ' bg-green-100 text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-transparent';
                     else badge.className += ' bg-red-100 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-transparent';
+
+                    const actionBtn = root.querySelector('.res-btn-action');
+                    if (res.status === 'pending') {
+                        actionBtn.textContent = 'Confirm Access';
+                        actionBtn.className += ' bg-green-600 text-white hover:bg-green-500';
+                        actionBtn.addEventListener('click', () => updateResStatus(res.id, 'in-use'));
+                    } else if (res.status === 'in-use') {
+                        actionBtn.textContent = 'Finish Service';
+                        actionBtn.className += ' bg-primary text-white hover:bg-blue-600';
+                        actionBtn.addEventListener('click', () => openOwnerReviewModal(res));
+                    } else if (res.status === 'completed') {
+                        actionBtn.textContent = 'Rate Driver';
+                        actionBtn.className += ' border border-border text-slate-400 hover:text-white';
+                        actionBtn.addEventListener('click', () => openOwnerReviewModal(res));
+                    } else {
+                        actionBtn.classList.add('hidden');
+                    }
+
+                    root.querySelector('.res-btn-chat').addEventListener('click', () => {
+                        window.location.href = `chat.html?res_id=${res.id}`;
+                    });
+
+                    content.appendChild(root);
+                });
+            };
+
+            renderSection("Active & Incoming", active);
+            renderSection("Recent History", completed);
+
+        } catch (e) {
+            console.error("Reservations render error:", e);
+            const errP = document.createElement('p');
+            errP.className = 'text-red-400 p-8 text-center';
+            errP.textContent = 'Failed to load reservations.';
+            content.replaceChildren(errP);
+        }
+
+        if (window.lucide) lucide.createIcons();
+    }
+
+    // Patches a reservation's status (e.g., confirming a pending one as 'in-use')
+    async function updateResStatus(id, status) {
+        try {
+            const res = await fetch(`/api/reservations/${id}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            });
+            if (res.ok) renderReservationsTab();
+        } catch (e) { console.error("Status update failed", e); }
+    }
+
+    // Tab switching for Spots / Reservations / Analytics
+    let currentTab = 'spots';
+    document.querySelectorAll('#owner-tabs button').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('#owner-tabs button').forEach(b => {
+                b.classList.remove('bg-primary', 'text-white', 'font-bold');
+                b.classList.add('text-slate-400');
+            });
+            e.currentTarget.classList.remove('text-slate-400');
+            e.currentTarget.classList.add('bg-primary', 'text-white', 'font-bold');
+
+            currentTab = e.currentTarget.dataset.tab;
+
+            if (currentTab === 'spots') {
+                renderTab();
+            } else if (currentTab === 'reservations') {
+                renderReservationsTab();
+            } else if (currentTab === 'analytics') {
+                ownerChartsInit = false;
+                renderOwnerAnalytics();
+            }
+        });
+    });
+
+    // Main nav buttons
+    const btnNav = document.getElementById('btn-nav-panel');
+    const btnPub = document.getElementById('btn-main-publish');
+    if (btnNav) btnNav.addEventListener('click', () => toggleView(true));
+    if (btnPub) btnPub.addEventListener('click', () => {
+        resetWizard();
+        toggleView(false);
+    });
+
+    const btnNext = document.getElementById('btn-next-step');
+    const btnPrev = document.getElementById('btn-prev-step');
+    const btnFinish = document.getElementById('btn-finish-wizard');
+
+    if (btnNext) btnNext.addEventListener('click', handleNextStep);
+    if (btnPrev) btnPrev.addEventListener('click', handlePrevStep);
+    if (btnFinish) btnFinish.addEventListener('click', () => toggleView(true));
+
+    // Spot type selector cards
+    document.querySelectorAll('.type-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('border-primary', 'bg-primary/10'));
+            e.currentTarget.classList.add('border-primary', 'bg-primary/10');
+            wizardData.type = e.currentTarget.innerText.trim();
