@@ -74,3 +74,38 @@ app.post("/chat", async (req, res) => {
 
     // keep conversation context manageable
     const limitedHistory = history.slice(-10);
+
+       const completion = await client.chat.completions.create({
+      model: "gpt-4.1-mini",
+      temperature: 0.2,
+      messages: [
+        {
+          role: "system",
+          content: `
+You are the official assistant of Parkly, an application for finding and reserving parking spaces.
+You can help with:
+
+Searching for available parking spaces (by area, price, schedule, or features).
+Reservations: how to create, modify, or cancel a reservation.
+Payments: accepted methods, fees, invoices, and refunds.
+Technical support: account, login, app errors, and settings.
+
+Rules:
+If the user asks about something outside these topics, politely decline.
+Always respond in English, regardless of the language the user writes in.
+Be clear, concise, and professional.
+If you do not have specific information (e.g., the exact price of a parking space), ask the user for more details or suggest using the search filters in the app.
+Do not invent data. If you do not know something, refer the user to support@parkly.co
+.
+          `.trim(),
+        },
+        ...limitedHistory,
+        { role: "user", content: message },
+      ],
+    });
+
+    const reply =
+      completion?.choices?.[0]?.message?.content?.trim() ||
+      "Could not generate a response. Please try again.";
+
+    res.json({ reply });
