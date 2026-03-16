@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<!-- Landing page — shown to guests and logged-out users. index.js redirects
+     logged-in users to their dashboards right away so they never see this. -->
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parkly - Find your perfect spot</title>
+    
+    <!-- Tailwind CSS loaded from CDN; tailwind-config.js adds our custom design tokens -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    
+    <!-- Global stylesheet for custom components and typography overrides -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Lucide icon library -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="flex flex-col min-h-screen bg-background text-foreground font-sans antialiased">
+
+    <!-- Global Header / Navbar -->
+    <header class="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+        <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4" aria-label="Main Navigation">
+            
+            <!-- Logo area -->
+            <a href="index.html" class="flex items-center gap-2 group">
+                <i data-lucide="circle-parking" class="h-6 w-6 text-primary"></i>
+                <span class="text-xl font-bold tracking-tight">
+                    PARK<span class="text-primary">LY</span>
+                </span>
+            </a>
+            
+            <!-- Navigation Actions: Theme toggle, Login link, Sign up button -->
+            <div id="nav-actions" class="flex items-center gap-4">
+                <button id="theme-toggle" aria-label="Toggle theme" class="p-2 rounded-lg border border-border hover:border-primary/50 transition-colors">
+                    <i data-lucide="moon" class="w-4 h-4 text-foreground font-medium"></i>
+                </button>
+                <a href="./login.html" id="btn-nav-login" class="text-sm font-medium text-foreground font-medium hover:text-foreground transition-colors cursor-pointer">Log in</a>
+                <a href="register.html" class="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition-all hover:bg-primary-dark shadow-lg shadow-primary/20">Sign up</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-1">
+        
+        <!-- ── HERO SECTION ───────────────────────────────────────────────────────── -->
+        <section class="relative pt-24 pb-20 overflow-hidden text-center px-4">
+            <!-- Decorative blurred background element -->
+            <div
+                class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-primary/20 blur-[120px] rounded-full opacity-20 pointer-events-none">
+            </div>
+
+            <div class="relative z-10 max-w-5xl mx-auto">
+                <header>
+                    <!-- Small badge above the main title -->
+                    <div
+                        class="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary mb-8">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                        </span>
+                        The #1 parking platform in Colombia
+                    </div>
+                    
+                    <!-- Main headline -->
+                    <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 text-foreground leading-tight">
+                        Find your <span class="text-primary">perfect spot</span><br>in seconds
+                    </h1>
+                </header>
+
+                <p class="text-lg text-foreground/90 mb-10 max-w-2xl mx-auto">
+                    Verified, secure, and illuminated parking spots across the city.
+                    Pay easily and verify your arrival.
+                </p>
+
+                <!-- Call to action buttons -->
+                <div class="flex flex-col sm:flex-row justify-center gap-4 mb-16">
+                    <a href="register.html" class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 text-base font-bold text-primary-foreground transition-all hover:bg-primary-dark hover:scale-105 shadow-lg shadow-primary/25">
+                        Get Started Free
+                        <i data-lucide="arrow-right" class="h-5 w-5"></i>
+                    </a>
+                    <a href="./login.html" id="btn-hero-login" class="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card/50 px-8 py-4 text-base font-bold text-foreground transition-all hover:bg-card cursor-pointer">
+                        I have an account
+                    </a>
+                </div>
+
+                <!-- Hero Images Grid -->
+                <!-- The middle image floats slightly higher due to -mt-8 on md screens -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 opacity-90">
+                    <article class="h-48 rounded-2xl border border-border overflow-hidden relative group">
+                        <img src="https://images.unsplash.com/photo-1545179605-1296651e9d43?q=80&w=800"
+                            alt="Modern Covered Parking"
+                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/40"></div>
+                    </article>
+                    <article class="h-48 rounded-2xl border border-border overflow-hidden relative group md:-mt-8 shadow-2xl shadow-primary/10">
+                        <img src="https://images.unsplash.com/photo-1590674899484-d5640e854abe?q=80&w=800"
+                            alt="Modern Underground Garage"
+                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/40"></div>
+                    </article>
+                    <article class="h-48 rounded-2xl border border-border overflow-hidden relative group">
+                        <img src="https://images.unsplash.com/photo-1506521781263-d8422e82f27a?q=80&w=800"
+                            alt="Outdoor Secure Lot"
+                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/40"></div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── STATS BAR ────────────────────────────────────────────────────────── -->
+        <section class="border-y border-border bg-card/30 py-10" aria-label="Platform Statistics">
+            <div class="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <article>
+                    <h3 class="text-3xl font-bold text-foreground">2,500+</h3>
+                    <p class="text-xs text-foreground/90 font-bold uppercase mt-1">Spots</p>
+                </article>
+                <article>
+                    <h3 class="text-3xl font-bold text-foreground">50k+</h3>
+                    <p class="text-xs text-foreground/90 font-bold uppercase mt-1">Reservations</p>
+                </article>
+                <article>
+                    <h3 class="text-3xl font-bold text-foreground">4.8</h3>
+                    <p class="text-xs text-foreground/90 font-bold uppercase mt-1">Rating</p>
+                </article>
+                <article>
+                    <h3 class="text-3xl font-bold text-foreground">15</h3>
+                    <p class="text-xs text-foreground/90 font-bold uppercase mt-1">Zones</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- ── FEATURES GRID ────────────────────────────────────────────────────── -->
+        <section class="py-24 bg-background">
+            <div class="container mx-auto px-6">
+                <header class="text-center mb-16">
+                    <h2 class="text-3xl font-bold mb-4 text-foreground">Why choose PARKLY</h2>
+                    <p class="text-foreground font-medium max-w-2xl mx-auto">The safest and smartest way to park your vehicle.</p>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                    <!-- Feature 1 -->
+                    <article class="bg-card border border-border p-8 rounded-2xl hover:border-primary/40 transition-colors group">
+                        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                            <i data-lucide="shield-check" class="h-6 w-6"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-3 text-foreground">Verified by PARKLY</h3>
+                        <p class="text-foreground font-medium text-sm leading-relaxed">Every spot undergoes a strict verification process to ensure quality and safety.</p>
+                    </article>
+
+                    <!-- Feature 2 -->
+                    <article class="bg-card border border-border p-8 rounded-2xl hover:border-primary/40 transition-colors group">
+                        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                            <i data-lucide="camera" class="h-6 w-6"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-3 text-foreground">Arrival Verification</h3>
+                        <p class="text-foreground font-medium text-sm leading-relaxed">Upload photos upon arrival to confirm your reservation. Total protection.</p>
+                    </article>
+
+                    <!-- Feature 3 -->
+                    <article class="bg-card border border-border p-8 rounded-2xl hover:border-primary/40 transition-colors group">
+                        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                            <i data-lucide="clock" class="h-6 w-6"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-3 text-foreground">Real-time Availability</h3>
+                        <p class="text-foreground font-medium text-sm leading-relaxed">Check availability instantly and book in seconds from any device.</p>
+                    </article>
+
+                    <!-- Feature 4 -->
+                    <article class="bg-card border border-border p-8 rounded-2xl hover:border-primary/40 transition-colors group">
+                        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                            <i data-lucide="map-pin" class="h-6 w-6"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-3 text-foreground">City-wide Coverage</h3>
+                        <p class="text-foreground font-medium text-sm leading-relaxed">Parking spots in all major zones. Find the one closest to your destination.</p>
+                    </article>
+
+                    <!-- Feature 5 -->
+                    <article class="bg-card border border-border p-8 rounded-2xl hover:border-primary/40 transition-colors group">
+                        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                            <i data-lucide="zap" class="h-6 w-6"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-3 text-foreground">EV Charging</h3>
+                        <p class="text-foreground font-medium text-sm leading-relaxed">Many of our spots offer charging stations for electric vehicles.</p>
+                    </article>
+
+                    <!-- Feature 6 -->
+                    <article class="bg-card border border-border p-8 rounded-2xl hover:border-primary/40 transition-colors group">
+                        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                            <i data-lucide="star" class="h-6 w-6"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-3 text-foreground">Real Ratings</h3>
+                        <p class="text-foreground font-medium text-sm leading-relaxed">Read reviews from other drivers before booking. Total transparency.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── HOW IT WORKS ─────────────────────────────────────────────────────── -->
+        <section class="py-24 bg-card/20 border-t border-border">
+            <div class="container mx-auto px-6 text-center">
+                <header>
+                    <h2 class="text-3xl font-bold mb-4 text-foreground">How it works</h2>
+                    <p class="text-foreground font-medium mb-16">Three simple steps to park with peace of mind.</p>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-5xl mx-auto">
+                    <!-- Step 1 -->
+                    <article class="relative group">
+                        <!-- Number bubble -->
+                        <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-primary-foreground font-bold text-xl mx-auto mb-6 shadow-lg shadow-primary/30 transition-transform group-hover:scale-110">01</div>
+                        <h3 class="text-xl font-bold mb-3 text-foreground">Search & Reserve</h3>
+                        <p class="text-foreground font-medium text-sm">Find spots near you, compare prices, and book instantly.</p>
+                    </article>
+                    <!-- Step 2 -->
+                    <article class="relative group">
+                        <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-primary-foreground font-bold text-xl mx-auto mb-6 shadow-lg shadow-primary/30 transition-transform group-hover:scale-110">02</div>
+                        <h3 class="text-xl font-bold mb-3 text-foreground">Pay Online</h3>
+                        <p class="text-foreground font-medium text-sm">Secure payments via PSE, Nequi, Daviplata, or Credit Card.</p>
+                    </article>
+                    <!-- Step 3 -->
+                    <article class="relative group">
+                        <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-primary-foreground font-bold text-xl mx-auto mb-6 shadow-lg shadow-primary/30 transition-transform group-hover:scale-110">03</div>
+                        <h3 class="text-xl font-bold mb-3 text-foreground">Verify Arrival</h3>
+                        <p class="text-foreground font-medium text-sm">Upload 3 photos upon arrival: entrance, vehicle, and plate.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── HOST CALL TO ACTION ──────────────────────────────────────────────── -->
+        <section class="py-24 bg-background border-t border-border">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl font-bold mb-4 text-foreground">Do you have a parking spot?</h2>
+                <p class="text-foreground font-medium mb-8 max-w-2xl mx-auto">Publish your space and start earning income today. Thousands of drivers are looking for parking near you.</p>
+                <a href="register.html" class="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-4 font-bold text-primary-foreground transition-all hover:bg-primary-dark hover:scale-105 shadow-lg shadow-primary/20">
+                    Register as Owner
+                    <i data-lucide="chevron-right" class="h-5 w-5"></i>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- ── FOOTER ───────────────────────────────────────────────────────────── -->
+    <footer class="border-t border-border bg-input py-10 text-center text-sm text-foreground/90">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            
+            <!-- Footer Logo -->
+            <div class="flex items-center gap-2">
+                <i data-lucide="circle-parking" class="h-5 w-5 text-primary"></i>
+                <span class="font-bold text-foreground">PARK<span class="text-primary">LY</span></span>
+            </div>
+            
+            <!-- Copyright info -->
+            <div>
+                <p class="font-bold text-foreground">PARKLY © 2024</p>
+                <p>The new way to park safe.</p>
+            </div>
+            
+            <!-- Footer Links -->
+            <div class="flex gap-4">
+                <a href="#" class="hover:text-primary transition-colors">Terms of Service</a>
+                <a href="#" class="hover:text-primary transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-primary transition-colors">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JS Scripts -->
+    <!-- index.js checks localstorage and redirects logged in users away from the landing page -->
+    <script src="js/index.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js?v=2"></script>
+    <script>lucide.createIcons();</script>
+
+    <!-- SweetAlert2 + Parkly Custom Alerts overrides -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/alerts.js"></script>
+
+</body>
+
+</html>
