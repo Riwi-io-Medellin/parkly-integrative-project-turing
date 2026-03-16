@@ -10,3 +10,9 @@ COPY requirements.txt ./
 # Instalar las librerías sin guardar caché para ahorrar espacio
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
+# Copiar el resto del código
+COPY . .
+
+# El comando para encender las estadísticas
+EXPOSE 8000
+CMD ["python", "stats.py"]
