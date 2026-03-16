@@ -158,3 +158,43 @@ app.get('/api/admin/stats', async (req, res) => {
         });
     } catch (error) {
         console.error("Dashboard Stats Error:", error.message);
+        res.status(500).json({ error: "Failed to load administrative summary." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Resilient metrics calculation (Dynamic DB analytics)
+app.get('/api/admin/metrics-all', async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+
+        const [earningsRows] = await connection.execute('SELECT SUM(total) as real_total FROM reservations WHERE status != "cancelled"');
+        const real_total = (earningsRows && earningsRows[0]) ? (earningsRows[0].real_total || 0) : 0;
+
+        let monthly_revenue = Array(12).fill(0);
+        let occupancy_rate = 0;
+        let topSpots = [];
+        let proj_projection = 0;
+
+        try {
+            const [projRes, occRes, topRes] = await Promise.all([
+                fetch('http://localhost:8000/api/python/stats/monthly-projection'),
+                fetch('http://localhost:8000/api/python/stats/occupancy-rate'),
+                fetch('http://localhost:8000/api/python/stats/top-spots')
+            ]);
+
+            if (projRes.ok) {
+                const projData = await projRes.json();
+                proj_projection = projData.projection || 0;
+            }
+            if (occRes.ok) {
+                const occData = await occRes.json();
+                occupancy_rate = occData.occupancy_rate || 0;
+            }
+            if (topRes.ok) {
+                const topData = await topRes.json();
+                topSpots = topData.top_spots || [];
+            }
+        } catch (pyError) {
