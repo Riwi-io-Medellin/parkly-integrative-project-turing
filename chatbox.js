@@ -226,3 +226,101 @@
         await delay(900);
         const t = showTyping();
         await delay(600);
+           t.remove();
+
+        const followUp = document.createElement("div");
+        followUp.className = "chat-bubble bot bubble-in";
+        followUp.innerHTML = `Need anything else? <button class="inline-ai-btn" id="btn-back-menu">← Back to menu</button>`;
+        messages.appendChild(followUp);
+        scrollBottom();
+        document.getElementById("btn-back-menu")?.addEventListener("click", resetToMenu);
+    }
+
+    /* ─────────────────────────────────────────
+       MODE 2: FREE AI
+    ───────────────────────────────────────── */
+    function activateAIMode() {
+        mode = "ai";
+        setModeBadge(true);
+        const opts = document.getElementById("quick-options");
+        if (opts) opts.remove();
+        showInputArea();
+
+        const t = showTyping();
+        setTimeout(() => {
+            t.remove();
+            addBubble("✨ <strong>AI Mode activated.</strong> Feel free to ask me anything about Parkly!", "bot");
+        }, 900);
+    }
+
+    async function getAIReply(userText) {
+        aiHistory.push({ role: "user", content: userText });
+        const t = showTyping();
+        try {
+            const res = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userText, history: aiHistory }),
+            });
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            t.remove();
+            addBubble(data.reply, "bot");
+            aiHistory.push({ role: "assistant", content: data.reply });
+            if (aiHistory.length > 20) aiHistory = aiHistory.slice(-20);
+        } catch {
+            t.remove();
+            addBubble("⚠️ Could not connect to the assistant. Please try again.", "bot");
+        }
+    }
+
+    /* ─────────────────────────────────────────
+       EVENTS
+    ───────────────────────────────────────── */
+    document.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-flow]");
+        if (!btn) return;
+        const flow = btn.dataset.flow;
+        if (flow === "ai") {
+            activateAIMode();
+        } else {
+            runFlow(flow);
+        }
+    });
+
+    backBtn.addEventListener("click", resetToMenu);
+
+    function handleToggle() {
+        const isOpen = panel.classList.toggle("open");
+        toggle.classList.toggle("open", isOpen);
+        if (isOpen && mode === "ai") setTimeout(() => input.focus(), 350);
+    }
+
+    toggle.addEventListener("click", handleToggle);
+    toggle.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleToggle(); }
+    });
+
+    function sendMessage() {
+        if (mode !== "ai") return;
+        const text = input.value.trim();
+        if (!text) return;
+        addBubble(text, "user");
+        input.value = "";
+        input.style.height = "auto";
+        getAIReply(text);
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+    input.addEventListener("input", () => {
+        input.style.height = "auto";
+        input.style.height = Math.min(input.scrollHeight, 100) + "px";
+    });
+
+    /* ── INIT ── */
+    inputArea.style.display = "none";
+
+})();
