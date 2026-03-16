@@ -1358,3 +1358,43 @@ app.post('/api/reviews', async (req, res) => {
         reviewed_id,   // Maps to spotId
         rating,
         comment
+    } = req.body;
+
+    let connection;
+    try {
+        connection = await getConnection();
+
+        // 1. Get user email because the schema uses userEmail instead of reviewer_id
+        const [users] = await connection.execute('SELECT email FROM users WHERE id = ?', [reviewer_id]);
+        const userEmail = users[0]?.email;
+
+        if (!userEmail) {
+            return res.status(404).json({ error: "Reviewer user not found." });
+        }
+
+        // 2. Insert review
+        // authorRole: 'client' (rates spot) or 'owner' (rates driver)
+        const [result] = await connection.execute(
+            `INSERT INTO reviews (reservationId, spotId, userEmail, authorRole, rating, comment)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+                reservation_id,
+                reviewed_type === 'spot' ? reviewed_id : null,
+                userEmail,
+                reviewer_role === 'owner' ? 'owner' : 'client',
+                rating,
+                comment
+            ]
+        );
+
+        // 3. Update average rating in parking_spots if it's a review for a spot
+        if (reviewed_type === 'spot') {
+            await connection.execute(`
+                UPDATE parking_spots 
+                SET rating = (SELECT AVG(rating) FROM reviews WHERE spotId = ? AND authorRole = 'client')
+                WHERE id = ?
+            `, [reviewed_id, reviewed_id]);
+        }
+
+        res.status(201).json({ id: result.insertId, message: "Review posted successfully." });
+    } catch (error) {
