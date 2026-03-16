@@ -130,3 +130,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (session) {
         if (navUsernameEl) navUsernameEl.textContent = session.name || session.email;
+
+        if (navAvatarText) {
+            const initials = (session.name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+            navAvatarText.textContent = initials;
+
+            const photo = localStorage.getItem(`parkly_avatar_${session.id}`);
+            if (photo && navAvatarImg) {
+                navAvatarImg.src = photo;
+                navAvatarImg.classList.remove('hidden');
+                navAvatarText.classList.add('hidden');
+            }
+        }
+    }
+
+    // The "Bookings" nav link changes label and destination based on the user's role
+    const navLinkBookings = document.getElementById('nav-link-bookings');
+    if (navLinkBookings && session) {
+        navLinkBookings.replaceChildren();
+        const icon = document.createElement('i');
+        icon.className = 'w-4 h-4';
+
+        if (session.role === 'owner') {
+            navLinkBookings.href = 'owner-dash.html';
+            icon.setAttribute('data-lucide', 'layout-dashboard');
+            navLinkBookings.appendChild(icon);
+            navLinkBookings.appendChild(document.createTextNode(' Owner Panel'));
+        } else if (session.role === 'admin') {
+            navLinkBookings.href = 'admin-dash.html';
+            icon.setAttribute('data-lucide', 'shield');
+            navLinkBookings.appendChild(icon);
+            navLinkBookings.appendChild(document.createTextNode(' Admin Panel'));
