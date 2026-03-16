@@ -1,6 +1,6 @@
 /**
  * FILE: js/data.js
- * DESCRIPTION: Communication bridge between frontend and Node.js API.
+ * DESCRIPTION: Communication bridge between frontend and Node.js API to show data from the database.
  */
 
 const isLocal = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
