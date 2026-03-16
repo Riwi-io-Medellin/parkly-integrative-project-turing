@@ -678,3 +678,43 @@ app.patch('/api/users/:id/status', async (req, res) => {
         if (!fields.length) return res.status(400).json({ error: "Nothing to update." });
         vals.push(req.params.id);
         await connection.execute(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`, vals);
+        res.json({ message: "Updated." });
+    } catch (e) {
+        console.error("Patch /status Error:", e.message);
+        res.status(500).json({ error: "Update failed." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Delete user
+app.delete('/api/users/:id', async (req, res) => {
+    const { id } = req.params;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [result] = await connection.execute('DELETE FROM users WHERE id = ?', [id]);
+        if (result.affectedRows > 0) {
+            console.log(`User ${id} deleted.`);
+            res.json({ message: "User deleted successfully." });
+        } else {
+            res.status(404).json({ error: "User not found." });
+        }
+    } catch (error) {
+        console.error("Delete User Error:", error.message);
+        res.status(500).json({ error: "Failed to delete user." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// --- 4. PARKING SPOTS (parking_spots — tabla original con datos reales) ---
+app.get('/api/spots', async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute(`
+            SELECT
+                ps.id, ps.name, ps.address, ps.zone,
+                ps.price_hour AS price, ps.price_day, ps.price_month,
+                ps.image, ps.images, ps.schedule, ps.services AS features,
