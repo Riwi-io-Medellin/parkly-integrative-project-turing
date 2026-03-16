@@ -5,3 +5,10 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Copiar la lista de compras (package.json)
+COPY package*.json ./
+
+# Instalar todas las herramientas (incluyendo cors, express, etc.)
+RUN npm install
+
+# Copiar el resto del código de Parkly
+COPY . .
