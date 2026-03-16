@@ -1518,3 +1518,43 @@ app.delete('/api/users/:userId/favorites/:spotId', async (req, res) => {
     } catch (error) {
         console.error("Remove Favorite Error:", error.message);
         res.status(500).json({ error: "Failed to remove favorite." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Get all favorite spots for a user (returns list of spot objects)
+app.get('/api/users/:userId/favorites', async (req, res) => {
+    const { userId } = req.params;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute(`
+            SELECT p.*
+            FROM favorites f
+            JOIN parking_spots p ON f.spot_id = p.id
+            WHERE f.user_id = ? AND (p.deleted_at IS NULL)
+        `, [userId]);
+        res.json(rows);
+    } catch (error) {
+        console.error("Fetch Favorites Error:", error.message);
+        res.status(500).json({ error: "Failed to fetch favorites." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// --- 9. CLOUDINARY UPLOAD (Generic) ---
+app.post('/api/upload', upload.single('image'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: "No image file provided." });
+        }
+
+        const result = await cloudinary.v2.uploader.upload(req.file.buffer.toString('base64'), {
+            folder: 'parkly_uploads', // Customize folder name
+        });
+
+        res.json({
+            message: "Image uploaded successfully.",
+            imageUrl: result.secure_url,
