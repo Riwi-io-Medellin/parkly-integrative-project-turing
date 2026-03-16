@@ -94,3 +94,15 @@ async def get_top_spots():
     conn = get_db_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Database connection failed")
+
+    try:
+        query = """
+            SELECT p.name, COUNT(r.id) as reservation_count
+            FROM parking_spots p
+            JOIN reservations r ON p.id = r.spotId
+            GROUP BY p.id
+            ORDER BY reservation_count DESC
+            LIMIT 3
+        """
+        df = pd.read_sql(query, conn)
+        return df.to_dict(orient="records")
