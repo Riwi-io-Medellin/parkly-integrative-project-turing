@@ -84,3 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Alerts.error("Passwords do not match!");
                 return;
             }
+
+            // Build the user object to send to the API
+            const newUser = {
+                name: document.getElementById('name').value,
