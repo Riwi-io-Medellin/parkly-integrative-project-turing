@@ -1558,3 +1558,43 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
         res.json({
             message: "Image uploaded successfully.",
             imageUrl: result.secure_url,
+            publicId: result.public_id,
+        });
+    } catch (error) {
+        console.error("Cloudinary Upload Error:", error.message);
+        res.status(500).json({ error: "Failed to upload image to Cloudinary." });
+    }
+});
+
+// --- 9. RESEND EMAIL (Generic) ---
+app.post('/api/send-email', async (req, res) => {
+    const { to, subject, html, text } = req.body;
+    try {
+        if (!to || !subject || (!html && !text)) {
+            return res.status(400).json({ error: "Missing required email parameters (to, subject, html/text)." });
+        }
+
+        const { data, error } = await sendEmail({
+            to: to,
+            subject: subject,
+            html: html,
+        });
+
+        if (error) {
+            console.error("EmailJS Send Error:", error);
+            return res.status(500).json({ error: error });
+        }
+
+        console.log(`Email sent successfully to ${to}`);
+        res.status(200).json({ message: "Email sent successfully." });
+    } catch (error) {
+        console.error("Send Email API Error:", error.message);
+        res.status(500).json({ error: "Failed to send email." });
+    }
+});
+
+// --- Chat Endpoints (MongoDB) ---
+
+// Get messages for a reservation
+app.get('/api/chat/:resId', async (req, res) => {
+    try {
