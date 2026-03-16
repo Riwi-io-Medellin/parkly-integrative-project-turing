@@ -49,3 +49,28 @@ If in doubt, respond "YES".
   const response = result?.choices?.[0]?.message?.content?.trim().toUpperCase();
   return response === "YES";
 }
+
+// main endpoint — validates the message, then sends it to the real model
+app.post("/chat", async (req, res) => {
+  try {
+    const { message, history = [] } = req.body;
+
+    if (!message || typeof message !== "string" || !message.trim()) {
+      return res.status(400).json({ reply: "You must send a message." });
+    }
+
+    // super short messages like "ok" or "thanks" skip the classifier
+    const isShortMessage = message.trim().split(/\s+/).length <= 2;
+
+    if (!isShortMessage) {
+      const valid = await isValidMessage(message);
+      if (!valid) {
+        return res.json({
+          reply:
+            "I can only help you with Parkly-related topics: finding parking spaces, reservations, payments, and app support. How can I help you?",
+        });
+      }
+    }
+
+    // keep conversation context manageable
+    const limitedHistory = history.slice(-10);
