@@ -278,3 +278,43 @@ app.post('/api/login', async (req, res) => {
         connection = await getConnection();
         const [rows] = await connection.execute(
             'SELECT id, name, email, role, phone, avatar_url, status, password FROM users WHERE email = ?',
+            [email]
+        );
+        if (rows.length === 0) {
+            return res.status(401).json({ error: "Invalid credentials. Access denied." });
+        }
+
+        const user = rows[0];
+
+        // Check if account is suspended/deleted
+        if (user.status === 'suspended') {
+            return res.status(403).json({ error: "Account suspended. Contact support." });
+        }
+        if (user.status === 'deleted') {
+            return res.status(403).json({ error: "Account not found." });
+        }
+
+        // Try bcrypt first, then fall back to plain text (for old test users)
+        let isValid = false;
+        const isBcrypt = user.password && user.password.startsWith('$2');
+        if (isBcrypt) {
+            isValid = await bcrypt.compare(password, user.password);
+        } else {
+            // Plain text comparison (old test users)
+            isValid = (password === user.password);
+            // Auto-upgrade to bcrypt if correct
+            if (isValid) {
+                const hashed = await bcrypt.hash(password, 10);
+                await connection.execute('UPDATE users SET password = ? WHERE id = ?', [hashed, user.id]);
+                console.log(`Password upgraded to bcrypt for user: ${email}`);
+            }
+        }
+
+        if (!isValid) {
+            return res.status(401).json({ error: "Invalid credentials. Access denied." });
+        }
+
+        delete user.password;
+        console.log(`Access granted: ${email} (role: ${user.role})`);
+        res.json(user);
+
