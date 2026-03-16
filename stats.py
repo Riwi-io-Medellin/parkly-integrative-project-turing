@@ -46,3 +46,15 @@ async def get_monthly_projection():
         raise HTTPException(status_code=500, detail="Database connection failed")
 
     try:
+        query = "SELECT price_hour FROM parking_spots WHERE verified = 1"
+        df = pd.read_sql(query, conn)
+
+        if df.empty:
+            return {"projection": 0}
+
+        # Simple formula: average price * 8 hours/day * 30 days
+        total_projection = df['price_hour'].mean() * 8 * 30
+        return {"projection": round(total_projection, 2)}
+    finally:
+        conn.close()
+
