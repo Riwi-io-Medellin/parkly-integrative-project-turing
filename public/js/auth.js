@@ -97,3 +97,5 @@ document.addEventListener('DOMContentLoaded', () => {
             const success = await DB.register(newUser);
             if (success) {
                 localStorage.setItem('parkly_terms_accepted', 'true');
+                const user = await DB.login(newUser.email, newUser.password);
+                if (user) {
