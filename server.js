@@ -1118,3 +1118,43 @@ app.post('/api/reservations', async (req, res) => {
                                     <div style="background-color: #f3f4f6; border-radius: 10px; padding: 20px; margin: 25px 0;">
                                         <p style="margin: 5px 0;">📅 <b>Date:</b> ${date}</p>
                                         <p style="margin: 5px 0;">⏰ <b>Time:</b> ${startTime} - ${endTime}</p>
+                                        <p style="margin: 5px 0;">💰 <b>Total Paid:</b> $${total}</p>
+                                    </div>
+                                    <p style="font-size: 16px; color: #4b5563;">Thank you for trusting Parkly for your parking needs!</p>
+                                </div>
+                                <div style="background-color: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                                    <p style="font-size: 13px; color: #6b7280; margin: 0;">© 2024 Parkly. Verified & Secure Parking.</p>
+                                </div>
+                           </div>`,
+                });
+            } catch (emailErr) {
+                console.error('Email send error:', emailErr.message);
+            }
+        }
+
+        // Get owner email to send notification
+        if (ownerId && !isNaN(ownerId)) {
+            try {
+                const [ownerRows] = await connection.execute('SELECT email, name FROM users WHERE id = ?', [ownerId]);
+                if (ownerRows.length > 0) {
+                    const ownerEmail = ownerRows[0].email;
+                    const oName = ownerRows[0].name || 'Owner';
+                    await sendEmail({
+                        to: ownerEmail,
+                        subject: '🔔 New Reservation on Parkly!',
+                        html: `<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
+                                    <div style="background-color: #3b82f6; padding: 30px; text-align: center;">
+                                        <span style="color: #ffffff; font-size: 28px; font-weight: bold; letter-spacing: -1px;">PARK<span style="color: #dbeafe;">LY</span></span>
+                                    </div>
+                                    <div style="padding: 40px 30px;">
+                                        <h2 style="color: #111827; margin-top: 0; font-size: 24px;">🔔 New Reservation Received</h2>
+                                        <p style="font-size: 16px; color: #4b5563;">Hello ${oName},</p>
+                                        <p style="font-size: 16px; color: #4b5563;">Good news! Someone just booked your spot <b style="color: #3b82f6;">${spotName}</b>.</p>
+                                        <div style="background-color: #f3f4f6; border-radius: 10px; padding: 20px; margin: 25px 0;">
+                                            <p style="margin: 5px 0;">👤 <b>Client:</b> ${userName || userEmail}</p>
+                                            <p style="margin: 5px 0;">📅 <b>Date:</b> ${date}</p>
+                                            <p style="margin: 5px 0;">⏰ <b>Time:</b> ${startTime} - ${endTime}</p>
+                                            <p style="margin: 5px 0; color: #10b981; font-weight: bold;">💵 Earnings: $${total}</p>
+                                        </div>
+                                        <p style="font-size: 16px; color: #4b5563;">Check your Owner Dashboard to manage this reservation.</p>
+                                    </div>
