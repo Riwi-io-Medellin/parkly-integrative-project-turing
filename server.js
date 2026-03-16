@@ -638,3 +638,43 @@ app.patch('/api/users/:id', async (req, res) => {
             updateFields.push('password = ?'); updateValues.push(hashed);
         }
 
+        if (updateFields.length === 0) return res.status(400).json({ error: "No fields to update." });
+
+        updateValues.push(id);
+        const [result] = await connection.execute(
+            `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`,
+            updateValues
+        );
+        if (result.affectedRows > 0) {
+            const [rows] = await connection.execute('SELECT id, name, email, phone, role, photo, avatar_url, status, vehicle_type, license_plate FROM users WHERE id = ?', [id]);
+            const u = rows[0] || {};
+            if (!u.avatar_url && u.photo) u.avatar_url = u.photo;
+            res.json(u);
+        } else {
+            res.status(404).json({ error: "User not found." });
+        }
+    } catch (error) {
+        console.error("Patch User Error:", error.message);
+        res.status(500).json({ error: "Failed to update user." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Also support the /status suffix that profile.js uses
+app.patch('/api/users/:id/status', async (req, res) => {
+    req.url = `/api/users/${req.params.id}`;
+    // Delegate to the same handler — just forward the same body
+    const { name, phone, avatar_url, status, password } = req.body;
+    let connection;
+    try {
+        connection = await getConnection();
+        const fields = [];
+        const vals = [];
+        if (name !== undefined) { fields.push('name = ?'); vals.push(name); }
+        if (phone !== undefined) { fields.push('phone = ?'); vals.push(phone); }
+        if (avatar_url !== undefined) { fields.push('avatar_url = ?'); vals.push(avatar_url); }
+        if (status !== undefined) { fields.push('status = ?'); vals.push(status); }
+        if (!fields.length) return res.status(400).json({ error: "Nothing to update." });
+        vals.push(req.params.id);
+        await connection.execute(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`, vals);
