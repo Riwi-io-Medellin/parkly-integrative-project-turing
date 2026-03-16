@@ -998,3 +998,43 @@ app.put('/api/spots/:id', upload.array('images', 5), async (req, res) => {
         res.status(500).json({ error: "Failed to update parking spot." });
     } finally {
         if (connection) await connection.end();
+    }
+});
+
+// Delete parking spot
+app.delete('/api/spots/:id', async (req, res) => {
+    const { id } = req.params;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [result] = await connection.execute('DELETE FROM parking_spots WHERE id = ?', [id]);
+        if (result.affectedRows > 0) {
+            console.log(`Parking spot ${id} deleted.`);
+            res.json({ message: "Parking spot deleted successfully." });
+        } else {
+            res.status(404).json({ error: "Parking spot not found." });
+        }
+    } catch (error) {
+        console.error("Delete Spot Error:", error.message);
+        res.status(500).json({ error: "Failed to delete parking spot." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// --- 5. RESERVATIONS ---
+// Get all reservations
+app.get('/api/reservations', async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute(`
+            SELECT 
+                r.id, r.spotId, r.userId, r.userName, r.userEmail,
+                r.spotName, r.date, r.startTime, r.endTime,
+                r.total, r.status, r.carPlate, r.ownerId,
+                r.completed_at, r.createdAt, r.payment_method,
+                s.address, s.image
+            FROM reservations r
+            LEFT JOIN parking_spots s ON r.spotId = s.id
+            ORDER BY r.date DESC, r.startTime DESC
