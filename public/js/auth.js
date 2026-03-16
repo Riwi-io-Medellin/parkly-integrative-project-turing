@@ -64,3 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedRoleInput.value = role;
             step1.classList.add('hidden');
             step2.classList.remove('hidden');
+        };
+
+        if (btnRoleClient) btnRoleClient.addEventListener('click', () => goToStep2('client'));
+        if (btnRoleOwner) btnRoleOwner.addEventListener('click', () => goToStep2('owner'));
