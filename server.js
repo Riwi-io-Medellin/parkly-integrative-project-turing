@@ -1918,3 +1918,42 @@ app.get('/api/parking_spots/:id', async (req, res) => {
         ps.longitude,
         u.name           AS ownerName
       FROM parking_spots ps
+      LEFT JOIN users u ON ps.owner_id = u.id
+      WHERE ps.id = ? AND ps.deleted_at IS NULL
+    `, [id]);
+    if (!rows.length) return res.status(404).json({ error: 'Parking spot not found.' });
+    const spot = rows[0];
+    try { spot.images = spot.images ? JSON.parse(spot.images) : (spot.image ? [spot.image] : []); }
+    catch (e) { spot.images = spot.image ? [spot.image] : []; }
+    res.json(spot);
+  } catch (error) {
+    console.error('Fetch Parking Spot by ID Error:', error.message);
+    res.status(500).json({ error: 'Unable to retrieve parking spot.' });
+  } finally {
+    if (connection) await connection.end();
+  }
+});
+
+app.get('/api/config/maps-key', (req, res) => {
+  res.json({ key: process.env.GOOGLE_MAPS_API_KEY || '' });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, async () => {
+    console.log("-----------------------------------------");
+    console.log(`   PARKLY SERVER: ACTIVE ON PORT ${PORT}`);
+    console.log(`   URL: http://localhost:${PORT}`);
+
+    try {
+        const connection = await getConnection();
+        await connection.execute('SELECT 1');
+        console.log(`   TIDB CONNECTION: SUCCESSFUL`);
+        await connection.end();
+    } catch (error) {
+        console.log(`   TIDB CONNECTION ERROR:`);
+        console.error(error);
+    }
+    console.log("-----------------------------------------");
+});
+
+export default app;
