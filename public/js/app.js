@@ -126,3 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set up the navbar avatar — shows initials by default, or the avatar image if one is saved
     const navAvatarImg = document.getElementById('nav-avatar-img');
     const navAvatarText = document.getElementById('nav-avatar-text');
+    const navUsernameEl = document.getElementById('nav-username');
+
+    if (session) {
+        if (navUsernameEl) navUsernameEl.textContent = session.name || session.email;
