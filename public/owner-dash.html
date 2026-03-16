@@ -347,3 +347,66 @@
                             <span class="text-[10px] text-primary font-bold">Recommended: Real photos increase
                                 bookings</span>
                         </div>
+                        <div class="relative">
+                            <input type="file" id="wiz-photos" accept="image/*" multiple class="hidden">
+                            <label for="wiz-photos"
+                                class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-xl bg-input hover:bg-card hover:border-primary/50 cursor-pointer transition-all">
+                                <i data-lucide="camera" class="w-8 h-8 text-foreground/80 mb-2"></i>
+                                <span id="photos-label" class="text-xs text-foreground/80">Select multiple photos of
+                                    your spot</span>
+                            </label>
+                        </div>
+                        <div id="photos-preview-container" class="grid grid-cols-3 gap-2 mt-4 hidden">
+                            <!-- Previews will go here -->
+                        </div>
+                        <p id="main-photo-hint" class="text-[10px] text-foreground/80 mt-2 italic hidden">Tip: Click a
+                            photo to set it as <b>Main</b> (thumbnail)</p>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-xs uppercase font-bold text-foreground/80 mb-2">Features</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" value="Covered"
+                                    class="rounded border-slate-600 bg-input text-primary">
+                                <i data-lucide="tent" class="w-4 h-4 text-foreground/70"></i>
+                                <span class="text-xs text-foreground/90 font-medium">Covered Roof</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" value="Lockers"
+                                    class="rounded border-slate-600 bg-input text-primary">
+                                <i data-lucide="box" class="w-4 h-4 text-foreground/70"></i>
+                                <span class="text-xs text-foreground/90 font-medium">Helmet Lockers</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" value="EV Charging"
+                                    class="rounded border-slate-600 bg-input text-primary">
+                                <i data-lucide="zap" class="w-4 h-4 text-foreground/70"></i>
+                                <span class="text-xs text-foreground/90 font-medium">EV Charging</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" value="CCTV Cameras"
+                                    class="rounded border-slate-600 bg-input text-primary">
+                                <i data-lucide="cctv" class="w-4 h-4 text-foreground/70"></i>
+                                <span class="text-xs text-foreground/90 font-medium">CCTV Cameras</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" value="Private Guard"
+                                    class="rounded border-slate-600 bg-input text-primary">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-foreground/70"></i>
+                                <span class="text-xs text-foreground/90 font-medium">Private Guard</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" value="Bathroom"
+                                    class="rounded border-slate-600 bg-input text-primary">
+                                <i data-lucide="bath" class="w-4 h-4 text-foreground/70"></i>
+                                <span class="text-xs text-foreground/90 font-medium">Bathroom</span>
+                            </label>
+                        </div>
+                    </div>
+
