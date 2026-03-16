@@ -3,3 +3,4 @@
 // so they don't have to log in again every time they visit.
 const parkly_session = JSON.parse(localStorage.getItem('parkly_session'));
 if (!parkly_session) {
+    console.log("Login Page");
