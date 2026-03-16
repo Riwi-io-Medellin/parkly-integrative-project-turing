@@ -125,3 +125,35 @@
 
             <nav id="owner-tabs" class="flex p-1 bg-card border border-border rounded-2xl mb-8 overflow-hidden">
                 <button data-tab="spots"
+                    class="flex-1 py-3 text-sm font-bold rounded-xl bg-primary text-primary-foreground transition-all">My
+                    spots</button>
+                <button data-tab="reservations"
+                    class="flex-1 py-3 text-sm font-bold text-foreground opacity-70 hover:opacity-100 transition-all">Reservations</button>
+                <button data-tab="analytics"
+                    class="flex-1 py-3 text-sm font-bold text-foreground opacity-70 hover:opacity-100 transition-all">Analytics
+                    & Earnings</button>
+            </nav>
+
+            <div id="owner-notifications" class="mb-6 space-y-3"></div>
+
+            <section id="owner-tab-content" class="animate-fade-in min-h-[400px]">
+                <!-- Dynamic content injected by owner.js -->
+            </section>
+        </div>
+
+        <!-- ── NEW SPOT PUBLISHING WIZARD (Hidden by default, triggered by btn-main-publish) ── -->
+        <div id="view-publish" class="hidden animate-fade-in max-w-2xl mx-auto">
+            <div class="mb-8">
+                <div class="flex justify-between items-center relative">
+                    <div class="absolute top-1/2 left-0 w-full h-0.5 bg-card -z-10"></div>
+                    <div class="step-dot active w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold border-4 border-background z-10"
+                        data-step="1">1</div>
+                    <div class="step-dot w-8 h-8 rounded-full bg-card text-foreground/90 font-medium flex items-center justify-center text-xs font-bold border-4 border-background z-10"
+                        data-step="2">2</div>
+                    <div class="step-dot w-8 h-8 rounded-full bg-card text-foreground/90 font-medium flex items-center justify-center text-xs font-bold border-4 border-background z-10"
+                        data-step="3">3</div>
+                    <div class="step-dot w-8 h-8 rounded-full bg-card text-foreground/90 font-medium flex items-center justify-center text-xs font-bold border-4 border-background z-10"
+                        data-step="4">4</div>
+                </div>
+                <div
+                    class="flex justify-between mt-2 text-[10px] uppercase font-bold text-foreground opacity-70 tracking-widest">
