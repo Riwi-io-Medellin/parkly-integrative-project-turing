@@ -90,3 +90,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 name: document.getElementById('name').value,
                 email: document.getElementById('reg-email').value.trim(),
                 password: password,
+                role: selectedRoleInput.value || 'client',
+                phone: document.getElementById('reg-phone')?.value || null
+            };
+
+            const success = await DB.register(newUser);
+            if (success) {
+                localStorage.setItem('parkly_terms_accepted', 'true');
