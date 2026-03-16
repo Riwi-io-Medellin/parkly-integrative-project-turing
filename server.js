@@ -1278,3 +1278,43 @@ app.patch('/api/reservations/:id/extend', async (req, res) => {
 // Arrive at reservation (update status to 'in-use' and record license plate if not already)
 app.patch('/api/reservations/:id/arrive', async (req, res) => {
     const { id } = req.params;
+    const { licensePlate } = req.body;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [result] = await connection.execute(
+            'UPDATE reservations SET status = "in-use", license_plate = COALESCE(?, license_plate) WHERE id = ? AND status = "pending"',
+            [licensePlate, id]
+        );
+        if (result.affectedRows > 0) {
+            console.log(`Reservation ${id} status updated to 'in-use'.`);
+            res.json({ message: "Arrived successfully. Reservation is now in-use." });
+        } else {
+            res.status(404).json({ error: "Reservation not found or already in-use/completed/cancelled." });
+        }
+    } catch (error) {
+        console.error("Arrive Reservation Error:", error.message);
+        res.status(500).json({ error: "Failed to update reservation status to 'in-use'." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// --- 6. REVIEWS (Bilateral: client→spot, owner→driver) ---
+
+// Get reviews for a specific spot (used by detail.js)
+app.get('/api/reviews/spot/:spotId', async (req, res) => {
+    const { spotId } = req.params;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute(`
+            SELECT rv.rating, rv.comment, rv.authorRole, rv.createdAt,
+                   u.name AS reviewer_name, u.avatar_url AS reviewer_avatar
+            FROM reviews rv
+            LEFT JOIN users u ON rv.userEmail = u.email
+            WHERE rv.spotId = ?
+            ORDER BY rv.createdAt DESC
+        `, [spotId]);
+        res.json(rows);
+    } catch (error) {
