@@ -123,3 +123,9 @@ Do not invent data. If you do not know something, refer the user to support@park
     });
   }
 });
+
+app.get("/health", (_req, res) => res.json({ status: "ok" }));
+
+app.listen(3001, () =>
+  console.log("Parkly AI server running on http://localhost:3001")
+);
