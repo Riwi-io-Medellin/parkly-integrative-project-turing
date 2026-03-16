@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<!-- User profile page — lets users update their name, phone, vehicle type, license plate,
+     and password. Also shows favorite spots and has a danger zone to delete the account. -->
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile – PARKLY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-background text-foreground font-sans antialiased">
+
+    <!-- NAV -->
+    <header class="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border">
+        <nav class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="search.html" id="profile-back-btn" class="p-2 rounded-lg bg-input border border-border hover:border-primary/50 transition-all text-foreground/70 hover:text-primary" title="Back to Search">
+                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                </a>
+                <a href="search.html" class="font-black text-xl">
+                    <span class="text-primary">PARK</span><span class="text-foreground">LY</span>
+                </a>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="theme-toggle" aria-label="Toggle theme"
+                    class="p-2 rounded-lg bg-input border border-border hover:border-primary/50 transition-all"></button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-1 max-w-4xl mx-auto w-full px-4 py-10">
+
+        <!-- ── PROFILE HEADER CARD (Avatar, Name, Basic Stats) ── -->
+        <article class="bg-card border border-border rounded-2xl p-6 mb-6 flex items-center gap-6">
+            <!-- Avatar -->
+            <div class="relative flex-shrink-0">
+                <div id="avatar-container" class="w-24 h-24 rounded-2xl bg-primary/20 flex items-center justify-center overflow-hidden">
+                    <img id="avatar-img" src="" alt="Profile photo" class="w-full h-full object-cover hidden">
+                    <span id="avatar-initial" class="text-4xl font-black text-primary">?</span>
+                </div>
+                <label for="avatar-file" class="absolute -bottom-2 -right-2 w-8 h-8 bg-primary hover:opacity-90 rounded-lg flex items-center justify-center cursor-pointer transition-all" title="Change photo">
+                    <i data-lucide="camera" class="w-4 h-4 text-foreground"></i>
+                </label>
+                <input type="file" id="avatar-file" accept="image/*" class="hidden">
+                <div id="upload-progress" class="hidden absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center">
+                    <i data-lucide="loader" class="w-6 h-6 text-foreground animate-spin"></i>
+                </div>
+            </div>
+
+            <!-- Name + role -->
+            <div class="flex-1">
+                <h1 id="profile-name" class="text-2xl font-black text-foreground mb-1">—</h1>
+                <p id="profile-email" class="text-sm text-foreground font-medium mb-2">—</p>
+                <span id="profile-role-badge" class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg bg-primary/20 text-primary border border-primary/30">—</span>
+            </div>
+
+            <!-- Stats -->
+            <div class="hidden sm:flex gap-6 text-center">
+                <div>
+                    <p id="stat-bookings" class="text-2xl font-black text-foreground">0</p>
+                    <p class="text-xs text-foreground/70 uppercase">Bookings</p>
+                </div>
+                <div>
+                    <p id="stat-reviews" class="text-2xl font-black text-foreground">0</p>
+                    <p class="text-xs text-foreground/70 uppercase">Reviews</p>
+                </div>
+                <div>
+                    <p id="stat-favorites" class="text-2xl font-black text-foreground">0</p>
+                    <p class="text-xs text-foreground/70 uppercase">Favorites</p>
+                </div>
+            </div>
+        </article>
+
+        <!-- ── EDIT PROFILE FORM (Updates user properties in localStorage database) ── -->
+        <article class="bg-card border border-border rounded-2xl p-6 mb-6">
+            <h2 class="text-xs font-black uppercase tracking-widest text-foreground/70 mb-5">Edit Profile</h2>
+            <form id="profile-form" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs uppercase font-bold text-foreground/70 mb-1.5">Full Name</label>
+                    <input type="text" id="field-name" placeholder="Your name"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase font-bold text-foreground/70 mb-1.5">Phone</label>
+                    <input type="tel" id="field-phone" placeholder="+57 300 000 0000"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary transition-colors">
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs uppercase font-bold text-foreground/70 mb-1.5">Email</label>
+                    <input type="email" id="field-email" disabled
+                        class="w-full bg-input/50 border border-border rounded-xl px-4 py-3 text-foreground/70 text-sm cursor-not-allowed">
+                </div>
+                <div>
+                  <label class="block text-xs uppercase font-bold text-foreground/70 mb-1.5">Vehicle Type</label>
+                  <select id="field-vehicle-type" class="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary transition-colors appearance-none">
+                      <option value="Carro">Car</option>
+                      <option value="Moto">Motorcycle</option>
+                      <option value="Bicicleta">Bicycle</option>
+                  </select>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase font-bold text-foreground/70 mb-1.5">License Plate</label>
+                    <input type="text" id="field-license-plate" placeholder="ABC-123"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase font-bold text-foreground/70 mb-1.5">New Password</label>
+                    <input type="password" id="field-password" placeholder="Leave blank to keep current"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase font-bold text-foreground/70 mb-1.5">Confirm Password</label>
+                    <input type="password" id="field-password-confirm" placeholder="Repeat new password"
+                        class="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary transition-colors">
+                </div>
+                <div class="sm:col-span-2 flex items-center gap-3">
+                    <button type="submit" id="btn-save-profile"
+                        class="px-8 py-3 bg-primary hover:opacity-90 text-primary-foreground font-bold rounded-xl transition-all text-sm flex items-center gap-2">
+                        <i data-lucide="save" class="w-4 h-4"></i> Save Changes
+                    </button>
+                    <p id="save-feedback" class="text-sm text-green-400 hidden">✅ Profile updated!</p>
+                    <p id="save-error" class="text-sm text-red-400 hidden"></p>
+                </div>
+            </form>
+        </article>
+
+        <!-- ── FAVORITE SPOTS SECTION (Displays items marked 'favorite' during search) ── -->
+        <article class="bg-card border border-border rounded-2xl p-6 mb-6">
+            <h2 class="text-xs font-black uppercase tracking-widest text-foreground/70 mb-5">❤️ Favorite Spots</h2>
+            <div id="favorites-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div id="no-favs" class="sm:col-span-2 text-center py-8 text-foreground/90 text-sm">
+                    No favorite spots yet. Tap ❤️ on any spot to save it.
+                </div>
+            </div>
+        </article>
+
+        <!-- ── DANGER ZONE (Permanently deletes account and associated data) ── -->
+        <article class="bg-red-950/20 border border-red-900/40 rounded-2xl p-6">
+            <h2 class="text-xs font-black uppercase tracking-widest text-red-500 mb-4">Danger Zone</h2>
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-bold text-foreground">Delete Account</p>
+                    <p class="text-xs text-foreground/70">This action cannot be undone. All your data will be removed.</p>
+                </div>
+                <button id="btn-delete-account"
+                    class="px-4 py-2 border border-red-800 text-red-400 hover:bg-red-900/30 font-bold text-sm rounded-xl transition-all">
+                    Delete Account
+                </button>
+            </div>
+        </article>
+
+    </main>
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/profile.js"></script>
+
+    <!-- SweetAlert2 + Parkly Custom Alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/alerts.js"></script>
+
+</body>
+</html>
