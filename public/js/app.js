@@ -208,3 +208,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hasSession && !termsAccepted && protectedPages.includes(currentPage)) {
         document.body.style.overflow = 'hidden';
         Swal.fire({
+            title: 'Terms and Conditions',
+            html: `
+                <p style="font-size:14px; margin-bottom:16px; text-align:left">
+                    To continue using Parkly you must accept our Terms and Conditions.
+                </p>
+                <div style="text-align:left; display:flex; align-items:flex-start; gap:10px; padding:12px; border-radius:10px; background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.2)">
+                    <input type="checkbox" id="swal-terms-guard-check" style="margin-top:3px; width:16px; height:16px; cursor:pointer; flex-shrink:0">
