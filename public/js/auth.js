@@ -23,3 +23,5 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.disabled = true;
                 btn.textContent = 'Signing in...';
             }
+
+            console.log("Attempting login for:", email);
