@@ -106,3 +106,13 @@ async def get_top_spots():
         """
         df = pd.read_sql(query, conn)
         return df.to_dict(orient="records")
+    finally:
+        conn.close()
+
+
+# This block only runs when we launch the file directly with `python stats.py`.
+# On Vercel / production, the ASGI server is started by their platform, not here.
+if __name__ == "__main__":
+    import uvicorn
+    print("Starting Parkly metrics service...")
+    uvicorn.run(app, host="0.0.0.0", port=8000)
