@@ -1638,3 +1638,43 @@ app.post('/api/chat', async (req, res) => {
         });
 
         res.status(201).json(savedMessage);
+    } catch (error) {
+        console.error("Send Message Error:", error.message);
+        res.status(500).json({ error: "Failed to send message" });
+    }
+});
+
+
+// --- 10. SERVER STARTUP ---
+// --- PQR (Claims & Support) ---
+app.get('/api/pqr', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM pqr ORDER BY created_at DESC');
+        res.json(rows);
+    } catch (error) {
+        // If table doesn't exist, create it
+        if (error.code === 'ER_NO_SUCH_TABLE') {
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS pqr (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT,
+                    user_name VARCHAR(255),
+                    type ENUM('claim', 'question', 'suggestion') DEFAULT 'claim',
+                    subject VARCHAR(255),
+                    description TEXT,
+                    status ENUM('open', 'in-review', 'resolved') DEFAULT 'open',
+                    admin_response TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+            return res.json([]);
+        }
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/pqr', async (req, res) => {
+    const { user_id, user_name, type, subject, description } = req.body;
+    try {
+        const [result] = await pool.query(
+            'INSERT INTO pqr (user_id, user_name, type, subject, description) VALUES (?, ?, ?, ?, ?)',
