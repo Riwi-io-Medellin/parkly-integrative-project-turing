@@ -190,4 +190,4 @@ docker-compose up --build
 
 This platform operates under the laws of Colombia. Payments are processed through Wompi.
 
-## hola
+
