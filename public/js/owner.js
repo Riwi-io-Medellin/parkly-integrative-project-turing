@@ -710,3 +710,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
         fetch(`${pythonBase}/monthly-projection`)
             .then(r => r.ok ? r.json() : null)
+            .then(proj => {
+                const loader = document.getElementById('revenue-chart-loader');
+                if (loader) loader.classList.add('hidden');
+
+                const canvasEl = document.getElementById('owner-chart-revenue');
+                if (canvasEl && proj) {
+                    new Chart(canvasEl.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                            datasets: [{ label: 'Projection', data: Array(12).fill(Math.round(proj.projection / 12)), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.4 }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#64748b' } }, y: { ticks: { color: '#64748b' } } } }
+                    });
+                }
+            }).catch(e => {
+                const loader = document.getElementById('revenue-chart-loader');
+                if (loader) {
+                    loader.textContent = 'Service Unavailable';
+                    loader.className = 'text-red-500 text-[10px] text-center pt-8';
+                }
+                console.warn("Projection fetch error", e);
+            });
+    }
+
+    // Renders all reservations for the owner's spots, grouped into Active and History sections
+    async function renderReservationsTab() {
+        const user = JSON.parse(localStorage.getItem('parkly_session'));
+        const content = document.getElementById('owner-tab-content');
+        const tplRes = document.getElementById('tpl-owner-reservation');
+        const tplEmpty = document.getElementById('tpl-empty-reservations');
+
+        if (!content || !tplRes || !tplEmpty || !user) return;
+        const spinnerContainer = document.createElement('div');
+        spinnerContainer.className = 'flex items-center justify-center p-12';
+        const spinner = document.createElement('div');
+        spinner.className = 'w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin';
+        spinnerContainer.appendChild(spinner);
+        content.replaceChildren(spinnerContainer);
+
+        try {
+            const spotsRes = await fetch(`/api/users/${user.id}/spots`);
+            const mySpots = await spotsRes.json();
+            const mySpotIds = mySpots.map(s => s.id);
+
+            const resResponse = await fetch('/api/reservations');
+            const allRes = await resResponse.json();
+
+            const myReservations = allRes.filter(r => mySpotIds.includes(r.spotId));
+
+            content.innerHTML = '';
+            if (myReservations.length === 0) {
+                content.appendChild(tplEmpty.content.cloneNode(true));
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            const active = myReservations.filter(r => ['pending', 'in-use'].includes(r.status));
+            const completed = myReservations.filter(r => ['completed', 'cancelled'].includes(r.status));
+
+            const renderSection = (title, items) => {
+                const header = document.createElement('h3');
+                header.className = 'text-xs font-bold uppercase tracking-widest text-slate-500 mb-4 mt-8 first:mt-0';
+                header.textContent = title;
+                content.appendChild(header);
+
+                if (items.length === 0) {
