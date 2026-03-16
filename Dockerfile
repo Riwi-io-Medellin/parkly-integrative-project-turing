@@ -1,20 +1,37 @@
-# Usar una computadora virtual ligera con Node.js instalado
-FROM node:18-alpine
+# ============================================================
+# Parkly — Dockerfile Unificado (Node.js 18 + Python 3 + Supervisor)
+# Un solo contenedor que corre el backend Node y el servicio Python
+# Render expone un solo puerto ($PORT) asignado dinamicamente
+# ============================================================
 
-# Crear la carpeta de trabajo dentro del contenedor
+FROM node:18-slim
+
+# Instalar Python 3, pip y supervisor
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-venv \
+    supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Copiar la lista de compras (package.json)
+# --- Dependencias Node.js ---
 COPY package*.json ./
+RUN npm install --omit=dev
 
-# Instalar todas las herramientas (incluyendo cors, express, etc.)
-RUN npm install
+# --- Dependencias Python ---
+COPY requirements.txt ./
+RUN pip3 install --no-cache-dir -r requirements.txt --break-system-packages
 
-# Copiar el resto del código de Parkly
+# --- Código fuente ---
 COPY . .
 
-# Exponer el puerto 3000 para que podamos conectarnos
+# --- Configuración de Supervisor ---
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Render asigna el puerto dinámicamente via $PORT
+# Node escucha en $PORT, Python internamente en 8000
 EXPOSE 3000
 
-# El comando para encender el servidor
-CMD ["node", "server.js"]
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
