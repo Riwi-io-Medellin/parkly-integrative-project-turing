@@ -1838,3 +1838,43 @@ app.post('/api/ai-chat', async (req, res) => {
         return res.status(503).json({ error: 'AI service not configured. Please set OPENAI_API_KEY.' });
     }
     const { message, history = [] } = req.body;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [spots] = await connection.execute(`
+            SELECT name, address, zone, price_hour, price_day, available
+            FROM parking_spots
+            WHERE deleted_at IS NULL
+        `);
+
+        const spotsContext = spots.map(s =>
+            `- ${s.name}: ${s.address} (${s.zone}). Price: $${s.price_hour}/hr, $${s.price_day}/day. Status: ${s.available ? 'Available' : 'Unavailable'}`
+        ).join('\n');
+
+        const systemPrompt = `You are the Parkly AI Assistant. Help users find parking and answer questions about the platform.
+Keep responses concise, helpful, and professional. Use the following context for parking availability and prices.
+Always prioritize providing technical help or answering specifically about Parkly's features like favorites, heatmaps, and reservation management.
+
+Here is the current list of parking spots in the system:
+${spotsContext}
+
+Use this data to answer questions about availability, prices, zones, and locations. If the user asks about a specific zone or price range, filter from this list and give specific recommendations.`;
+
+        const completion = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+                { role: 'system', content: systemPrompt },
+                ...history,
+                { role: 'user', content: message }
+            ],
+            max_tokens: 400,
+        });
+        res.json({ reply: completion.choices[0].message.content });
+    } catch (error) {
+        console.error('OpenAI Error:', error.message);
+        res.status(500).json({ error: 'AI service unavailable.' });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
