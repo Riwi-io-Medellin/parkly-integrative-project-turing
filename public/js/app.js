@@ -218,3 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <label for="swal-terms-guard-check" style="font-size:13px; cursor:pointer; line-height:1.5">
                         I have read and accept the
                         <a href="legalidad.html" target="_blank" style="color:#6366f1; font-weight:600; text-decoration:underline">Parkly Terms and Conditions</a>
+                    </label>
+                </div>`,
+            confirmButtonText: 'Accept and continue',
+            cancelButtonText: 'Sign out',
