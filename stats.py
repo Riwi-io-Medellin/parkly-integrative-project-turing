@@ -58,3 +58,15 @@ async def get_monthly_projection():
     finally:
         conn.close()
 
+
+@app.get("/api/python/stats/occupancy-rate")
+async def get_occupancy_rate():
+    """Calculates the occupancy percentage by comparing active reservations
+    against the total number of approved parking spots."""
+    conn = get_db_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+
+    try:
+        cursor = conn.cursor()
+
