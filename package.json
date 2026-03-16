@@ -14,3 +14,11 @@
     "url": "git+https://github.com/SAOT31/Parkly.git"
   },
   "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SAOT31/Parkly/issues"
+  },
+  "homepage": "https://github.com/SAOT31/Parkly#readme",
+  "dependencies": {
+    "axios": "^1.13.5",
