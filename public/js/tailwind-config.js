@@ -7,24 +7,24 @@ tailwind.config = {
     theme: {
         extend: {
             colors: {
-                background:  "hsl(var(--background) / <alpha-value>)",
-                foreground:  "hsl(var(--foreground) / <alpha-value>)",
+                background: "hsl(var(--background) / <alpha-value>)",
+                foreground: "hsl(var(--foreground) / <alpha-value>)",
                 primary: {
-                    DEFAULT:    "hsl(var(--primary) / <alpha-value>)",
-                    dark:       "hsl(var(--primary-dark) / <alpha-value>)",
-                    light:      "hsl(var(--primary-light) / <alpha-value>)",
+                    DEFAULT: "hsl(var(--primary) / <alpha-value>)",
+                    dark: "hsl(var(--primary-dark) / <alpha-value>)",
+                    light: "hsl(var(--primary-light) / <alpha-value>)",
                     foreground: "hsl(var(--primary-foreground))"
                 },
                 accent: {
-                    DEFAULT:    "hsl(var(--accent) / <alpha-value>)",
-                    light:      "hsl(var(--accent-light) / <alpha-value>)",
+                    DEFAULT: "hsl(var(--accent) / <alpha-value>)",
+                    light: "hsl(var(--accent-light) / <alpha-value>)",
                     foreground: "hsl(var(--accent-foreground))"
                 },
-                card:    "hsl(var(--card) / <alpha-value>)",
-                border:  "hsl(var(--border) / <alpha-value>)",
-                input:   "hsl(var(--input) / <alpha-value>)",
+                card: "hsl(var(--card) / <alpha-value>)",
+                border: "hsl(var(--border) / <alpha-value>)",
+                input: "hsl(var(--input) / <alpha-value>)",
                 success: "hsl(var(--success) / <alpha-value>)",
-                danger:  "hsl(var(--danger)  / <alpha-value>)",
+                danger: "hsl(var(--danger)  / <alpha-value>)",
             },
             borderRadius: {
                 xl: "var(--radius)",
