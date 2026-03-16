@@ -878,3 +878,43 @@ app.get('/api/spots/:id', async (req, res) => {
             res.status(404).json({ error: "Parking spot not found." });
         }
     } catch (error) {
+        console.error("Load Spot by ID Error:", error.message);
+        res.status(500).json({ error: "Unable to retrieve parking spot data." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Create new parking spot — inserts into parking_spots (tabla original)
+app.post('/api/spots', upload.array('images', 5), async (req, res) => {
+    const fields = req.body;
+    let connection;
+    let finalImage = null;
+    let finalImagesJson = '[]';
+
+    try {
+        let newImageUrls = [];
+        if (req.files && req.files.length > 0) {
+            const uploadPromises = req.files.map(file =>
+                cloudinary.v2.uploader.upload(`data:${file.mimetype};base64,${file.buffer.toString('base64')}`, {
+                    folder: 'parkly_spots'
+                })
+            );
+            const uploadResults = await Promise.all(uploadPromises);
+            newImageUrls = uploadResults.map(result => result.secure_url);
+        }
+
+        if (newImageUrls.length > 0) {
+            const mainIdx = parseInt(fields.mainImageIndex) || 0;
+            finalImage = newImageUrls[mainIdx] || newImageUrls[0];
+            finalImagesJson = JSON.stringify(newImageUrls);
+        }
+
+        const ownerId = parseInt(fields.ownerId) || null;
+        const priceHour = parseFloat(fields.price || fields.price_hour) || 0;
+        const featuresStr = Array.isArray(fields.features) ? fields.features.join(',') : (fields.features || '');
+        const dimensions = fields.cells ? `${fields.cells} celdas` : (fields.dimensions || '');
+
+        connection = await getConnection();
+        const [result] = await connection.execute(
+            `INSERT INTO parking_spots 
