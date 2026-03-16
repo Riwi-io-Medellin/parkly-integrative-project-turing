@@ -1318,3 +1318,43 @@ app.get('/api/reviews/spot/:spotId', async (req, res) => {
         `, [spotId]);
         res.json(rows);
     } catch (error) {
+        console.error("Fetch Spot Reviews Error:", error.message);
+        res.status(500).json({ error: "Failed to retrieve reviews for this spot." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Get reviews for a specific driver (used by owner dashboard)
+app.get('/api/reviews/driver/:driverId', async (req, res) => {
+    const { driverId } = req.params;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute(`
+            SELECT rv.id, rv.rating, rv.comment, rv.reviewer_role, rv.created_at,
+                   u.name AS reviewer_name
+            FROM reviews rv
+            JOIN users u ON rv.reviewer_id = u.id
+            WHERE rv.reviewed_type = 'driver' AND rv.reviewed_id = ?
+            ORDER BY rv.created_at DESC
+        `, [driverId]);
+        res.json(rows);
+    } catch (error) {
+        console.error("Fetch Driver Reviews Error:", error.message);
+        res.status(500).json({ error: "Failed to retrieve reviews for this driver." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Post a new review (bilateral: authorRole='client' or 'owner')
+app.post('/api/reviews', async (req, res) => {
+    const {
+        reservation_id,
+        reviewer_id, // We'll map to userEmail for the schema
+        reviewer_role, // Maps to authorRole
+        reviewed_type, // 'spot' or 'driver'
+        reviewed_id,   // Maps to spotId
+        rating,
+        comment
