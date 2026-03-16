@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<!-- Login page — shows the email/password form and the Google Sign-In button.
+     session.js redirects logged-in users away before anything renders. -->
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - PARKLY</title>
+
+    <!-- Tailwind CSS loaded from CDN; tailwind-config.js adds our custom design tokens -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./js/tailwind-config.js"></script>
+
+    <!-- Global stylesheet for custom components like toggles, animations, etc. -->
+    <link rel="stylesheet" href="./css/styles.css">
+
+    <!-- Lucide icon library — we call lucide.createIcons() at the bottom of the body -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Inline theme script runs before the page paints to avoid a flash of wrong theme -->
+    <script>
+        (function () {
+            const theme = localStorage.getItem('parkly_theme') || 'dark';
+            document.documentElement.classList.toggle('dark', theme === 'dark');
+        })();
+    </script>
+</head>
+
+<body class="flex items-center justify-center min-h-screen px-4 bg-background transition-colors duration-300">
+
+    <!-- Centered container — max width 420px so it looks clean on all screen sizes -->
+    <main class="w-full max-w-[420px]">
+
+        <!-- Top navigation bar: back link on the left, theme toggle on the right -->
+        <nav aria-label="Return to Home" class="flex justify-between items-center mb-8">
+            <a href="./index.html"
+                class="flex items-center gap-2 text-sm text-foreground/90 hover:text-foreground transition-colors group font-bold">
+                <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+                Back to home
+            </a>
+            <!-- Theme toggle — app.js listens for clicks on this button and swaps the class on <html> -->
+            <button id="theme-toggle" aria-label="Toggle theme"
+                class="p-2 rounded-lg border border-border hover:border-primary/50 transition-colors">
+                <i data-lucide="moon" class="w-4 h-4 text-foreground/80"></i>
+            </button>
+        </nav>
+
+        <!-- Page header: logo icon + title + subtitle -->
+        <header class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 mb-4">
+                <i data-lucide="parking-circle" class="w-6 h-6 text-primary"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-foreground mb-2 tracking-tight">Welcome Back</h1>
+            <p class="text-foreground/85 text-sm">Login to your PARKLY account</p>
+        </header>
+
+        <!-- Demo accounts banner — helps testers/graders try the app without signing up -->
+        <section class="mb-6 bg-card border border-border rounded-xl p-4 text-xs" aria-labelledby="demo-title">
+            <p id="demo-title" class="font-bold text-primary mb-2 uppercase tracking-widest">Demo Accounts</p>
+            <div class="space-y-1.5 text-foreground font-medium opacity-75">
+                <p><strong class="text-foreground font-bold opacity-100">Client:</strong> carlos@email.com / 123456</p>
+                <p><strong class="text-foreground font-bold opacity-100">Owner:</strong> maria@email.com / 123456</p>
+                <p><strong class="text-foreground font-bold opacity-100">Admin:</strong> admin@parkly.co / admin123</p>
+            </div>
+        </section>
+
+        <!-- Main login form — auth.js intercepts the submit event and calls the API -->
+        <form id="login-form" class="space-y-4">
+
+            <!-- Error message box — hidden by default, auth.js makes it visible when login fails -->
+            <div id="error-msg"
+                class="hidden text-red-400 text-sm bg-red-900/20 p-3 rounded-lg border border-red-900/50 flex gap-2 items-center"
+                role="alert">
+                <i data-lucide="alert-circle" class="w-4 h-4 min-w-[16px]"></i>
+                <span id="error-text">Invalid credentials. Please try again.</span>
+            </div>
+
+            <!-- Email field with an icon decorating the left side of the input -->
+            <div class="space-y-1.5">
+                <label for="email" class="text-sm font-bold text-foreground ml-1">Email Address</label>
+                <div class="relative">
+                    <i data-lucide="mail" class="absolute left-3 top-3 text-foreground/90 font-bold w-4 h-4"></i>
+                    <input type="email" id="email"
+                        class="w-full bg-input border border-border rounded-xl py-2.5 pl-10 pr-4 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all placeholder-gray-500"
+                        placeholder="admin@parkly.co" required>
+                </div>
+            </div>
+
+            <!-- Password field + forgot password link -->
+            <div class="space-y-1.5">
+                <label for="password" class="text-sm font-bold text-foreground ml-1">Password</label>
+                <div class="relative">
+                    <i data-lucide="lock" class="absolute left-3 top-3 text-foreground/90 font-bold w-4 h-4"></i>
+                    <input type="password" id="password"
+                        class="w-full bg-input border border-border rounded-xl py-2.5 pl-10 pr-10 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all placeholder-gray-500"
+                        placeholder="••••••••" required>
+                </div>
+                <!-- Forgot password link takes the user to the email-reset flow -->
+                <div class="flex justify-end mt-1">
+                    <a href="forgot-password.html" class="text-xs text-primary hover:underline font-medium">Forgot
+                        password?</a>
+                </div>
+            </div>
+
+            <!-- Submit button — auth.js replaces this text with a loading spinner while the API call runs -->
+            <button type="submit"
+                class="w-full bg-primary hover:bg-primary-dark text-primary-foreground font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-primary/20 mt-2 transform active:scale-[0.98]">
+                Sign In
+            </button>
+        </form>
+
+        <!-- Alternative login section — separator + Google button -->
+        <section class="mt-6" aria-label="Alternative Login Methods">
+
+            <!-- Visual "Or continue with" divider between the form and social login -->
+            <div class="relative mb-6">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-border"></div>
+                </div>
+                <div class="relative flex justify-center text-xs uppercase">
+                    <span class="px-2 bg-background text-foreground font-bold opacity-60">Or continue with</span>
+                </div>
+            </div>
+
+            <!-- Google Sign-In button — google-auth.js handles the Firebase OAuth flow on click -->
+            <button type="button" id="btn-google-login"
+                class="w-full flex items-center justify-center gap-3 px-4 py-3 border border-border rounded-xl bg-card hover:bg-border hover:border-border/80 transition-all text-foreground font-medium shadow-lg group">
+                <!-- Official Google "G" SVG logo so it matches Google's brand guidelines -->
+                <svg class="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        fill="#4285F4" />
+                    <path
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                        fill="#34A853" />
+                    <path
+                        d="M5.84 14.11c-.22-.66-.35-1.36-.35-2.11s.13-1.45.35-2.11V7.05H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.95l3.66-2.84z"
+                        fill="#FBBC05" />
+                    <path
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.05l3.66 2.84c.87-2.6 3.3-4.51 6.16-4.51z"
+                        fill="#EA4335" />
+                </svg>
+                Google
+            </button>
+        </section>
+
+        <!-- Footer link — takes new users to the registration page -->
+        <footer class="text-center mt-8">
+            <p class="text-foreground text-sm opacity-60">
+                Don't have an account? <a href="./register.html"
+                    class="text-primary hover:underline font-semibold transition-colors">Sign up free</a>
+            </p>
+        </footer>
+    </main>
+
+    <!-- session.js must load first — it redirects already-logged-in users before the rest of the page runs -->
+    <script src="js/session.js"></script>
+    <!-- data.js exposes the API base URL and helper fetch wrappers used by auth.js -->
+    <script src="./js/data.js"></script>
+    <!-- app.js sets up the theme toggle and the profile dropdown (shared across pages) -->
+    <script src="./js/app.js"></script>
+    <!-- auth.js handles form submit (email/password login) and Google Sign-In -->
+    <script src="./js/auth.js"></script>
+    <!-- google-auth.js is an ES module that initialises Firebase and Google Sign-In -->
+    <script type="module" src="./js/google-auth.js"></script>
+    <!-- Must run after the DOM is ready so all data-lucide attributes are converted to SVGs -->
+    <script>lucide.createIcons();</script>
+
+    <!-- SweetAlert2 + Parkly Custom Alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/alerts.js"></script>
+
+</body>
+
+</html>
