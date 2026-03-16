@@ -236,3 +236,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }).then((result) => {
             document.body.style.overflow = '';
             if (result.isConfirmed) {
+                localStorage.setItem('parkly_terms_accepted', 'true');
+            } else {
+                // User declined — log them out
