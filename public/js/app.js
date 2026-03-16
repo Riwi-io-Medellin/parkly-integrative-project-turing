@@ -222,3 +222,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`,
             confirmButtonText: 'Accept and continue',
             cancelButtonText: 'Sign out',
+            showCancelButton: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            preConfirm: () => {
+                const checked = document.getElementById('swal-terms-guard-check')?.checked;
+                if (!checked) {
+                    Swal.showValidationMessage('You must check the box to accept the Terms and Conditions.');
+                    return false;
+                }
+                return true;
+            }
+        }).then((result) => {
+            document.body.style.overflow = '';
+            if (result.isConfirmed) {
