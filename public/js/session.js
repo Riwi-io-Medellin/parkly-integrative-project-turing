@@ -4,3 +4,4 @@
 const parkly_session = JSON.parse(localStorage.getItem('parkly_session'));
 if (!parkly_session) {
     console.log("Login Page");
+} else if (parkly_session.role == 'client') {
