@@ -27,3 +27,34 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Attempting login for:", email);
             
             try {
+                const user = await DB.login(email, password);
+
+                if (user) {
+                    console.log("Login success:", user.role);
+                    // Each role goes to a different dashboard
+                    if (user.role === 'admin') window.location.href = 'admin-dash.html';
+                    else if (user.role === 'owner') window.location.href = 'owner-dash.html';
+                    else window.location.href = 'search.html';
+                } else {
+                    console.warn("Login failed: Invalid credentials");
+                    const errorMsg = document.getElementById('error-msg');
+                    if(errorMsg) errorMsg.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error("Login error:", err);
+                Alerts.error("Server error. Check if the backend is running.");
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Sign In';
+                }
+            }
+        });
+    }
+
+    // SECTION 2 - TWO-STEP REGISTRATION
+    // Step 1 lets the user pick their role (client or owner).
+    // Step 2 shows the actual form fields. The role gets stored in a hidden input.
+    if (registerForm) {
+        const selectedRoleInput = document.getElementById('selected-role');
+        const btnRoleClient = document.getElementById('btn-role-client');
