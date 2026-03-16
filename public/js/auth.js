@@ -68,3 +68,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (btnRoleClient) btnRoleClient.addEventListener('click', () => goToStep2('client'));
         if (btnRoleOwner) btnRoleOwner.addEventListener('click', () => goToStep2('owner'));
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const termsCheckbox = document.getElementById('terms-checkbox');
+            if (termsCheckbox && !termsCheckbox.checked) {
+                Alerts.error("You must accept the Terms and Conditions to continue.");
+                return;
+            }
+
+            const password = document.getElementById('reg-password').value;
