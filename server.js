@@ -1758,3 +1758,43 @@ app.post('/api/pqr', async (req, res) => {
 
         res.status(201).json({ id: result.insertId, message: 'PQR submitted successfully', ...rows[0] });
     } catch (error) {
+        console.error("PQR POST Error:", error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+app.patch('/api/pqr/:id/respond', async (req, res) => {
+    const { id } = req.params;
+    const { adminResponse, status } = req.body;
+    let connection;
+    try {
+        connection = await getConnection();
+        await connection.execute(
+            'UPDATE pqr SET admin_response = ?, status = ?, updated_at = NOW() WHERE id = ?',
+            [adminResponse || '', status || 'resolved', id]
+        );
+
+        // Send email to user with the response
+        try {
+            const [pqrRows] = await connection.execute(
+                'SELECT pqr.*, users.email, users.name FROM pqr LEFT JOIN users ON pqr.user_id = users.id WHERE pqr.id = ?',
+                [id]
+            );
+            if (pqrRows.length > 0 && pqrRows[0].email) {
+                const pqrData = pqrRows[0];
+                const uEmail = pqrData.email;
+                const uName = pqrData.name || 'User';
+                const sub = pqrData.subject;
+
+                // 1. EmailJS Send
+                await sendEmail({
+                    to: uEmail,
+                    subject: `Update on your ticket: ${sub}`,
+                    html: `<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
+                                <div style="background-color: #6366f1; padding: 30px; text-align: center;">
+                                    <span style="color: #ffffff; font-size: 28px; font-weight: bold; letter-spacing: -1px;">PARK<span style="color: #e0e7ff;">LY</span></span>
+                                </div>
+                                <div style="padding: 40px 30px;">
+                                    <h2 style="color: #111827; margin-top: 0; font-size: 24px;">📩 Ticket Update</h2>
