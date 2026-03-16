@@ -88,3 +88,5 @@ document.addEventListener('DOMContentLoaded', () => {
             // Build the user object to send to the API
             const newUser = {
                 name: document.getElementById('name').value,
+                email: document.getElementById('reg-email').value.trim(),
+                password: password,
