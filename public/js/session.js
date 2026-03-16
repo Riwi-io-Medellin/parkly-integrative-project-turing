@@ -10,3 +10,4 @@ if (!parkly_session) {
     window.location.href = './owner-dash.html';
 } else if (parkly_session.role == 'admin') {
     window.location.href = './admin-dash.html';
+}
