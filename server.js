@@ -1798,3 +1798,43 @@ app.patch('/api/pqr/:id/respond', async (req, res) => {
                                 </div>
                                 <div style="padding: 40px 30px;">
                                     <h2 style="color: #111827; margin-top: 0; font-size: 24px;">📩 Ticket Update</h2>
+                                    <p style="font-size: 16px; color: #4b5563;">Hello ${uName},</p>
+                                    <p style="font-size: 16px; color: #4b5563;">An administrator has responded to your ticket <b style="color: #6366f1;">#${id}</b>.</p>
+                                    <div style="border-left: 4px solid #6366f1; background-color: #f8fafc; padding: 20px; margin: 25px 0; font-style: italic; color: #334155;">
+                                      "${adminResponse}"
+                                    </div>
+                                    <p style="font-size: 16px; color: #4b5563;"><b>Status:</b> <span style="text-transform: uppercase; font-size: 14px; background-color: #e0e7ff; color: #6366f1; padding: 4px 8px; border-radius: 4px; font-weight: bold;">${status || 'resolved'}</span></p>
+                                    <p style="font-size: 16px; color: #4b5563; margin-top: 30px;">Thank you for your patience,<br><b>The Parkly Support Team</b></p>
+                                </div>
+                                <div style="background-color: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                                    <p style="font-size: 13px; color: #6b7280; margin: 0;">© 2024 Parkly. We're here to help.</p>
+                                </div>
+                           </div>`,
+                });
+
+                // 2. Automation Webhook (Make.com/n8n)
+                triggerAutomation('pqr_resolved', {
+                    ...pqrData,
+                    adminResponse,
+                    newStatus: status || 'resolved'
+                });
+            }
+        } catch (err) {
+            console.error('PQR resolution notification error:', err.message);
+        }
+
+        res.json({ message: 'Response sent successfully' });
+    } catch (error) {
+        console.error("PQR PATCH Error:", error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// --- AI CHAT ASSISTANT ---
+app.post('/api/ai-chat', async (req, res) => {
+    if (!openai) {
+        return res.status(503).json({ error: 'AI service not configured. Please set OPENAI_API_KEY.' });
+    }
+    const { message, history = [] } = req.body;
