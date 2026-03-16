@@ -1038,3 +1038,43 @@ app.get('/api/reservations', async (req, res) => {
             FROM reservations r
             LEFT JOIN parking_spots s ON r.spotId = s.id
             ORDER BY r.date DESC, r.startTime DESC
+        `);
+        res.json(rows);
+    } catch (error) {
+        console.error("Fetch Reservations Error:", error.message);
+        res.status(500).json({ error: "Booking data synchronization failed." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Get reservations for a specific user
+app.get('/api/users/:userId/reservations', async (req, res) => {
+    const { userId } = req.params;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute(`
+            SELECT 
+                r.id, r.spotId, r.userId, r.userName, r.userEmail,
+                r.spotName, r.date, r.startTime, r.endTime,
+                r.total, r.status, r.carPlate, r.ownerId,
+                s.address, s.image
+            FROM reservations r
+            LEFT JOIN parking_spots s ON r.spotId = s.id
+            WHERE r.userId = ? OR LOWER(r.userEmail) = LOWER(?)
+            ORDER BY r.date DESC, r.startTime DESC
+        `, [userId, userId]);
+        res.json(rows);
+    } catch (error) {
+        console.error("Fetch User Reservations Error:", error.message);
+        res.status(500).json({ error: "Failed to retrieve user's reservations." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Create a new reservation
+app.post('/api/reservations', async (req, res) => {
+    const { id, userId, userName, userEmail, spotId, spotName, ownerId, date, startTime, endTime, total, carPlate } = req.body;
+    let connection;
