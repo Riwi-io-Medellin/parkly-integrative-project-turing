@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const termsAccepted = localStorage.getItem('parkly_terms_accepted') === 'true';
     const hasSession = !!JSON.parse(localStorage.getItem('parkly_session'));
 
-    if (hasSession && !termsAccepted && protectedPages.includes(currentPage)) {
+    if (hasSession && !termsAccepted && protectedPages.includes(currentPage) && (session?.role !== 'admin')) {
         document.body.style.overflow = 'hidden';
         Swal.fire({
             title: 'Terms and Conditions',

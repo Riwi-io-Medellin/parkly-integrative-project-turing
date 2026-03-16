@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navUser) navUser.textContent = session.name || session.email;
 
     const subtitle = document.getElementById('dash-subtitle');
-    if (subtitle) subtitle.textContent = `Welcome back, ${session.name || session.email} 👋`;
+    if (subtitle) subtitle.textContent = `Welcome back, ${session.name || session.email}`;
 
     // Tabs navigation
     document.querySelectorAll('[data-tab]').forEach(btn => {
@@ -229,7 +229,7 @@ function buildCard(r) {
         // Extend time — add button if not already there
         const extendBtn = document.createElement('button');
         extendBtn.className = 'w-full border border-primary/40 hover:border-primary text-primary/70 hover:text-primary font-semibold py-2 rounded-xl text-sm transition-all flex items-center justify-center gap-2 mt-2';
-        extendBtn.textContent = '⏱️ Extend Time';
+        extendBtn.textContent = 'Extend Time';
         extendBtn.addEventListener('click', () => openExtendModal(r));
         block.appendChild(extendBtn);
 
@@ -237,7 +237,7 @@ function buildCard(r) {
         if (r.status === 'pending') {
             const arriveBtn = document.createElement('button');
             arriveBtn.className = 'w-full bg-primary hover:bg-primary-dark text-primary-foreground font-semibold py-2 rounded-xl text-sm transition-all flex items-center justify-center gap-2 mt-2';
-            arriveBtn.textContent = '📸 I\'ve Arrived';
+            arriveBtn.textContent = 'I\'ve Arrived';
             arriveBtn.addEventListener('click', () => openArriveModal(r));
             block.appendChild(arriveBtn);
         }
@@ -246,7 +246,7 @@ function buildCard(r) {
         const chatBtn = document.createElement('a');
         chatBtn.href = `chat.html?res_id=${r.id}`;
         chatBtn.className = 'w-full bg-card hover:bg-input text-foreground font-semibold py-2 rounded-xl text-sm transition-all flex items-center justify-center gap-2 mt-2 border border-border';
-        chatBtn.textContent = '💬 Message Owner';
+        chatBtn.textContent = 'Message Owner';
         block.appendChild(chatBtn);
     }
 
@@ -262,7 +262,7 @@ function buildCard(r) {
     // Book again shortcut for completed reservations
     if (r.status === 'completed' || r.status === 'cancelled') {
         const viewBtn = clone.querySelector('[data-action="view"]');
-        viewBtn.textContent = '🔁 Book Again';
+        viewBtn.textContent = 'Book Again';
         viewBtn.href = `detail.html?id=${r.spotId}`;
         viewBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -516,7 +516,7 @@ function renderStars(selected) {
     for (let i = 1; i <= 5; i++) {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.textContent = '★';
+        btn.textContent = 'Rating star';
         btn.style.fontSize = '2rem';
         btn.style.color = i <= selected ? '#facc15' : '#334155';
         btn.style.cursor = 'pointer';
@@ -618,7 +618,7 @@ function checkUpcomingReservations(reservations) {
                 const diffMins = Math.round(diffMs / 60000);
 
                 if (diffMins > 0 && diffMins <= 60) {
-                    new Notification("Upcoming Parkly Reservation 🚗", {
+                    new Notification("Upcoming Parkly Reservation", {
                         body: `Your booking at ${r.spotName} starts in ${diffMins} minutes.`,
                         icon: "img/placeholder.jpg"
                     });

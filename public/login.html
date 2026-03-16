@@ -55,15 +55,6 @@
             <p class="text-foreground/85 text-sm">Login to your PARKLY account</p>
         </header>
 
-        <!-- Demo accounts banner — helps testers/graders try the app without signing up -->
-        <section class="mb-6 bg-card border border-border rounded-xl p-4 text-xs" aria-labelledby="demo-title">
-            <p id="demo-title" class="font-bold text-primary mb-2 uppercase tracking-widest">Demo Accounts</p>
-            <div class="space-y-1.5 text-foreground font-medium opacity-75">
-                <p><strong class="text-foreground font-bold opacity-100">Client:</strong> carlos@email.com / 123456</p>
-                <p><strong class="text-foreground font-bold opacity-100">Owner:</strong> maria@email.com / 123456</p>
-                <p><strong class="text-foreground font-bold opacity-100">Admin:</strong> admin@parkly.co / admin123</p>
-            </div>
-        </section>
 
         <!-- Main login form — auth.js intercepts the submit event and calls the API -->
         <form id="login-form" class="space-y-4">
@@ -83,7 +74,7 @@
                     <i data-lucide="mail" class="absolute left-3 top-3 text-foreground/90 font-bold w-4 h-4"></i>
                     <input type="email" id="email"
                         class="w-full bg-input border border-border rounded-xl py-2.5 pl-10 pr-4 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all placeholder-gray-500"
-                        placeholder="admin@parkly.co" required>
+                        placeholder="Email Address" required>
                 </div>
             </div>
 
@@ -94,7 +85,7 @@
                     <i data-lucide="lock" class="absolute left-3 top-3 text-foreground/90 font-bold w-4 h-4"></i>
                     <input type="password" id="password"
                         class="w-full bg-input border border-border rounded-xl py-2.5 pl-10 pr-10 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all placeholder-gray-500"
-                        placeholder="••••••••" required>
+                        placeholder="Password" required>
                 </div>
                 <!-- Forgot password link takes the user to the email-reset flow -->
                 <div class="flex justify-end mt-1">
