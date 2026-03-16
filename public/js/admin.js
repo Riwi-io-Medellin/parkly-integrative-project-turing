@@ -254,3 +254,99 @@ document.addEventListener('DOMContentLoaded', async () => {
             "Incomplete or invalid ownership certificate",
             "Address cannot be verified",
             "Property does not meet safety standards",
+            "Duplicate listing detected",
+            "Insufficient information provided"
+        ];
+
+        pending.forEach(req => {
+            const clone = pendingTpl.content.cloneNode(true);
+            clone.querySelector('.req-img').src = req.image || 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=600';
+            clone.querySelector('.req-name').textContent = req.name;
+            clone.querySelector('.req-address').textContent = req.address;
+            clone.querySelector('.req-owner-name').textContent = req.ownerName || 'Unknown Owner';
+            clone.querySelector('.req-owner-id').textContent = req.ownerId;
+            clone.querySelector('.req-price').textContent = `$ ${Number(req.price).toLocaleString('es-CO')}/hr`;
+            clone.querySelector('.req-cells').textContent = `${req.cells} cells`;
+            clone.querySelector('.req-schedule').textContent = req.schedule;
+            clone.querySelector('.req-cert').textContent = req.certificate;
+
+            const featContainer = clone.querySelector('.req-features');
+            if (req.features && Array.isArray(req.features)) {
+                req.features.forEach(f => {
+                    const span = document.createElement('span');
+                    span.className = 'px-2 py-0.5 bg-card rounded text-[10px] text-foreground/90';
+                    span.textContent = f;
+                    featContainer.appendChild(span);
+                });
+            }
+
+            // Build a radio list of rejection reasons so the admin must pick one before confirming
+            const reasonsContainer = clone.querySelector('.reasons-container');
+            reasonsContainer.innerHTML = '';
+            rejectionReasons.forEach((reason) => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center gap-2 cursor-pointer group';
+
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = `reject-reason-${req.id}`;
+                input.value = reason;
+                input.className = 'text-red-500';
+
+                const span = document.createElement('span');
+                span.className = 'text-xs text-foreground/90 group-hover:text-foreground transition-colors';
+                span.textContent = reason;
+
+                label.appendChild(input);
+                label.appendChild(span);
+                reasonsContainer.appendChild(label);
+            });
+
+            const panel = clone.querySelector('.reject-panel');
+            const btnsAction = clone.querySelector('.action-buttons');
+
+            clone.querySelector('.btn-approve').addEventListener('click', () => handleApprove(req.id));
+            clone.querySelector('.btn-show-reject').addEventListener('click', () => {
+                panel.classList.remove('hidden');
+                btnsAction.classList.add('hidden');
+            });
+            clone.querySelector('.btn-cancel-reject').addEventListener('click', () => {
+                panel.classList.add('hidden');
+                btnsAction.classList.remove('hidden');
+            });
+            clone.querySelector('.btn-confirm-reject').addEventListener('click', () => {
+                const selected = reasonsContainer.querySelector(`input[name="reject-reason-${req.id}"]:checked`);
+                if (!selected) return Alerts.toast('Please select a rejection reason before confirming.', 'warning');
+                handleReject(req.id, selected.value);
+            });
+
+            pendingContainer.appendChild(clone);
+        });
+
+        const resolvedTpl = document.getElementById('tpl-resolved-request');
+        resolved.forEach(req => {
+            const clone = resolvedTpl.content.cloneNode(true);
+            const isApproved = req.status === 'approved';
+            const iconBox = clone.querySelector('.resolved-icon-box');
+            iconBox.classList.add(isApproved ? 'bg-green-500/20' : 'bg-red-500/20', isApproved ? 'text-green-600' : 'text-red-600', 'dark:text-current');
+            clone.querySelector('.resolved-icon').setAttribute('data-lucide', isApproved ? 'check' : 'x');
+            clone.querySelector('.resolved-name').textContent = req.name;
+            clone.querySelector('.resolved-owner').textContent = req.ownerId;
+            const badge = clone.querySelector('.resolved-badge');
+            badge.textContent = req.status.toUpperCase();
+            badge.classList.add(isApproved ? 'bg-green-100' : 'bg-red-100', isApproved ? 'text-green-700' : 'text-red-700', 'dark:bg-opacity-30', 'dark:text-current', 'border', 'dark:border-transparent');
+            resolvedContainer.appendChild(clone);
+        });
+    }
+
+    // Renders a filterable data table for one of: spots, users, or reservations
+    function renderTable(type, query) {
+        const tbody = document.getElementById('table-body');
+        tbody.innerHTML = '';
+        let list = (type === 'spots') ? spots : (type === 'users' ? users : reservations);
+        const filtered = list.filter(item => {
+            const nameStr = (item.name || item.email || item.spotName || '').toLowerCase();
+            return nameStr.includes(query);
+        });
+
+        const tpl = document.getElementById('tpl-table-row');
