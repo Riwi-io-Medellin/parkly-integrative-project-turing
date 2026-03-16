@@ -189,3 +189,5 @@ docker-compose up --build
 ## Governing Law
 
 This platform operates under the laws of Colombia. Payments are processed through Wompi.
+
+## hola
