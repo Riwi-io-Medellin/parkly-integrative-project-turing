@@ -116,3 +116,42 @@
                 PQR <span id="badge-pqr"
                     class="ml-1.5 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 text-[10px] px-1.5 py-0.5 rounded-full font-bold border border-red-200 dark:border-transparent">0</span>
             </button>
+        </nav>
+
+        <!-- ── OVERVIEW (SUMMARY) TAB ── -->
+        <section id="view-summary" class="animate-fade-in" aria-live="polite">
+            
+            <!-- High-level KPI metrics container (Total users, earnings, total bookings) -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8" id="kpi-container"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <article class="bg-input border border-border p-6 rounded-2xl">
+                    <h3 class="text-xs font-black text-foreground uppercase tracking-widest mb-8">Reservation status
+                        distribution</h3>
+                    <div id="status-distribution-container" class="space-y-5"></div>
+                </article>
+                <article class="bg-input border border-border p-6 rounded-2xl">
+                    <h3 class="text-xs font-black text-foreground uppercase tracking-widest mb-8">Quick metrics</h3>
+                    <div id="quick-metrics-container" class="space-y-4"></div>
+                </article>
+            </div>
+
+            <section>
+                <h3 class="text-xs font-black text-foreground uppercase tracking-widest mb-6">Revenue by payment method
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="payment-methods-container"></div>
+            </section>
+        </section>
+
+        <!-- ── SPOT REQUESTS TAB (Approve/Reject new parking spots created by owners) ── -->
+        <section id="view-requests" class="hidden animate-fade-in" aria-live="polite">
+            
+            <!-- Pending Requests Queue -->
+            <div id="pending-requests-wrapper">
+                <h3 class="text-xs font-black text-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <i data-lucide="clock" class="w-4 h-4 text-yellow-600 dark:text-yellow-400"></i> Pending Approval
+                    (<span id="pending-count">0</span>)
+                </h3>
+                <div id="pending-requests-container" class="space-y-4 mb-8"></div>
+            </div>
+
