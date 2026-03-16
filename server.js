@@ -398,3 +398,43 @@ app.post('/api/reset-password', async (req, res) => {
         }
 
         const userId = rows[0].id;
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await connection.execute(
+            'UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?',
+            [hashedPassword, userId]
+        );
+
+        res.json({ message: "Password updated successfully! You can now log in." });
+    } catch (error) {
+        console.error("Reset Password Error:", error.message);
+        res.status(500).json({ error: "Failed to reset password." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// --- 3. USER MANAGEMENT ---
+// Register new user
+app.post('/api/register', async (req, res) => {
+    const { name, email, password, phone, role = 'user' } = req.body;
+    let connection;
+    try {
+        connection = await getConnection();
+        const hashedPassword = await bcrypt.hash(password, 10); // Hash password
+        const [result] = await connection.execute(
+            'INSERT INTO users (name, email, password, phone, role) VALUES (?, ?, ?, ?, ?)',
+            [name, email, hashedPassword, phone, role]
+        );
+        console.log(`New user registered: ${email}`);
+        
+        // Send Welcome Email
+        try {
+            await sendEmail({
+                to: email,
+                subject: '🚀 Welcome to Parkly!',
+                html: `
+                    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
+                        <div style="background-color: #3b82f6; padding: 30px; text-align: center;">
+                            <span style="color: #ffffff; font-size: 28px; font-weight: bold; letter-spacing: -1px;">PARK<span style="color: #dbeafe;">LY</span></span>
+                        </div>
