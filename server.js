@@ -118,3 +118,43 @@ async function getConnection() {
     return await mysql.createConnection(dbConfig);
 }
 
+// Helper function to trigger automation webhooks (Make.com, n8n, etc.)
+async function triggerAutomation(event, payload) {
+    const webhookUrl = process.env.AUTOMATION_WEBHOOK_URL || process.env.N8N_WEBHOOK_URL;
+    if (!webhookUrl) {
+        console.warn(`⚠️ AUTOMATION_WEBHOOK_URL not set. Event '${event}' not sent to automation.`);
+        return;
+    }
+    try {
+        await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ event, ...payload, timestamp: new Date() })
+        });
+        console.log(`🚀 Automation: Event '${event}' triggered.`);
+    } catch (e) {
+        console.error(`❌ Automation Error (${event}):`, e.message);
+    }
+}
+
+// --- 1. ADMIN STATISTICS ---
+app.get('/api/admin/stats', async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        const [users] = await connection.execute('SELECT COUNT(*) as total FROM users');
+        const [reservations] = await connection.execute('SELECT COUNT(*) as total FROM reservations');
+        const [spots] = await connection.execute('SELECT COUNT(*) as total FROM parking_spots');
+        const [pendingReservations] = await connection.execute('SELECT COUNT(*) as total FROM reservations WHERE status = "pending"');
+        const [activeReservations] = await connection.execute('SELECT COUNT(*) as total FROM reservations WHERE status = "in-use"');
+
+        console.log("Admin Dashboard: Global statistics synchronized.");
+        res.json({
+            users: users[0].total,
+            reservations: reservations[0].total,
+            spots: spots[0].total,
+            pendingReservations: pendingReservations[0].total,
+            activeReservations: activeReservations[0].total
+        });
+    } catch (error) {
+        console.error("Dashboard Stats Error:", error.message);
