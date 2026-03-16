@@ -838,3 +838,43 @@ app.patch('/api/spots/:id/reject', async (req, res) => {
         res.json({ message: 'Spot rejected.' });
     } catch (error) {
         console.error("Reject Spot Error:", error.message);
+        res.status(500).json({ error: "Failed to reject spot." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Get single parking spot by ID
+app.get('/api/spots/:id', async (req, res) => {
+    const { id } = req.params;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute(`
+            SELECT 
+                ps.id, ps.name, ps.address, ps.zone,
+                ps.price_hour AS price, ps.price_day, ps.price_month,
+                ps.image, ps.images, ps.schedule, ps.services AS features,
+                ps.dimensions, ps.whatsapp, ps.rating,
+                ps.owner_id AS ownerId,
+                ps.verified,
+                ps.available AS status,
+                ps.vehicle_types, ps.max_width, ps.max_length, ps.max_height,
+                ps.latitude, ps.longitude,
+                u.name AS ownerName
+            FROM parking_spots ps
+            LEFT JOIN users u ON ps.owner_id = u.id
+            WHERE ps.id = ? AND ps.deleted_at IS NULL
+        `, [id]);
+        if (rows.length > 0) {
+            const spot = rows[0];
+            try {
+                spot.images = spot.images ? JSON.parse(spot.images) : (spot.image ? [spot.image] : []);
+            } catch (e) {
+                spot.images = [spot.image];
+            }
+            res.json(spot);
+        } else {
+            res.status(404).json({ error: "Parking spot not found." });
+        }
+    } catch (error) {
