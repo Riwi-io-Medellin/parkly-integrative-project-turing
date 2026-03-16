@@ -1,6 +1,6 @@
 /**
  * ARCHIVO: js/search.js
- * DESCRIPCIÓN: Lógica de búsqueda con sidebar de filtros.
+ * DESCRIPCIÓN: Lógica de búsqueda con sidebar de filtros y mapa.
  * 100% conectado a la API de Node.js y TiDB Cloud.
  *
  */
