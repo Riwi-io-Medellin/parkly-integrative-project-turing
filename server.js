@@ -38,3 +38,43 @@ async function sendEmail({ to, subject, html }) {
                     to_email: to,
                     subject: subject,
                     message: html // Injected premium design
+                }
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`EmailJS Error: ${response.status} - ${errorText}`);
+        }
+
+        console.log(`✅ Email sent successfully to ${to}`);
+        return { data: { id: 'emailjs_success' } };
+    } catch (err) {
+        console.error('❌ Failed to send email via EmailJS:', err.message);
+        return { error: err.message };
+    }
+}
+
+let openai = null;
+if (process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+} else {
+    console.warn('⚠️ OPENAI_API_KEY not set. AI chat features will not work.');
+}
+
+// MongoDB Chat Configuration
+const mongoURI = process.env.MONGODB_URI;
+if (mongoURI) {
+    mongoose.connect(mongoURI)
+        .then(() => console.log('📦 Connected to MongoDB (Chat)'))
+        .catch(err => console.error('MongoDB connection error:', err));
+} else {
+    console.warn('⚠️ MONGODB_URI not set. Chat features will not work.');
+}
+
+const app = express();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Cloudinary configuration
+cloudinary.v2.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
