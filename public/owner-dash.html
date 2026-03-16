@@ -663,3 +663,162 @@
             <p>You haven't published any spots yet.</p>
         </div>
     </template>
+
+    <!-- Template: Booking Reservation List Item for the owner to view -->
+    <template id="tpl-owner-reservation">
+        <div
+            class="bg-card border border-border p-5 rounded-2xl flex items-center gap-4 hover:border-slate-600 transition-all mb-4">
+            <div
+                class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-card border-2 border-border flex items-center justify-center">
+                <img class="res-driver-avatar w-full h-full object-cover hidden" src="" alt="">
+                <span class="res-driver-initials text-xs font-bold text-foreground/80">?</span>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex justify-between">
+                    <div>
+                        <h4 class="res-driver-name font-bold text-foreground text-sm truncate"></h4>
+                        <p class="res-spot-name text-[10px] text-foreground/80 font-bold uppercase tracking-widest"></p>
+                    </div>
+                    <div class="res-status-badge px-2 py-0.5 rounded-lg text-[9px] font-black uppercase"></div>
+                </div>
+                <div class="flex items-center gap-4 mt-2">
+                    <div class="flex items-center gap-1 text-sm text-foreground/90 font-bold">
+                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                        <span class="res-date"></span>
+                    </div>
+                    <div class="flex items-center gap-1 text-sm text-foreground/90 font-bold">
+                        <i data-lucide="clock" class="w-4 h-4"></i>
+                        <span class="res-time"></span>
+                    </div>
+                    <div class="flex items-center gap-1 text-base font-extrabold text-primary shadow-sm drop-shadow-sm">
+                        <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+                        <span class="res-price"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button
+                    class="res-btn-chat p-2.5 rounded-xl border border-border bg-card dark:hover:bg-border hover:bg-primary/5 text-foreground/90 font-medium hover:text-foreground transition-all"
+                    title="Message Driver">
+                    <i data-lucide="message-square" class="w-4 h-4"></i>
+                </button>
+                <button class="res-btn-action px-4 py-2 rounded-xl text-xs font-bold transition-all"></button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Template: Empty state when the owner has 0 reservations to show -->
+    <template id="tpl-empty-reservations">
+        <div class="text-center py-20 text-foreground opacity-70">
+            <div
+                class="w-16 h-16 bg-card rounded-2xl flex items-center justify-center mx-auto mb-4 border border-border">
+                <i data-lucide="calendar" class="w-8 h-8 text-foreground opacity-100"></i>
+            </div>
+            <p class="font-bold">No reservations found in this category.</p>
+        </div>
+    </template>
+
+    <!-- PQR Dialog Modal (Petitions, Questions, Reports) -->
+    <dialog id="pqr-dialog" aria-labelledby="pqr-dialog-title" aria-modal="true"
+        class="bg-card border border-border rounded-3xl p-8 w-full max-w-md text-foreground backdrop:bg-black/70 backdrop:backdrop-blur-sm shadow-2xl">
+        <h2 id="pqr-dialog-title" class="text-xl font-extrabold text-foreground mb-2">How can we help?</h2>
+        <p class="text-sm text-foreground/90 font-medium mb-6">Our support team will respond within 24 hours.</p>
+
+        <form id="pqr-form" method="dialog">
+            <div class="mb-5">
+                <label for="pqr-type"
+                    class="block text-xs font-bold uppercase tracking-widest text-foreground/90 font-medium mb-2">Issue
+                    Type</label>
+                <select id="pqr-type"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary appearance-none shadow-inner">
+                    <option value="claim">Claim / Complaint</option>
+                    <option value="question">Question</option>
+                    <option value="suggestion">Suggestion</option>
+                </select>
+            </div>
+
+            <div class="mb-5">
+                <label for="pqr-subject"
+                    class="block text-xs font-bold uppercase tracking-widest text-foreground/90 font-medium mb-2">Subject</label>
+                <input type="text" id="pqr-subject" placeholder="e.g. Issues with payment"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary shadow-inner">
+            </div>
+
+            <div class="mb-5">
+                <label for="pqr-description"
+                    class="block text-xs font-bold uppercase tracking-widest text-foreground/90 font-medium mb-2">Details</label>
+                <textarea id="pqr-description" rows="4" placeholder="Describe what happened..."
+                    class="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder-slate-600 focus:outline-none focus:border-primary resize-none shadow-inner"></textarea>
+            </div>
+
+            <div class="flex gap-3">
+                <button id="pqr-cancel-btn" type="button"
+                    class="px-5 py-2.5 rounded-xl border border-border text-foreground/90 font-medium hover:text-foreground hover:border-slate-500 text-sm font-semibold transition-all">Cancel</button>
+                <button id="pqr-submit-btn" type="button"
+                    class="flex-1 bg-primary hover:opacity-90 text-primary-foreground font-bold py-2.5 rounded-xl text-sm transition-all shadow-md">Send
+                    Message →</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Template: Success message displayed inside PQR Dialog after submission -->
+    <template id="tpl-pqr-success">
+        <div class="text-center py-8 pqr-success-msg">
+            <div
+                class="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="check" class="w-8 h-8"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-foreground mb-2">Message Sent!</h2>
+            <p class="text-foreground/80">Support will reply to your email soon.</p>
+            <button class="btn-close-pqr mt-6 px-6 py-2 bg-primary text-white font-bold rounded-xl">Return</button>
+        </div>
+    </template>
+
+    <!-- ── CHATBOX — same floating AI widget as on the search page ── -->
+    <ul class="chatbox-launcher">
+        <li id="chatbox-toggle" style="--i:#3b82f6; --j:#1d4ed8" aria-label="Open support chat" role="button"
+            tabindex="0">
+            <span class="notif-dot"></span>
+            <span class="icon icon-chat" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+            </span>
+            <span class="icon icon-close" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </span>
+            <span class="title">Chat</span>
+        </li>
+    </ul>
+
+    <div id="chatbox-panel" role="dialog" aria-modal="true" aria-label="PARKLY Support Chat">
+        <div class="chat-header">
+            <div class="chat-avatar" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2C8 2 5 5 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-4-3-7-7-7z" />
+                    <circle cx="12" cy="9" r="2.5" />
+                </svg>
+            </div>
+            <div class="chat-header-info">
+                <h3>PARK<span>LY</span> Support</h3>
+                <p class="status-line"><span class="status-dot" aria-hidden="true"></span>Online — responding instantly
+                </p>
+            </div>
+            <div class="mode-badge" id="mode-badge" aria-live="polite">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"
+                    aria-hidden="true">
+                    <path
+                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+                <span>Quick Replies</span>
+            </div>
+        </div>
+
+        <div id="chatbox-messages" role="log" aria-live="polite" aria-label="Chat messages">
+            <div class="chat-bubble bot welcome-bubble">
