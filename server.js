@@ -1198,3 +1198,43 @@ app.patch('/api/reservations/:id/status', async (req, res) => {
         connection = await getConnection();
         const [result] = await connection.execute('UPDATE reservations SET status = ? WHERE id = ?', [status, id]);
         if (result.affectedRows > 0) {
+            console.log(`Booking ${id} updated to status: ${status}`);
+            res.json({ message: `Status updated to ${status} successfully.` });
+        } else {
+            res.status(404).json({ error: "Reservation not found." });
+        }
+    } catch (error) {
+        console.error("Update Status Error:", error.message);
+        res.status(500).json({ error: "Failed to update reservation status." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Cancel reservation
+app.delete('/api/reservations/:id', async (req, res) => {
+    const { id } = req.params;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [result] = await connection.execute('UPDATE reservations SET status = "cancelled" WHERE id = ? AND status IN ("pending", "in-use", "active")', [id]);
+        if (result.affectedRows > 0) {
+            console.log(`Reservation ${id} cancelled.`);
+            res.json({ message: "Reservation cancelled successfully." });
+        } else {
+            res.status(404).json({ error: "Reservation not found or cannot be cancelled." });
+        }
+    } catch (error) {
+        console.error("Cancel Reservation Error:", error.message);
+        res.status(500).json({ error: "Failed to cancel reservation." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Extend reservation — accepts extended_until from dashboard.js
+app.patch('/api/reservations/:id/extend', async (req, res) => {
+    const { id } = req.params;
+    const { extended_until, newEndTime } = req.body;
+    const targetTime = extended_until || newEndTime; // support both
+    let connection;
