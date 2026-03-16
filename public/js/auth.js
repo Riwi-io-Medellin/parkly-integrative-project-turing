@@ -99,3 +99,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('parkly_terms_accepted', 'true');
                 const user = await DB.login(newUser.email, newUser.password);
                 if (user) {
+                    if (user.role === 'admin') window.location.href = 'admin-dash.html';
+                    else if (user.role === 'owner') window.location.href = 'owner-dash.html';
+                    else window.location.href = 'dashboard.html';
+                } else {
+                    window.location.href = 'login.html';
+                }
+            } else {
+                Alerts.error("Error: Email already exists.");
+            }
+        });
+    }
+
+    // SECTION 3 - GOOGLE LOGIN BUTTON
+    // I just trigger the Google auth flow from google-auth.js.
+    // If it's on the register page, I first check that the user accepted the terms.
+    const btnGoogleLogin = document.getElementById('btn-google-login');
+    if (btnGoogleLogin) {
+        btnGoogleLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            const termsCheckbox = document.getElementById('terms-checkbox');
+            if (termsCheckbox && !termsCheckbox.checked) {
+                Alerts.error("You must accept the Terms and Conditions to continue.");
+                return;
+            }
+            if (typeof window.handleGoogleLogin === 'function') {
+                window.handleGoogleLogin();
+            }
+        });
+    }
+
+    // The back button either goes back to step 1 in registration, or returns to login
+    if (btnBack) {
+        btnBack.addEventListener('click', () => {
+            if (step2 && !step2.classList.contains('hidden')) {
+                step2.classList.add('hidden');
+                step1.classList.remove('hidden');
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+    }
+});

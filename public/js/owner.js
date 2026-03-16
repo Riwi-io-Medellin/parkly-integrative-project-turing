@@ -942,3 +942,218 @@ document.addEventListener('DOMContentLoaded', () => {
             e.currentTarget.classList.remove('text-foreground/90');
             wizardData.schedule = mode;
             const customBox = document.getElementById('custom-schedule-box');
+            if (customBox) mode === 'custom' ? customBox.classList.remove('hidden') : customBox.classList.add('hidden');
+        });
+    });
+
+    // Enable/disable the time inputs when a day checkbox is toggled
+    document.querySelectorAll('.custom-day-check').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            const day = checkbox.dataset.day;
+            const openInput = document.querySelector(`.day-open[data-day="${day}"]`);
+            const closeInput = document.querySelector(`.day-close[data-day="${day}"]`);
+            if (openInput) openInput.disabled = !checkbox.checked;
+            if (closeInput) closeInput.disabled = !checkbox.checked;
+        });
+    });
+
+    // Show the selected certificate filename in the label
+    const fileInput = document.getElementById('owner-certificate-file');
+    const fileLabel = document.getElementById('cert-file-label');
+    if (fileInput) {
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                if (fileLabel) {
+                    fileLabel.innerText = "File: " + fileInput.files[0].name;
+                    fileLabel.classList.add('text-primary');
+                }
+                wizardData.certFile = fileInput.files[0].name;
+            }
+        });
+    }
+
+    const photosInput = document.getElementById('wiz-photos');
+    const photosLabel = document.getElementById('photos-label');
+    const photosPreview = document.getElementById('photos-preview-container');
+    const photoHint = document.getElementById('main-photo-hint');
+
+    if (photosInput) {
+        photosInput.addEventListener('change', () => {
+            const files = Array.from(photosInput.files).slice(0, 5);
+            if (files.length > 0) {
+                wizardData.photos = files;
+                wizardData.mainIdx = 0;
+                renderPhotosPreview();
+                if (photosLabel) photosLabel.innerText = `${files.length} photos selected`;
+                if (photoHint) photoHint.classList.remove('hidden');
+            }
+        });
+    }
+
+    // Renders the photo preview grid ÔÇö clicking a photo sets it as the main/cover image
+    function renderPhotosPreview() {
+        if (!photosPreview) return;
+        photosPreview.innerHTML = '';
+        photosPreview.classList.remove('hidden');
+
+        const allItems = [
+            ...wizardData.existingPhotos.map(url => ({ type: 'url', data: url })),
+            ...wizardData.photos.map(file => ({ type: 'file', data: file }))
+        ];
+
+        allItems.forEach((item, idx) => {
+            const url = item.type === 'file' ? URL.createObjectURL(item.data) : item.data;
+            const wrapper = document.createElement('div');
+            wrapper.className = `relative aspect-video rounded-lg overflow-hidden border-2 cursor-pointer transition-all ${idx === wizardData.mainIdx ? 'border-primary shadow-lg shadow-primary/20' : 'border-slate-800 opacity-60 hover:opacity-100'}`;
+
+            const img = document.createElement('img');
+            img.src = url;
+            img.className = 'w-full h-full object-cover';
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-md flex items-center justify-center hover:bg-red-600 transition-colors z-10';
+            const icon = document.createElement('i');
+            icon.setAttribute('data-lucide', 'x');
+            icon.className = 'w-3 h-3';
+            delBtn.appendChild(icon);
+            delBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (item.type === 'file') {
+                    const fileIdx = wizardData.photos.indexOf(item.data);
+                    if (fileIdx > -1) wizardData.photos.splice(fileIdx, 1);
+                } else {
+                    const urlIdx = wizardData.existingPhotos.indexOf(item.data);
+                    if (urlIdx > -1) wizardData.existingPhotos.splice(urlIdx, 1);
+                }
+                if (wizardData.mainIdx >= (wizardData.existingPhotos.length + wizardData.photos.length)) {
+                    wizardData.mainIdx = 0;
+                }
+                renderPhotosPreview();
+            });
+            wrapper.appendChild(delBtn);
+
+            if (idx === wizardData.mainIdx) {
+                const badge = document.createElement('span');
+                badge.className = 'absolute top-1 left-1 bg-primary text-white text-[8px] font-bold px-1 rounded';
+                badge.innerText = 'MAIN';
+                wrapper.appendChild(badge);
+            }
+
+            wrapper.addEventListener('click', () => {
+                wizardData.mainIdx = idx;
+                renderPhotosPreview();
+            });
+
+            wrapper.appendChild(img);
+            photosPreview.appendChild(wrapper);
+        });
+        if (window.lucide) lucide.createIcons();
+    }
+
+    // Populates the wizard with a spot's existing data so the owner can edit it
+    function editSpot(spot) {
+        resetWizard();
+        editingSpotId = spot.id;
+
+        const titleEl = document.querySelector('#view-publish h2');
+        if (titleEl) titleEl.innerText = "Edit your spot: " + spot.name;
+
+        document.getElementById('wiz-address').value = spot.address;
+        document.getElementById('wiz-price').value = spot.price;
+        if (spot.dimensions) {
+            document.getElementById('wiz-capacity').value = spot.dimensions.includes('celdas') ? spot.dimensions.split(' ')[0] : '1';
+        }
+
+        const typeStr = spot.name.split(' at ')[0];
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            if (btn.innerText.trim() === typeStr) {
+                wizardData.type = typeStr;
+                btn.classList.add('border-primary', 'bg-primary/10');
+            }
+        });
+
+        document.querySelectorAll('.schedule-btn').forEach(btn => {
+            if (btn.dataset.sched === spot.schedule) {
+                wizardData.schedule = spot.schedule;
+                btn.classList.add('border-primary', 'bg-primary/10');
+            }
+        });
+
+        const feats = (spot.features || spot.services || "").split(',');
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            if (feats.includes(cb.value)) {
+                cb.checked = true;
+                wizardData.features.push(cb.value);
+            }
+        });
+
+        if (spot.vehicle_types) {
+            const types = spot.vehicle_types.split(',');
+            document.querySelectorAll('input[name="wiz-vehicle-type"]').forEach(cb => {
+                if (types.includes(cb.value)) {
+                    cb.checked = true;
+                    wizardData.vehicleTypes.push(cb.value);
+                }
+            });
+        }
+
+        if (document.getElementById('wiz-max-width')) document.getElementById('wiz-max-width').value = spot.max_width || '';
+        if (document.getElementById('wiz-max-length')) document.getElementById('wiz-max-length').value = spot.max_length || '';
+        if (document.getElementById('wiz-max-height')) document.getElementById('wiz-max-height').value = spot.max_height || '';
+
+        wizardData.existingPhotos = spot.images || [spot.image];
+        const idx = wizardData.existingPhotos.indexOf(spot.image);
+        wizardData.mainIdx = idx >= 0 ? idx : 0;
+
+        renderPhotosPreview();
+        toggleView(false);
+    }
+
+    // New owners (flagged via localStorage) go straight to the wizard; returning owners see the dashboard
+    const isNewUser = localStorage.getItem('parkly_new_user');
+    if (isNewUser === 'true') {
+        localStorage.removeItem('parkly_new_user');
+        toggleView(false);
+    } else {
+        renderTab();
+    }
+
+    // PQR modal for owners ÔÇö simpler version that just swaps content with a success template
+    const pqrDialogOpenBtn = document.getElementById('pqr-open-btn');
+    const pqrDialog = document.getElementById('pqr-dialog');
+    const pqrCancelBtn = document.getElementById('pqr-cancel-btn');
+    const pqrSubmitBtn = document.getElementById('pqr-submit-btn');
+
+    if (pqrDialogOpenBtn && pqrDialog) {
+        pqrDialogOpenBtn.addEventListener('click', () => {
+            pqrDialog.showModal();
+        });
+    }
+
+    if (pqrCancelBtn && pqrDialog) {
+        pqrCancelBtn.addEventListener('click', () => {
+            pqrDialog.close();
+        });
+    }
+
+    if (pqrSubmitBtn && pqrDialog) {
+        pqrSubmitBtn.addEventListener('click', () => {
+            const subject = document.getElementById('pqr-subject').value;
+            const desc = document.getElementById('pqr-description').value;
+
+            if (!subject || !desc) {
+                Alerts.toast("Please fill out all fields.", 'warning');
+                return;
+            }
+
+            const tpl = document.getElementById('tpl-pqr-success');
+            if (tpl) {
+                pqrDialog.innerHTML = '';
+                const clone = tpl.content.cloneNode(true);
+                clone.querySelector('.btn-close-pqr').addEventListener('click', () => pqrDialog.close());
+                pqrDialog.appendChild(clone);
+            }
+            if (window.lucide) lucide.createIcons();
+        });
+    }
+});

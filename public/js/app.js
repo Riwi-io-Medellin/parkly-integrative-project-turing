@@ -243,3 +243,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('parkly_terms_accepted');
                 window.location.href = 'login.html';
             }
+        });
+    }
+});

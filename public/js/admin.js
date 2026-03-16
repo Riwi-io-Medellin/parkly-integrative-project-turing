@@ -585,3 +585,162 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (e) {
             empty.classList.remove('hidden');
         }
+        if (window.lucide) lucide.createIcons();
+    }
+
+    // Approves a spot request and reloads all data so the view reflects the change
+    async function handleApprove(reqId) {
+        const idx = requests.findIndex(r => r.id === reqId);
+        if (idx === -1) return;
+        const req = requests[idx];
+        try {
+            const res = await fetch(`/api/spots/${reqId}/approve`, { method: 'PATCH' });
+            if (!res.ok) throw new Error('Failed');
+            requests[idx].status = 'approved';
+            Alerts.success(`The spot "${req.name}" has been approved and is now live.`);
+            await loadRealData();
+            renderCurrentView();
+        } catch (e) {
+            Alerts.error('Could not approve the spot. Please try again.');
+        }
+    }
+
+    // Rejects a spot request with the selected reason
+    async function handleReject(reqId, reason) {
+        const idx = requests.findIndex(r => r.id === reqId);
+        if (idx === -1) return;
+        try {
+            const res = await fetch(`/api/spots/${reqId}/reject`, { method: 'PATCH' });
+            if (!res.ok) throw new Error('Failed');
+            requests[idx].status = 'rejected';
+            requests[idx].rejectionReason = reason;
+            Alerts.toast(`The request has been rejected. Reason: ${reason}`, 'warning');
+            await loadRealData();
+            renderCurrentView();
+        } catch (e) {
+            Alerts.error('Could not reject the spot. Please try again.');
+        }
+    }
+
+    // Blocks, unblocks, or deletes a user account
+    async function handleUserStatus(userId, newStatus) {
+        const label = newStatus === 'deleted' ? 'permanently DELETE' : newStatus === 'suspended' ? 'BLOCK' : 'UNBLOCK and reactivate';
+        if (!await Alerts.confirm(`CAUTION: Are you sure you want to ${label} this user?`)) return;
+        try {
+            const res = await fetch(`/api/users/${userId}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            });
+            if (res.ok) {
+                await loadRealData();
+                renderCurrentView();
+            } else {
+                Alerts.error('Action failed. Please try again.');
+            }
+        } catch (e) {
+            Alerts.error('Server error.');
+        }
+    }
+
+    // Forces a reservation's status to a new value (admin override)
+    async function handleReservationStatus(resId, newStatus) {
+        if (!await Alerts.confirm(`Force change reservation ${resId} to ${newStatus}?`)) return;
+        try {
+            const res = await fetch(`/api/reservations/${resId}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            });
+            if (res.ok) {
+                await loadRealData();
+                renderCurrentView();
+            } else {
+                Alerts.error('Action failed.');
+            }
+        } catch (e) {
+            Alerts.error('Server error.');
+        }
+    }
+
+    // Cancels a reservation — requires the admin to enter a reason before the API call
+    async function handleCancelReservation(resId) {
+        const { value: reason } = await Swal.fire({
+            title: 'Enter cancellation reason (required):',
+            input: 'text',
+            color: 'hsl(var(--foreground))',
+            background: 'hsl(var(--background))',
+            confirmButtonColor: 'hsl(var(--primary))',
+            customClass: {
+                popup: 'rounded-2xl border border-border shadow-2xl',
+                input: 'bg-input border-border text-foreground rounded-xl p-3',
+                confirmButton: 'rounded-xl font-semibold'
+            },
+            inputValidator: (value) => {
+                if (!value) return 'You need to write something!'
+            }
+        });
+        if (!reason) return;
+        try {
+            const res = await fetch(`/api/reservations/${resId}/cancel`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cancelled_by: 'admin', cancel_reason: reason })
+            });
+            if (res.ok) {
+                reservations = reservations.map(r => r.id === resId ? { ...r, status: 'cancelled' } : r);
+                renderCurrentView();
+            } else {
+                Alerts.error('Could not cancel reservation.');
+            }
+        } catch (e) {
+            Alerts.error('Server error.');
+        }
+    }
+
+    // Permanently removes a spot after confirmation
+    async function handleDeleteSpot(spotId, spotName) {
+        if (!await Alerts.confirm(`Remove spot "${spotName}" permanently?`)) return;
+        try {
+            const res = await fetch(`/api/spots/${spotId}`, { method: 'DELETE' });
+            if (res.ok) {
+                spots = spots.filter(s => s.id !== spotId);
+                renderCurrentView();
+            } else {
+                Alerts.error('Could not remove spot.');
+            }
+        } catch (e) {
+            Alerts.error('Server error.');
+        }
+    }
+
+    // Highlights the active tab button
+    function updateTabsUI(active) {
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('active-tab', 'border-primary', 'text-primary', 'font-bold');
+            b.classList.add('border-transparent', 'text-foreground/90');
+        });
+        active.classList.add('active-tab', 'border-primary', 'text-primary', 'font-bold');
+    }
+
+    // Updates the count badges on each tab button
+    function updateBadges() {
+        const pendingCount = requests.filter(r => r.status === 'pending').length;
+        document.getElementById('badge-spots').innerText = spots.length;
+        document.getElementById('badge-reservations').innerText = reservations.length;
+        document.getElementById('badge-users').innerText = users.length || 0;
+        if (reqBadge) {
+            reqBadge.innerText = pendingCount;
+            reqBadge.className = pendingCount > 0
+                ? 'ml-1.5 bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 text-[10px] px-1.5 py-0.5 rounded-full font-bold border border-yellow-200 dark:border-transparent'
+                : 'ml-1.5 bg-card text-foreground font-bold text-[10px] px-1.5 py-0.5 rounded-full opacity-60';
+        }
+    }
+
+    // Triggers the server-side CSV export for the reservations table
+    document.getElementById('btn-export-csv')?.addEventListener('click', () => {
+        window.open('/api/export/reservations', '_blank');
+    });
+
+    renderCurrentView();
+});
