@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!-- Admin dashboard — protected route, accessible only to admin users.
+     Contains tabs for Overview, Spots, Bookings, Users, Spot Requests, Analytics, and PQR.
+     admin.js loads all data and handles tab switching. -->
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - PARKLY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body
+    class="flex flex-col min-h-screen bg-background text-foreground font-sans antialiased transition-colors duration-300">
+
+    <header class="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md px-6 py-3">
+        <nav class="flex items-center justify-between gap-4" aria-label="Main Navigation">
+            <a href="index.html" class="flex items-center gap-2 mr-8 group" aria-label="Home">
+                <div class="bg-primary/10 p-1 rounded-lg group-hover:bg-primary/20 transition-colors">
+                    <i data-lucide="circle-parking"
+                        class="h-6 w-6 text-primary group-hover:scale-110 transition-transform"></i>
+                </div>
