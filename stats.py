@@ -70,3 +70,15 @@ async def get_occupancy_rate():
     try:
         cursor = conn.cursor()
 
+        # Count all approved (verified) spots
+        cursor.execute("SELECT COUNT(*) FROM parking_spots WHERE verified = 1")
+        total_spots = cursor.fetchone()[0]
+
+        # Count all non-cancelled reservations as "occupied"
+        cursor.execute("SELECT COUNT(*) FROM reservations WHERE status != 'cancelled'")
+        active_reservations = cursor.fetchone()[0]
+
+        if total_spots == 0:
+            return {"occupancy_rate": 0}
+
+        rate = (active_reservations / total_spots) * 100
