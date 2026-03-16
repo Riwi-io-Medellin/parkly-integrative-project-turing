@@ -1158,3 +1158,43 @@ app.post('/api/reservations', async (req, res) => {
                                         </div>
                                         <p style="font-size: 16px; color: #4b5563;">Check your Owner Dashboard to manage this reservation.</p>
                                     </div>
+                                    <div style="background-color: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                                        <p style="font-size: 13px; color: #6b7280; margin: 0;">© 2024 Parkly. Maximize your space.</p>
+                                    </div>
+                               </div>`,
+                    });
+                }
+            } catch (err) {
+                console.error('Owner email send error:', err.message);
+            }
+        }
+
+        // Trigger automation webhook
+        triggerAutomation('reservation_created', { 
+            id: resId, 
+            userName, 
+            spotName, 
+            date, 
+            startTime, 
+            endTime, 
+            total 
+        });
+
+        res.status(201).json({ id: resId, message: "Reservation created successfully." });
+    } catch (error) {
+        console.error("Create Reservation Error:", error.message);
+        res.status(500).json({ error: "Failed to create reservation." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Update reservation status (general)
+app.patch('/api/reservations/:id/status', async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body; // e.g., 'in-use', 'completed', 'cancelled'
+    let connection;
+    try {
+        connection = await getConnection();
+        const [result] = await connection.execute('UPDATE reservations SET status = ? WHERE id = ?', [status, id]);
+        if (result.affectedRows > 0) {
