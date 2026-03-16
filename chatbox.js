@@ -49,3 +49,52 @@
             { text: "If you own a parking spot, access the <strong>Owner Dashboard</strong> to manage your spaces and bookings." },
         ],
     };
+
+    
+    /* ─────────────────────────────────────────
+       HELPERS
+    ───────────────────────────────────────── */
+    function scrollBottom() {
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    function addBubble(html, type = "bot") {
+        const div = document.createElement("div");
+        div.className = `chat-bubble ${type} bubble-in`;
+        div.innerHTML = html;
+        messages.appendChild(div);
+        scrollBottom();
+        return div;
+    }
+
+    function showTyping() {
+        const el = document.createElement("div");
+        el.className = "typing-indicator";
+        el.innerHTML = "<span></span><span></span><span></span>";
+        messages.appendChild(el);
+        scrollBottom();
+        return el;
+    }
+
+    function delay(ms) {
+        return new Promise(r => setTimeout(r, ms));
+    }
+
+    function showInputArea() {
+        inputArea.style.display = "flex";
+        requestAnimationFrame(() => inputArea.classList.add("visible"));
+        setTimeout(() => input.focus(), 100);
+    }
+
+    function hideInputArea() {
+        inputArea.classList.remove("visible");
+        setTimeout(() => { inputArea.style.display = "none"; }, 300);
+    }
+
+    function setModeBadge(isAI) {
+        const star = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
+        modeBadge.innerHTML = isAI
+            ? `${star}<span>AI Mode</span>`
+            : `${star}<span>Quick Replies</span>`;
+        modeBadge.classList.toggle("ai-active", isAI);
+    }
