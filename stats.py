@@ -34,3 +34,15 @@ def get_db_connection():
         print(f"Database connection error: {e}")
         return None
 
+
+# --- ANALYTICS ENDPOINTS ---
+
+@app.get("/api/python/stats/monthly-projection")
+async def get_monthly_projection():
+    """Calculates a simple monthly revenue projection based on the average hourly price
+    across all verified parking spots, assuming 8 hours of use per day for 30 days."""
+    conn = get_db_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+
+    try:
