@@ -6,3 +6,5 @@ if (!parkly_session) {
     console.log("Landing Page");
 } else if (parkly_session.role == 'client') {
     window.location.href = './search.html';
+} else if (parkly_session.role == 'admin') {
+    window.location.href = './admin-dash.html';
