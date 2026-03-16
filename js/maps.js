@@ -1,4 +1,4 @@
-// Maps integration, to comunicate between the other parts of the app
+// Maps integration, to comunicate between the other parts of the app and show the maps
 
 
 function initMap() {
