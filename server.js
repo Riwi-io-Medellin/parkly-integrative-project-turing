@@ -358,3 +358,43 @@ app.post('/api/forgot-password', async (req, res) => {
                         <span style="color: #ffffff; font-size: 28px; font-weight: bold; letter-spacing: -1px;">PARK<span style="color: #dbeafe;">LY</span></span>
                     </div>
                     <div style="padding: 40px 30px;">
+                        <h2 style="color: #111827; margin-top: 0; font-size: 22px;">🔑 Reset your Password</h2>
+                        <p style="font-size: 16px; line-height: 24px; color: #4b5563;">Hello ${user.name || 'User'},</p>
+                        <p style="font-size: 16px; line-height: 24px; color: #4b5563;">We received a request to reset your password. Click the button below to choose a new one. This link will expire in 1 hour.</p>
+                        <div style="text-align: center; margin: 35px 0;">
+                            <a href="${resetLink}" style="background-color: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 10px; font-weight: bold; display: inline-block; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);">Reset Password</a>
+                        </div>
+                        <p style="font-size: 14px; color: #9ca3af; margin-bottom: 0;">If you didn't request this, you can safely ignore this email.</p>
+                    </div>
+                    <div style="background-color: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                        <p style="font-size: 13px; color: #6b7280; margin: 0;">© 2024 Parkly. The smartest way to park.</p>
+                    </div>
+                </div>
+            `
+        });
+
+        res.json({ message: "If an account exists with this email, a reset link has been sent." });
+    } catch (error) {
+        console.error("Forgot Password Error:", error.message);
+        res.status(500).json({ error: "Failed to process request." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Reset password with token
+app.post('/api/reset-password', async (req, res) => {
+    const { token, newPassword } = req.body;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute(
+            'SELECT id FROM users WHERE reset_token = ? AND reset_token_expires > NOW()',
+            [token]
+        );
+
+        if (rows.length === 0) {
+            return res.status(400).json({ error: "Invalid or expired token." });
+        }
+
+        const userId = rows[0].id;
