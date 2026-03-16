@@ -478,3 +478,43 @@ app.post('/api/register', async (req, res) => {
     } finally {
         if (connection) await connection.end();
     }
+});
+
+// Get all users
+app.get('/api/users', async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute(
+            'SELECT id, name, email, phone, role, avatar_url, status FROM users WHERE status != "deleted" OR status IS NULL'
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error("Fetch Users Error:", error.message);
+        res.status(500).json({ error: "Failed to retrieve users." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Google Auth Sync (from Firebase)
+app.post('/api/auth/google', async (req, res) => {
+    const { name, email, photo, role } = req.body;
+    let connection;
+    try {
+        connection = await getConnection();
+        // 1. Check if user exists
+        const [rows] = await connection.execute(
+            'SELECT id, name, email, role, phone, avatar_url, status FROM users WHERE email = ?',
+            [email]
+        );
+
+        let user;
+        if (rows.length > 0) {
+            user = rows[0];
+            if (user.status === 'suspended' || user.status === 'deleted') {
+                return res.status(403).json({ error: "Account suspended or deleted." });
+            }
+            // Update avatar if we have a new photo and none exists
+            if (photo && !user.avatar_url) {
+                await connection.execute('UPDATE users SET avatar_url = ? WHERE id = ?', [photo, user.id]);
