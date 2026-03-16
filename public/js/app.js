@@ -161,3 +161,25 @@ document.addEventListener('DOMContentLoaded', () => {
             icon.setAttribute('data-lucide', 'shield');
             navLinkBookings.appendChild(icon);
             navLinkBookings.appendChild(document.createTextNode(' Admin Panel'));
+        } else {
+            navLinkBookings.href = 'dashboard.html';
+            icon.setAttribute('data-lucide', 'layout-dashboard');
+            navLinkBookings.appendChild(icon);
+            navLinkBookings.appendChild(document.createTextNode(' Client Dashboard'));
+        }
+    }
+
+    // Profile pill dropdown — toggles on click, closes when clicking outside
+    const profilePill = document.getElementById('profile-pill');
+    const profileDropdown = document.getElementById('profile-dropdown');
+
+    if (profilePill && profileDropdown) {
+        profilePill.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileDropdown.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', () => {
+            profileDropdown.classList.add('hidden');
+        });
+
