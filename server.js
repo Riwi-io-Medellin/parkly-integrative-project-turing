@@ -918,3 +918,43 @@ app.post('/api/spots', upload.array('images', 5), async (req, res) => {
         connection = await getConnection();
         const [result] = await connection.execute(
             `INSERT INTO parking_spots 
+             (owner_id, name, address, zone, price_hour, schedule, services, image, images, available,
+              dimensions, vehicle_types, max_width, max_length, max_height)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                ownerId, fields.name || '', fields.address || '', fields.zone || '',
+                priceHour, fields.schedule || '24h', featuresStr,
+                finalImage || fields.image || '', finalImagesJson, 0,
+                dimensions, fields.vehicle_types || 'all',
+                fields.max_width || null, fields.max_length || null, fields.max_height || null
+            ]
+        );
+        res.status(201).json({ id: result.insertId, image: finalImage, images: newImageUrls, ...fields });
+    } catch (error) {
+        console.error("Create Spot Error:", error.message);
+        res.status(500).json({ error: "Failed to create parking spot." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Update parking spot — usa parking_spots (tabla original)
+app.put('/api/spots/:id', upload.array('images', 5), async (req, res) => {
+    const { id } = req.params;
+    const fields = req.body;
+    let connection;
+    let finalImage = null;
+    let finalImagesJson = '[]';
+
+    try {
+        connection = await getConnection();
+        const [current] = await connection.execute('SELECT image, images FROM parking_spots WHERE id = ?', [id]);
+        if (current.length === 0) return res.status(404).json({ error: "Spot not found" });
+
+        finalImage = current[0].image;
+        finalImagesJson = current[0].images;
+
+        let existingImages = fields.existingImages ? JSON.parse(fields.existingImages) : [];
+        let newImageUrls = [];
+
+        if (req.files && req.files.length > 0) {
