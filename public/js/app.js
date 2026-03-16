@@ -55,3 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async (e) => {
             e.preventDefault();
+            if (await Alerts.confirm("Are you sure you want to log out?")) {
+                localStorage.removeItem('parkly_session');
+                window.location.href = './index.html';
+            }
