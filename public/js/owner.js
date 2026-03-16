@@ -429,3 +429,284 @@ document.addEventListener('DOMContentLoaded', () => {
         let mySpots = [];
         try {
             const res = await fetch(`/api/users/${user.id}/spots`);
+            if (res.ok) mySpots = await res.json();
+        } catch (e) {
+            console.error("Error fetching spots in owner dashboard:", e);
+        }
+
+        // Calculate real earnings by summing completed reservations for my spots
+        let totalEarnings = 0;
+        try {
+            const resData = await fetch('/api/reservations');
+            if (resData.ok) {
+                const allReservations = await resData.json();
+                const mySpotIds = mySpots.map(s => Number(s.id));
+                const completedRes = allReservations.filter(r =>
+                    mySpotIds.includes(Number(r.spotId)) &&
+                    r.status?.toLowerCase() === 'completed'
+                );
+                totalEarnings = completedRes.reduce((sum, r) => sum + (parseFloat(r.total) || 0), 0);
+                console.log("Calculated Earnings:", { mySpotIds, count: completedRes.length, total: totalEarnings });
+            }
+        } catch (e) { console.error("Error calculating earnings:", e); }
+
+        if (countEl) countEl.innerText = mySpots.length;
+        if (earningsEl) {
+            earningsEl.innerText = `$ ${totalEarnings.toLocaleString('es-CO')}`;
+        }
+
+        renderOwnerNotifications();
+        content.innerHTML = '';
+
+        const allItems = [
+            ...mySpots.map(s => ({ ...s, _type: 'spot' }))
+        ];
+
+        if (allItems.length === 0) {
+            content.appendChild(tplEmpty.content.cloneNode(true));
+            return;
+        }
+
+        allItems.forEach(item => {
+            const clone = tplSpot.content.cloneNode(true);
+
+            clone.querySelector('.spot-img').src = item.image || 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=600';
+            clone.querySelector('.spot-name').textContent = item.name;
+            clone.querySelector('.spot-address').textContent = item.address;
+            clone.querySelector('.spot-price').textContent = item.price.toLocaleString('es-CO');
+
+            const featContainer = clone.querySelector('.spot-features');
+            if (item.features) {
+                const featArray = Array.isArray(item.features) ? item.features : item.features.split(',');
+                featArray.forEach(f => {
+                    if (!f.trim()) return;
+                    const span = document.createElement('span');
+                    span.className = 'px-2 py-1 bg-card rounded text-[10px] text-foreground/90';
+                    span.textContent = f.trim();
+                    featContainer.appendChild(span);
+                });
+            }
+
+            const badgeContainer = clone.querySelector('.spot-badge-container');
+            const badgeSpan = document.createElement('span');
+            badgeSpan.className = 'inline-flex items-center gap-1 px-3 py-1 text-[10px] font-black rounded-lg';
+
+            if (item.available === 0 || item.available === '0') {
+                badgeSpan.classList.add('bg-yellow-900/30', 'text-yellow-400');
+                const icon = document.createElement('i');
+                icon.setAttribute('data-lucide', 'clock');
+                icon.className = 'w-3 h-3';
+                badgeSpan.appendChild(icon);
+                badgeSpan.appendChild(document.createTextNode(' PENDING REVIEW'));
+            } else if (item.available === -1 || item.available === '-1') {
+                badgeSpan.classList.add('bg-red-900/30', 'text-red-400');
+                const icon = document.createElement('i');
+                icon.setAttribute('data-lucide', 'x-circle');
+                icon.className = 'w-3 h-3';
+                badgeSpan.appendChild(icon);
+                badgeSpan.appendChild(document.createTextNode(' REJECTED'));
+            } else {
+                badgeSpan.classList.add('bg-green-900/30', 'text-green-400');
+                badgeSpan.textContent = 'ACTIVE';
+            }
+            badgeContainer.innerHTML = '';
+            badgeContainer.appendChild(badgeSpan);
+
+            if (item.status === 'active' || item.status === 'in-use' || item.status === 'pending') {
+                const finishButton = clone.querySelector('.btn-finish');
+                const btnBox = finishButton?.parentElement;
+
+                if (finishButton && (item.status === 'active' || item.status === 'in-use')) {
+                    finishButton.classList.remove('hidden');
+                    finishButton.addEventListener('click', () => {
+                        openOwnerReviewModal(item);
+                    });
+                }
+
+                if (btnBox && item._type === 'request') {
+                    const chatBtn = document.createElement('a');
+                    chatBtn.href = `chat.html?res_id=${item.id}`;
+                    chatBtn.className = 'flex-1 bg-card hover:bg-input text-foreground font-bold py-2.5 rounded-xl transition-all text-xs flex items-center justify-center gap-1 mt-2 border border-border';
+                    chatBtn.textContent = 'Message Driver';
+                    btnBox.appendChild(chatBtn);
+                }
+            }
+
+            clone.querySelector('.btn-edit-spot').addEventListener('click', (e) => {
+                e.stopPropagation();
+                editSpot(item);
+            });
+
+            content.appendChild(clone);
+        });
+
+        renderArrivals(user);
+        if (window.lucide) lucide.createIcons();
+    }
+
+    // Shows today's pending arrivals so the owner can confirm when a driver shows up
+    async function renderArrivals(user) {
+        const container = document.getElementById('arrivals-container');
+        if (!container || !user) return;
+        try {
+            const res = await fetch('/api/reservations');
+            if (!res.ok) return;
+            const all = await res.json();
+            const today = new Date().toISOString().split('T')[0];
+            const mySpots = JSON.parse(localStorage.getItem('parkly_spots')) || [];
+            const mySpotIds = mySpots.filter(s => s.ownerId == user.id || s.owner_id == user.id || s.ownerId === user.email).map(s => s.id);
+            const arrivals = all.filter(r =>
+                r.status === 'pending' &&
+                r.date === today &&
+                mySpotIds.includes(r.spotId)
+            );
+            container.innerHTML = '';
+            if (arrivals.length === 0) {
+                const emptyP = document.createElement('p');
+                emptyP.className = 'text-xs text-foreground/90 italic';
+                emptyP.textContent = 'No pending arrivals for today.';
+                container.appendChild(emptyP);
+                return;
+            }
+            arrivals.forEach(r => {
+                const tpl = document.getElementById('tpl-owner-arrival-card');
+                if (!tpl) return;
+                const clone = tpl.content.cloneNode(true);
+                const card = clone.querySelector('.arrival-card');
+
+                clone.querySelector('.arrival-user').textContent = r.userName || r.userEmail;
+                clone.querySelector('.arrival-details').textContent = `${r.spotName} ┬À ${r.startTime} - ${r.endTime}`;
+
+                const btn = clone.querySelector('.btn-confirm-arrival');
+                btn.dataset.resId = r.id;
+
+                btn.addEventListener('click', async (e) => {
+                    const resId = e.currentTarget.dataset.resId;
+                    await fetch(`/api/reservations/${resId}/status`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'in-use' })
+                    });
+                    card.remove();
+                    if (!container.querySelector('.arrival-card')) {
+                        const emptyP = document.createElement('p');
+                        emptyP.className = 'text-xs text-slate-500 italic';
+                        emptyP.textContent = 'All arrivals confirmed!';
+                        container.appendChild(emptyP);
+                    }
+                });
+                container.appendChild(clone);
+            });
+        } catch (e) { console.warn('Could not load arrivals', e); }
+        if (window.lucide) lucide.createIcons();
+    }
+
+    // Renders the analytics tab with a usage heatmap and per-spot earnings breakdown.
+    // Also fires optional async requests to a Python stats service if it's running.
+    let ownerChartsInit = false;
+    async function renderOwnerAnalytics() {
+        if (ownerChartsInit) return;
+        ownerChartsInit = true;
+        const user = JSON.parse(localStorage.getItem('parkly_session'));
+        if (!user) return;
+
+        const content = document.getElementById('owner-tab-content');
+        if (!content) return;
+        console.log("Rendering owner analytics...");
+
+        const tpl = document.getElementById('tpl-owner-analytics');
+        if (!tpl) return;
+        content.innerHTML = '';
+        content.appendChild(tpl.content.cloneNode(true));
+
+        if (window.lucide) lucide.createIcons();
+
+        const hours = Array.from({ length: 24 }, (_, i) => i);
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+        const heatmapHeader = document.querySelector('.heatmap-header');
+        if (heatmapHeader) {
+            hours.forEach(h => {
+                const hourDiv = document.createElement('div');
+                hourDiv.textContent = `${h}h`;
+                heatmapHeader.appendChild(hourDiv);
+            });
+        }
+
+        const heatmapBody = document.querySelector('.heatmap-body');
+        if (heatmapBody) {
+            days.forEach((day, dIdx) => {
+                const row = document.createElement('div');
+                row.className = 'grid grid-cols-[50px_repeat(24,minmax(20px,1fr))] gap-1 mb-1 items-center';
+
+                const dayLabel = document.createElement('div');
+                dayLabel.className = 'text-[10px] text-slate-400 font-bold';
+                dayLabel.textContent = day;
+                row.appendChild(dayLabel);
+
+                hours.forEach(hour => {
+                    let intensity = (dIdx < 5 && ((hour >= 7 && hour <= 10) || (hour >= 17 && hour <= 19))) ? 3 : (Math.random() > 0.7 ? 1 : 0);
+                    let bgClass = ['bg-slate-800/50', 'bg-blue-900/40', 'bg-blue-600/60', 'bg-blue-500'][intensity] || 'bg-slate-800/50';
+
+                    const cell = document.createElement('div');
+                    cell.className = `h-6 rounded-sm ${bgClass} cursor-help transition-all hover:ring-2 hover:ring-white`;
+                    cell.title = `${day} ${hour}:00`;
+                    row.appendChild(cell);
+                });
+                heatmapBody.appendChild(row);
+            });
+        }
+
+        // Fetch real earnings data for each spot
+        try {
+            const [respSpots, respRes] = await Promise.all([fetch(`/api/users/${user.id}/spots`), fetch('/api/reservations')]);
+            if (respSpots.ok && respRes.ok) {
+                const mySpots = await respSpots.json();
+                const allRes = await respRes.json();
+                const earnsContainer = document.querySelector('.earnings-list-container');
+                if (earnsContainer) {
+                    if (mySpots.length > 0) {
+                        earnsContainer.innerHTML = '';
+                        const earnTpl = document.getElementById('tpl-earnings-item');
+
+                        mySpots.forEach(spot => {
+                            const spotRes = allRes.filter(r => Number(r.spotId) === Number(spot.id) && r.status.toLowerCase() === 'completed');
+                            const spotTotal = spotRes.reduce((s, r) => s + (parseFloat(r.total) || 0), 0);
+
+                            const clone = earnTpl.content.cloneNode(true);
+                            clone.querySelector('.spot-name').textContent = spot.name;
+                            clone.querySelector('.spot-bookings').textContent = `${spotRes.length} bookings completed`;
+                            clone.querySelector('.spot-total').textContent = `$${spotTotal.toLocaleString('es-CO')}`;
+
+                            earnsContainer.appendChild(clone);
+                        });
+                    } else {
+                        earnsContainer.textContent = 'No spots found to breakdown.';
+                        earnsContainer.className = 'text-slate-500 text-xs text-center py-4 italic';
+                    }
+                }
+            }
+        } catch (e) { console.error("Earnings fetch failed", e); }
+
+        // Try to load data from the optional Python stats microservice
+        const pythonBase = "http://localhost:8000/api/python/stats";
+
+        fetch(`${pythonBase}/occupancy-rate`)
+            .then(r => r.ok ? r.json() : null)
+            .then(occ => {
+                const occVal = document.getElementById('occupancy-val');
+                const ring = document.getElementById('occupancy-ring');
+                if (occVal && ring) {
+                    const rate = occ?.occupancy_rate || 0;
+                    occVal.innerText = `${rate}%`;
+                    if (rate > 0) {
+                        ring.style.borderTopColor = '#10b981';
+                        if (rate > 25) ring.style.borderRightColor = '#10b981';
+                        if (rate > 50) ring.style.borderBottomColor = '#10b981';
+                        if (rate > 75) ring.style.borderLeftColor = '#10b981';
+                    }
+                }
+            }).catch(e => console.warn("Occupancy fetch error", e));
+
+        fetch(`${pythonBase}/monthly-projection`)
+            .then(r => r.ok ? r.json() : null)
