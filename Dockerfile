@@ -12,3 +12,9 @@ RUN npm install
 
 # Copiar el resto del código de Parkly
 COPY . .
+
+# Exponer el puerto 3000 para que podamos conectarnos
+EXPOSE 3000
+
+# El comando para encender el servidor
+CMD ["node", "server.js"]
