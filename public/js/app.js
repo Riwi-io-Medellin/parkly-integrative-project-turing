@@ -52,3 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Global logout button — asks for confirmation before clearing the session
     const logoutBtn = document.getElementById('btn-logout');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
