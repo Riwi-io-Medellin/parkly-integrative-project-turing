@@ -1238,3 +1238,43 @@ app.patch('/api/reservations/:id/extend', async (req, res) => {
     const { extended_until, newEndTime } = req.body;
     const targetTime = extended_until || newEndTime; // support both
     let connection;
+    try {
+        connection = await getConnection();
+        const [current] = await connection.execute(
+            'SELECT parking_id, date, start_time FROM reservations WHERE id = ?', [id]
+        );
+        if (current.length === 0) return res.status(404).json({ error: "Reservation not found." });
+        const { parking_id, date, start_time } = current[0];
+
+        // Check for overlaps
+        const [overlaps] = await connection.execute(
+            `SELECT id FROM reservations
+             WHERE parking_id = ? AND date = ? AND id != ?
+             AND ((start_time < ? AND end_time > ?) OR (start_time >= ? AND start_time < ?))
+             AND status IN ('pending', 'in-use')`,
+            [parking_id, date, id, targetTime, start_time, start_time, targetTime]
+        );
+        if (overlaps.length > 0) {
+            return res.status(409).json({ error: "Cannot extend: spot already reserved during that time." });
+        }
+
+        const [result] = await connection.execute(
+            'UPDATE reservations SET end_time = ?, extended_until = ? WHERE id = ? AND status IN ("pending", "in-use")',
+            [targetTime, targetTime, id]
+        );
+        if (result.affectedRows > 0) {
+            res.json({ message: "Reservation extended successfully." });
+        } else {
+            res.status(404).json({ error: "Reservation not found or cannot be extended." });
+        }
+    } catch (error) {
+        console.error("Extend Reservation Error:", error.message);
+        res.status(500).json({ error: "Failed to extend reservation." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Arrive at reservation (update status to 'in-use' and record license plate if not already)
+app.patch('/api/reservations/:id/arrive', async (req, res) => {
+    const { id } = req.params;
