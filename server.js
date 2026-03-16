@@ -1878,3 +1878,43 @@ Use this data to answer questions about availability, prices, zones, and locatio
     }
 });
 
+app.get('/api/config/maps-key', (req, res) => {
+  res.json({ key: process.env.GOOGLE_MAPS_API_KEY || '' });
+});
+
+// ─── ALIAS: /api/parking-spots → parkingspots table ──────────────────────────
+// detail.js calls /api/parking-spots/:id — these aliases map to parkingspots
+
+// ─── ALIAS: /api/parking-spots → parking_spots table ─────────────────────────
+app.get('/api/parking_spots/:id', async (req, res) => {
+  const { id } = req.params;
+  let connection;
+  try {
+    connection = await getConnection();
+    const [rows] = await connection.execute(`
+      SELECT
+        ps.id,
+        ps.name,
+        ps.address,
+        ps.zone,
+        ps.price_hour    AS price,
+        ps.price_day     AS priceday,
+        ps.price_month   AS pricemonth,
+        ps.image,
+        ps.images,
+        ps.schedule,
+        ps.services      AS features,
+        ps.dimensions,
+        ps.whatsapp,
+        ps.rating,
+        ps.owner_id      AS ownerId,
+        ps.verified,
+        ps.available     AS status,
+        ps.vehicle_types AS vehicletypes,
+        ps.max_width     AS maxwidth,
+        ps.max_length    AS maxlength,
+        ps.max_height    AS maxheight,
+        ps.latitude,
+        ps.longitude,
+        u.name           AS ownerName
+      FROM parking_spots ps
