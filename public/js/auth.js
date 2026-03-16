@@ -25,3 +25,5 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             console.log("Attempting login for:", email);
+            
+            try {
