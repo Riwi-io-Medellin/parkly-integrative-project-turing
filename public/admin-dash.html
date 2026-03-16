@@ -77,3 +77,42 @@
         <nav id="tabs-container" class="flex overflow-x-auto border-b border-border mb-8 scrollbar-hide"
             aria-label="Admin Sections">
             <button data-tab="summary"
+                class="tab-btn active-tab flex items-center gap-2 px-6 py-2.5 text-sm font-bold border-b-2 border-primary text-primary transition-all"
+                role="tab">
+                Overview
+            </button>
+            <button data-tab="spots"
+                class="tab-btn flex items-center gap-2 px-6 py-2.5 text-sm font-medium border-b-2 border-transparent text-foreground/90 font-medium hover:text-foreground transition-all"
+                role="tab">
+                Spots <span id="badge-spots"
+                    class="ml-1.5 bg-card text-foreground font-semibold text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span>
+            </button>
+            <button data-tab="reservations"
+                class="tab-btn flex items-center gap-2 px-6 py-2.5 text-sm font-medium border-b-2 border-transparent text-foreground/90 font-medium hover:text-foreground transition-all"
+                role="tab">
+                Bookings <span id="badge-reservations"
+                    class="ml-1.5 bg-card text-foreground font-semibold text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span>
+            </button>
+            <button data-tab="users"
+                class="tab-btn flex items-center gap-2 px-6 py-2.5 text-sm font-medium border-b-2 border-transparent text-foreground/90 font-medium hover:text-foreground transition-all"
+                role="tab">
+                Users <span id="badge-users"
+                    class="ml-1.5 bg-card text-foreground font-semibold text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span>
+            </button>
+            <button data-tab="requests"
+                class="tab-btn flex items-center gap-2 px-6 py-2.5 text-sm font-medium border-b-2 border-transparent text-foreground font-medium opacity-70 hover:opacity-100 transition-all"
+                role="tab">
+                Spot Requests <span id="badge-requests"
+                    class="ml-1.5 bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 text-[10px] px-1.5 py-0.5 rounded-full font-bold border border-yellow-200 dark:border-transparent">0</span>
+            </button>
+            <button data-tab="analytics"
+                class="tab-btn flex items-center gap-2 px-6 py-2.5 text-sm font-medium border-b-2 border-transparent text-foreground/90 font-medium hover:text-foreground transition-all"
+                role="tab">
+                📊 Analytics
+            </button>
+            <button data-tab="pqr"
+                class="tab-btn flex items-center gap-2 px-6 py-2.5 text-sm font-medium border-b-2 border-transparent text-foreground font-medium opacity-70 hover:opacity-100 transition-all"
+                role="tab">
+                PQR <span id="badge-pqr"
+                    class="ml-1.5 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 text-[10px] px-1.5 py-0.5 rounded-full font-bold border border-red-200 dark:border-transparent">0</span>
+            </button>
