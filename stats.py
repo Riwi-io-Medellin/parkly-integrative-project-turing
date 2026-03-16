@@ -82,3 +82,15 @@ async def get_occupancy_rate():
             return {"occupancy_rate": 0}
 
         rate = (active_reservations / total_spots) * 100
+        # Cap at 100% in case the math goes over (e.g. multiple bookings per spot)
+        return {"occupancy_rate": round(min(rate, 100), 1)}
+    finally:
+        conn.close()
+
+
+@app.get("/api/python/stats/top-spots")
+async def get_top_spots():
+    """Returns the top 3 most-booked parking spots by joining spots with their reservations."""
+    conn = get_db_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
