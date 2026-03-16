@@ -58,3 +58,5 @@ document.addEventListener('DOMContentLoaded', () => {
     if (registerForm) {
         const selectedRoleInput = document.getElementById('selected-role');
         const btnRoleClient = document.getElementById('btn-role-client');
+        const btnRoleOwner = document.getElementById('btn-role-owner');
+
