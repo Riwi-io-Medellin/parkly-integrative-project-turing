@@ -324,3 +324,55 @@
         </article>
     </template>
 
+    <template id="tpl-resolved-request">
+        <div class="flex items-center gap-4 p-4 bg-input border border-border rounded-2xl">
+            <div class="resolved-icon-box w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0">
+                <i class="resolved-icon w-4 h-4"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="resolved-name text-sm font-bold text-foreground truncate"></p>
+                <p class="resolved-owner text-xs text-foreground/80 font-bold"></p>
+            </div>
+            <span class="resolved-badge text-[10px] font-black px-2 py-1 rounded-lg uppercase"></span>
+        </div>
+    </template>
+
+    <template id="tpl-table-row">
+        <tr class="hover:bg-card/20 transition-colors">
+            <td class="cell-primary p-4 font-bold text-foreground"></td>
+            <td class="cell-secondary p-4"></td>
+            <td class="cell-actions p-4"></td>
+        </tr>
+    </template>
+    <template id="tpl-top-spot">
+        <div
+            class="flex justify-between items-center p-4 bg-background/50 border border-border rounded-xl hover:border-primary/30 transition-all">
+            <div class="flex items-center gap-3">
+                <span class="spot-medal text-xl"></span>
+                <div class="flex flex-col">
+                    <span class="spot-name text-sm font-bold text-foreground"></span>
+                    <span
+                        class="text-[10px] text-foreground/50 uppercase font-bold tracking-widest leading-none">Popular
+                        Spot</span>
+                </div>
+            </div>
+            <div class="flex flex-col items-end">
+                <span class="spot-bookings text-xs font-black text-primary bg-primary/10 px-2 py-1 rounded-lg"></span>
+            </div>
+        </div>
+    </template>
+
+    <!-- Template: PQR (Petition, Question, Report) support ticket list item -->
+    <template id="tpl-admin-pqr">
+        <article class="bg-card border border-border rounded-2xl p-5">
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <span class="pqr-type text-xs font-bold uppercase tracking-widest text-foreground/90"></span>
+                    <h3 class="pqr-subject font-bold text-foreground mt-0.5"></h3>
+                    <p class="text-xs text-foreground/90 mt-1">By <strong
+                            class="pqr-user font-bold text-foreground/90"></strong> · <span class="pqr-date"></span></p>
+                </div>
+                <span class="pqr-badge text-[10px] font-black px-2 py-1 rounded-lg border"></span>
+            </div>
+            <p class="pqr-desc text-sm text-foreground/90 mb-4"></p>
+            <div class="pqr-action-area"></div>
