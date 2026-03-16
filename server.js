@@ -958,3 +958,43 @@ app.put('/api/spots/:id', upload.array('images', 5), async (req, res) => {
         let newImageUrls = [];
 
         if (req.files && req.files.length > 0) {
+            const uploadPromises = req.files.map(file =>
+                cloudinary.v2.uploader.upload(`data:${file.mimetype};base64,${file.buffer.toString('base64')}`, {
+                    folder: 'parkly_spots'
+                })
+            );
+            const uploadResults = await Promise.all(uploadPromises);
+            newImageUrls = uploadResults.map(result => result.secure_url);
+        }
+
+        const allImageUrls = [...existingImages, ...newImageUrls];
+        if (allImageUrls.length > 0) {
+            const mainIdx = parseInt(fields.mainImageIndex) || 0;
+            finalImage = allImageUrls[mainIdx] || allImageUrls[0];
+            finalImagesJson = JSON.stringify(allImageUrls);
+        }
+
+        const priceHour = parseFloat(fields.price || fields.price_hour) || 0;
+        const featuresStr = Array.isArray(fields.features) ? fields.features.join(',') : (fields.features || '');
+        const dimensions = fields.cells ? `${fields.cells} celdas` : (fields.dimensions || '');
+
+        await connection.execute(
+            `UPDATE parking_spots SET 
+                name = ?, address = ?, zone = ?, price_hour = ?, schedule = ?, services = ?, 
+                image = ?, images = ?, dimensions = ?, vehicle_types = ?, 
+                max_width = ?, max_length = ?, max_height = ?
+            WHERE id = ?`,
+            [
+                fields.name || '', fields.address || '', fields.zone || '',
+                priceHour, fields.schedule || '24h', featuresStr,
+                finalImage, finalImagesJson, dimensions, fields.vehicle_types || 'all',
+                fields.max_width || null, fields.max_length || null, fields.max_height || null,
+                id
+            ]
+        );
+        res.json({ message: "Parking spot updated successfully.", images: allImageUrls, mainImage: finalImage });
+    } catch (error) {
+        console.error("Update Spot Error:", error.message);
+        res.status(500).json({ error: "Failed to update parking spot." });
+    } finally {
+        if (connection) await connection.end();
