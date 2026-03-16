@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<!-- Owner dashboard — protected route, accessible only to owner accounts.
+     Lets owners manage spots, view reservations, check analytics, and publish new spots
+     through a multi-step wizard. owner.js powers all of the dashboard logic. -->
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Dashboard - PARKLY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="IA/chatbox.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-background text-foreground min-h-screen font-sans antialiased">
+
+    <header class="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl px-6 py-4">
+        <nav class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2 font-bold text-xl text-foreground group">
+                <i data-lucide="circle-parking" class="text-primary group-hover:rotate-12 transition-transform"></i>
+                <span class="tracking-tighter uppercase italic">PARK<span class="text-primary">LY</span></span>
+            </a>
+
+            <div class="flex items-center gap-6">
+                <button id="theme-toggle" aria-label="Toggle theme"
+                    class="p-2 rounded-lg border border-border hover:border-primary/50 transition-colors">
+                    <i data-lucide="moon" class="w-4 h-4 text-foreground font-medium"></i>
+                </button>
+                <div class="flex items-center gap-2 border border-border rounded-full px-3 py-1 bg-card">
+                    <span class="text-xs font-bold text-foreground uppercase tracking-tighter">Owner</span>
+                </div>
+
+                <!-- Profile Dropdown -->
+                <div class="relative">
+                    <button id="profile-pill"
+                        class="flex items-center gap-2 border border-border rounded-full pl-1 pr-3 py-1 bg-card hover:border-primary/50 transition-colors"
+                        role="status" aria-label="Account menu">
+                        <div
+                            class="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center text-[10px] font-black text-foreground flex-shrink-0 bg-gradient-avatar">
+                            <img id="nav-avatar-img" src="" alt="" class="hidden w-full h-full object-cover">
+                            <span id="nav-avatar-text">?</span>
+                        </div>
+                        <span id="nav-username" class="text-xs font-bold text-foreground">Guest</span>
+                        <i data-lucide="chevron-down" class="w-3 h-3 text-foreground/90 font-medium"></i>
+                    </button>
+
+                    <div id="profile-dropdown"
+                        class="hidden absolute right-0 mt-2 w-48 bg-card border border-border rounded-2xl shadow-2xl py-2 z-50 animate-fade-in">
+                        <a href="profile.html"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/90 font-medium dark:hover:bg-border hover:bg-primary/5 hover:text-foreground dark:hover:text-foreground transition-colors">
+                            <i data-lucide="user" class="w-4 h-4"></i> Profile
+                        </a>
+                        <a id="nav-link-bookings" href="owner-dash.html"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-primary bg-primary/10 font-bold border-l-2 border-primary">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4"></i> My Control Panel
+                        </a>
+                        <a href="chat.html"
+                            class="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/90 font-medium dark:hover:bg-border hover:bg-primary/5 hover:text-foreground dark:hover:text-foreground transition-colors">
+                            <i data-lucide="message-square" class="w-4 h-4"></i> Messages
+                        </a>
+                        <hr class="border-border my-1">
+                        <button id="btn-logout"
+                            class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-900/10 transition-colors text-left font-bold">
+                            <i data-lucide="log-out" class="w-4 h-4"></i> Log out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ── OWNER DASHBOARD MAIN WRAPPER ─────────────────────────────────────── -->
+    <main id="owner-main-content" class="max-w-7xl mx-auto px-6 py-10">
+
+        <!-- Default view when dashboard loads. The publish wizard sits in a hidden div below this one. -->
+        <div id="view-dashboard" class="animate-fade-in">
+            <header class="mb-10 flex justify-between items-end">
+                <div>
+                    <h1 class="text-4xl font-extrabold text-foreground mb-2 tracking-tight">Hello, Owner</h1>
+                    <p class="text-foreground font-medium opacity-80">Manage your spaces, reservations and earnings
+                        here.</p>
+                </div>
+                <button id="btn-main-publish"
+                    class="bg-primary text-primary-foreground px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-105 transition-all">
+                    <i data-lucide="plus-circle" class="h-5 w-5"></i> Publish Spot
+                </button>
+            </header>
+
+            <!-- PQR / Help Section -->
+            <section class="mb-10">
+                <div
+                    class="bg-primary/10 border-2 border-primary/30 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg shadow-primary/5">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+                            <i data-lucide="life-buoy" class="w-7 h-7 text-white animate-pulse"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-extrabold text-foreground">Need support or have a claim?</h2>
+                            <p class="text-xs text-foreground font-medium opacity-80">File a report, ask a question, or
+                                share a suggestion with us.</p>
+                        </div>
+                    </div>
+                    <button id="pqr-open-btn"
+                        class="w-full md:w-auto px-10 py-4 bg-primary hover:bg-primary-dark text-primary-foreground font-black rounded-2xl shadow-xl shadow-primary/20 transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3">
+                        <i data-lucide="plus" class="w-5 h-5"></i> FILE A CLAIM NOW
+                    </button>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
+                <article class="bg-card border border-border p-6 rounded-2xl">
+                    <h3 id="stat-spots-count" class="text-3xl font-bold text-foreground mb-1">0</h3>
+                    <p class="text-[10px] text-foreground/80 font-bold uppercase tracking-widest">My spots</p>
+                </article>
+                <article class="bg-card border border-border p-6 rounded-2xl">
+                    <h3 id="stat-total-earnings" class="text-3xl font-bold text-foreground mb-1">$ 0</h3>
+                    <p class="text-[10px] text-foreground/80 font-bold uppercase tracking-widest">Earnings</p>
+                </article>
+            </section>
+
+            <nav id="owner-tabs" class="flex p-1 bg-card border border-border rounded-2xl mb-8 overflow-hidden">
+                <button data-tab="spots"
+                    class="flex-1 py-3 text-sm font-bold rounded-xl bg-primary text-primary-foreground transition-all">My
+                    spots</button>
+                <button data-tab="reservations"
+                    class="flex-1 py-3 text-sm font-bold text-foreground opacity-70 hover:opacity-100 transition-all">Reservations</button>
+                <button data-tab="analytics"
+                    class="flex-1 py-3 text-sm font-bold text-foreground opacity-70 hover:opacity-100 transition-all">Analytics
+                    & Earnings</button>
+            </nav>
+
+            <div id="owner-notifications" class="mb-6 space-y-3"></div>
+
+            <section id="owner-tab-content" class="animate-fade-in min-h-[400px]">
+                <!-- Dynamic content injected by owner.js -->
+            </section>
+        </div>
+
+        <!-- ── NEW SPOT PUBLISHING WIZARD (Hidden by default, triggered by btn-main-publish) ── -->
+        <div id="view-publish" class="hidden animate-fade-in max-w-2xl mx-auto">
+            <div class="mb-8">
+                <div class="flex justify-between items-center relative">
+                    <div class="absolute top-1/2 left-0 w-full h-0.5 bg-card -z-10"></div>
+                    <div class="step-dot active w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold border-4 border-background z-10"
+                        data-step="1">1</div>
+                    <div class="step-dot w-8 h-8 rounded-full bg-card text-foreground/90 font-medium flex items-center justify-center text-xs font-bold border-4 border-background z-10"
+                        data-step="2">2</div>
+                    <div class="step-dot w-8 h-8 rounded-full bg-card text-foreground/90 font-medium flex items-center justify-center text-xs font-bold border-4 border-background z-10"
+                        data-step="3">3</div>
+                    <div class="step-dot w-8 h-8 rounded-full bg-card text-foreground/90 font-medium flex items-center justify-center text-xs font-bold border-4 border-background z-10"
+                        data-step="4">4</div>
+                </div>
+                <div
+                    class="flex justify-between mt-2 text-[10px] uppercase font-bold text-foreground opacity-70 tracking-widest">
+                    <span>Property</span><span>Location</span><span>Details</span><span>Done</span>
+                </div>
+            </div>
+
+            <!-- Multi-step Wizard Form encompassing all spot data inputs -->
+            <form id="wizard-form" class="bg-card border border-border rounded-2xl p-8 shadow-2xl relative">
+
+                <!-- STEP 1: Property Type & Capacity -->
+                <div class="wizard-step" id="step-1">
+                    <h2 class="text-xl font-bold text-foreground mb-6">What type of property is it?</h2>
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <button type="button"
+                            class="type-btn p-4 rounded-xl border border-border bg-input/50 hover:border-primary text-sm text-foreground/90 font-medium text-left transition-all">Residential
+                            Garage</button>
+                        <button type="button"
+                            class="type-btn p-4 rounded-xl border border-border bg-input/50 hover:border-primary text-sm text-foreground/90 font-medium text-left transition-all">Open
+                            Lot</button>
+                        <button type="button"
+                            class="type-btn p-4 rounded-xl border border-border bg-input/50 hover:border-primary text-sm text-foreground/90 font-medium text-left transition-all">Commercial
+                            Parking</button>
+                        <button type="button"
+                            class="type-btn p-4 rounded-xl border border-border bg-input/50 hover:border-primary text-sm text-foreground/90 font-medium text-left transition-all">Basement</button>
+                    </div>
+                    <div class="mb-2">
+                        <label class="block text-sm font-medium text-foreground/90 font-medium mb-2">How many spots
+                            available?</label>
+                        <input type="number" id="wiz-capacity" placeholder="Ex: 2"
+                            class="w-full bg-input border border-border rounded-lg p-3 text-foreground focus:border-primary outline-none">
+                    </div>
+                </div>
+
+                <!-- STEP 2: Location and Scheduling Options -->
+                <div class="wizard-step hidden" id="step-2">
+                    <h2 class="text-xl font-bold text-foreground mb-6">Location & Schedule</h2>
+                    <div class="mb-6">
+                        <label class="block text-xs uppercase font-bold text-foreground/80 mb-2">Address</label>
+                        <input type="text" id="wiz-address" placeholder="Ex: Calle 10 # 40-20, Medellin"
+                            class="w-full bg-input border border-border rounded-lg p-3 text-foreground focus:border-primary outline-none mb-3">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase font-bold text-foreground/80 mb-2">Availability</label>
+                        <div class="grid grid-cols-3 gap-2 mb-4">
+                            <button type="button"
+                                class="schedule-btn p-2 rounded-lg border border-border bg-input text-foreground/90 font-medium text-xs font-bold hover:text-foreground"
+                                data-sched="24h">24 Hours</button>
+                            <button type="button"
+                                class="schedule-btn p-2 rounded-lg border border-border bg-input text-foreground/90 font-medium text-xs font-bold hover:text-foreground"
+                                data-sched="day">06 AM - 10 PM</button>
+                            <button type="button"
+                                class="schedule-btn p-2 rounded-lg border border-border bg-input text-foreground/90 font-medium text-xs font-bold hover:text-foreground"
+                                data-sched="custom">Custom</button>
+                        </div>
+                        <div id="custom-schedule-box"
+                            class="hidden bg-card/50 p-4 rounded-xl border border-border animate-fade-in">
+                            <p
+                                class="text-[10px] text-foreground/90 font-medium mb-3 uppercase font-bold tracking-widest">
+                                Enable days and set hours:</p>
+                            <div class="space-y-2" id="custom-days-grid">
+                                <!-- Mon -->
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="sched-mon"
+                                        class="custom-day-check w-4 h-4 accent-primary cursor-pointer" data-day="mon">
+                                    <label for="sched-mon"
+                                        class="text-xs font-bold w-7 text-foreground/90 font-medium cursor-pointer select-none">Mon</label>
+                                    <input type="time"
+                                        class="day-open flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="mon" value="08:00" disabled>
+                                    <span class="text-[10px] text-foreground/80 font-bold">TO</span>
+                                    <input type="time"
+                                        class="day-close flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="mon" value="20:00" disabled>
+                                </div>
+                                <!-- Tue -->
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="sched-tue"
+                                        class="custom-day-check w-4 h-4 accent-primary cursor-pointer" data-day="tue">
+                                    <label for="sched-tue"
+                                        class="text-xs font-bold w-7 text-foreground/90 font-medium cursor-pointer select-none">Tue</label>
+                                    <input type="time"
+                                        class="day-open flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="tue" value="08:00" disabled>
+                                    <span class="text-[10px] text-foreground/80 font-bold">TO</span>
+                                    <input type="time"
+                                        class="day-close flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="tue" value="20:00" disabled>
+                                </div>
+                                <!-- Wed -->
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="sched-wed"
+                                        class="custom-day-check w-4 h-4 accent-primary cursor-pointer" data-day="wed">
+                                    <label for="sched-wed"
+                                        class="text-xs font-bold w-7 text-foreground/90 font-medium cursor-pointer select-none">Wed</label>
+                                    <input type="time"
+                                        class="day-open flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="wed" value="08:00" disabled>
+                                    <span class="text-[10px] text-foreground/80 font-bold">TO</span>
+                                    <input type="time"
+                                        class="day-close flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="wed" value="20:00" disabled>
+                                </div>
+                                <!-- Thu -->
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="sched-thu"
+                                        class="custom-day-check w-4 h-4 accent-primary cursor-pointer" data-day="thu">
+                                    <label for="sched-thu"
+                                        class="text-xs font-bold w-7 text-foreground/90 font-medium cursor-pointer select-none">Thu</label>
+                                    <input type="time"
+                                        class="day-open flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="thu" value="08:00" disabled>
+                                    <span class="text-[10px] text-foreground/80 font-bold">TO</span>
+                                    <input type="time"
+                                        class="day-close flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="thu" value="20:00" disabled>
+                                </div>
+                                <!-- Fri -->
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="sched-fri"
+                                        class="custom-day-check w-4 h-4 accent-primary cursor-pointer" data-day="fri">
+                                    <label for="sched-fri"
+                                        class="text-xs font-bold w-7 text-foreground/90 font-medium cursor-pointer select-none">Fri</label>
+                                    <input type="time"
+                                        class="day-open flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="fri" value="08:00" disabled>
+                                    <span class="text-[10px] text-foreground/80 font-bold">TO</span>
+                                    <input type="time"
+                                        class="day-close flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="fri" value="20:00" disabled>
+                                </div>
+                                <!-- Sat -->
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="sched-sat"
+                                        class="custom-day-check w-4 h-4 accent-primary cursor-pointer" data-day="sat">
+                                    <label for="sched-sat"
+                                        class="text-xs font-bold w-7 text-foreground/90 font-medium cursor-pointer select-none">Sat</label>
+                                    <input type="time"
+                                        class="day-open flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="sat" value="08:00" disabled>
+                                    <span class="text-[10px] text-foreground/80 font-bold">TO</span>
+                                    <input type="time"
+                                        class="day-close flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="sat" value="20:00" disabled>
+                                </div>
+                                <!-- Sun -->
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="sched-sun"
+                                        class="custom-day-check w-4 h-4 accent-primary cursor-pointer" data-day="sun">
+                                    <label for="sched-sun"
+                                        class="text-xs font-bold w-7 text-foreground/90 font-medium cursor-pointer select-none">Sun</label>
+                                    <input type="time"
+                                        class="day-open flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="sun" value="08:00" disabled>
+                                    <span class="text-[10px] text-foreground/80 font-bold">TO</span>
+                                    <input type="time"
+                                        class="day-close flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="sun" value="20:00" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Details, Pricing, Photos, and Amenities -->
+                <div class="wizard-step hidden" id="step-3">
+                    <h2 class="text-xl font-bold text-foreground mb-6">Services & Legal</h2>
+                    <div class="mb-4">
+                        <label class="block text-xs uppercase font-bold text-foreground/80 mb-2">Price per Hour
+                            (COP)</label>
+                        <input type="number" id="wiz-price" placeholder="Ex: 5000"
+                            class="w-full bg-input border border-border rounded-lg p-3 text-foreground focus:border-primary outline-none">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-xs uppercase font-bold text-foreground/80 mb-2">Ownership
+                            Certificate</label>
+                        <div class="relative">
+                            <input type="file" id="owner-certificate-file" accept=".pdf,.jpg,.png" class="hidden">
+                            <label for="owner-certificate-file"
+                                class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-border rounded-xl bg-input hover:bg-card hover:border-primary/50 cursor-pointer transition-all">
+                                <i data-lucide="upload-cloud" class="w-6 h-6 text-foreground/80 mb-2"></i>
+                                <span id="cert-file-label" class="text-xs text-foreground/80">Click to upload PDF or
+                                    Photo</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs uppercase font-bold text-foreground/80">Parking Photos (Max
+                                5)</label>
+                            <span class="text-[10px] text-primary font-bold">Recommended: Real photos increase
+                                bookings</span>
+                        </div>
+                        <div class="relative">
+                            <input type="file" id="wiz-photos" accept="image/*" multiple class="hidden">
+                            <label for="wiz-photos"
+                                class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-xl bg-input hover:bg-card hover:border-primary/50 cursor-pointer transition-all">
+                                <i data-lucide="camera" class="w-8 h-8 text-foreground/80 mb-2"></i>
+                                <span id="photos-label" class="text-xs text-foreground/80">Select multiple photos of
+                                    your spot</span>
+                            </label>
+                        </div>
+                        <div id="photos-preview-container" class="grid grid-cols-3 gap-2 mt-4 hidden">
+                            <!-- Previews will go here -->
+                        </div>
+                        <p id="main-photo-hint" class="text-[10px] text-foreground/80 mt-2 italic hidden">Tip: Click a
+                            photo to set it as <b>Main</b> (thumbnail)</p>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-xs uppercase font-bold text-foreground/80 mb-2">Features</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" value="Covered"
+                                    class="rounded border-slate-600 bg-input text-primary">
+                                <i data-lucide="tent" class="w-4 h-4 text-foreground/70"></i>
+                                <span class="text-xs text-foreground/90 font-medium">Covered Roof</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" value="Lockers"
+                                    class="rounded border-slate-600 bg-input text-primary">
+                                <i data-lucide="box" class="w-4 h-4 text-foreground/70"></i>
+                                <span class="text-xs text-foreground/90 font-medium">Helmet Lockers</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" value="EV Charging"
+                                    class="rounded border-slate-600 bg-input text-primary">
+                                <i data-lucide="zap" class="w-4 h-4 text-foreground/70"></i>
+                                <span class="text-xs text-foreground/90 font-medium">EV Charging</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" value="CCTV Cameras"
+                                    class="rounded border-slate-600 bg-input text-primary">
+                                <i data-lucide="cctv" class="w-4 h-4 text-foreground/70"></i>
+                                <span class="text-xs text-foreground/90 font-medium">CCTV Cameras</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" value="Private Guard"
+                                    class="rounded border-slate-600 bg-input text-primary">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-foreground/70"></i>
+                                <span class="text-xs text-foreground/90 font-medium">Private Guard</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" value="Bathroom"
+                                    class="rounded border-slate-600 bg-input text-primary">
+                                <i data-lucide="bath" class="w-4 h-4 text-foreground/70"></i>
+                                <span class="text-xs text-foreground/90 font-medium">Bathroom</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Vehicle Types & Dimensions -->
+                    <div class="mb-6">
+                        <label class="block text-xs uppercase font-bold text-foreground/80 mb-2">Vehicle Types
+                            Accepted</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" name="wiz-vehicle-type" value="motorcycle" class="rounded"> <span
+                                    class="text-xs text-foreground/90 font-medium">🏍️ Motorcycle</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" name="wiz-vehicle-type" value="car" class="rounded"> <span
+                                    class="text-xs text-foreground/90 font-medium">🚗 Car</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" name="wiz-vehicle-type" value="suv" class="rounded"> <span
+                                    class="text-xs text-foreground/90 font-medium">🚙 SUV</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 p-3 rounded-lg border border-border bg-input/50 cursor-pointer hover:border-slate-500">
+                                <input type="checkbox" name="wiz-vehicle-type" value="van" class="rounded"> <span
+                                    class="text-xs text-foreground/90 font-medium">🚐 Van/Truck</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-xs uppercase font-bold text-foreground/80 mb-3">Max Vehicle Dimensions
+                            (meters)</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="text-[10px] text-foreground/80 uppercase mb-1 block">Width</label>
+                                <input type="number" id="wiz-max-width" step="0.1" placeholder="2.0"
+                                    class="w-full bg-input border border-border rounded-lg p-2.5 text-foreground text-sm focus:border-primary outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-foreground/80 uppercase mb-1 block">Length</label>
+                                <input type="number" id="wiz-max-length" step="0.1" placeholder="5.0"
+                                    class="w-full bg-input border border-border rounded-lg p-2.5 text-foreground text-sm focus:border-primary outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-foreground/80 uppercase mb-1 block">Height</label>
+                                <input type="number" id="wiz-max-height" step="0.1" placeholder="2.2"
+                                    class="w-full bg-input border border-border rounded-lg p-2.5 text-foreground text-sm focus:border-primary outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- STEP 4: Submit & Review Confirmation Screen -->
+                <div class="wizard-step hidden text-center py-10" id="step-4">
+                    <div
+                        class="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-400">
+                        <i data-lucide="clock" class="w-8 h-8"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-foreground mb-2">Request Sent!</h2>
+                    <p class="text-foreground/90 font-medium text-sm mb-2">Your spot has been submitted for review.</p>
+                    <p class="text-foreground/80 text-xs mb-8">An admin will verify and approve your spot before it goes
+                        live.</p>
+                    <button type="button" id="btn-finish-wizard"
+                        class="w-full bg-primary text-primary-foreground py-3 rounded-xl font-bold hover:bg-primary-dark transition-all shadow-lg shadow-primary/20">
+                        Go to Dashboard
+                    </button>
+                </div>
+
+                <div class="flex justify-between mt-8 pt-6 border-t border-border" id="wiz-nav">
+                    <button type="button" id="btn-prev-step"
+                        class="text-foreground font-bold opacity-70 hover:opacity-100 text-sm px-4">Back</button>
+                    <button type="button" id="btn-next-step"
+                        class="bg-card text-foreground border border-border hover:border-primary/50 font-bold py-2 px-8 rounded-lg transition-colors shadow-sm">Next</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- ── TEMPLATES FOR DYNAMIC CONTENT ────────────────────────────────────── -->
+
+    <!-- Modal for reviewing driver after 'completing' a reservation -->
+    <template id="tpl-owner-review-modal">
+        <dialog
+            class="bg-card border border-border rounded-3xl p-6 w-full max-w-sm backdrop:bg-black/80 shadow-2xl modal-dialog">
+            <h3 class="font-bold text-lg text-foreground mb-2">Service Completed</h3>
+            <p class="text-sm text-foreground/90 mb-4">Please rate the driver before finishing.</p>
+            <div class="flex justify-center gap-2 mb-4 owner-stars">
+                <!-- Stars will be cloned or created here, we can put standard buttons -->
+                <button type="button"
+                    class="text-3xl text-foreground/90 hover:text-yellow-400 focus:outline-none star-btn"
+                    data-val="1">★</button>
+                <button type="button"
+                    class="text-3xl text-foreground/90 hover:text-yellow-400 focus:outline-none star-btn"
+                    data-val="2">★</button>
+                <button type="button"
+                    class="text-3xl text-foreground/90 hover:text-yellow-400 focus:outline-none star-btn"
+                    data-val="3">★</button>
+                <button type="button"
+                    class="text-3xl text-foreground/90 hover:text-yellow-400 focus:outline-none star-btn"
+                    data-val="4">★</button>
+                <button type="button"
+                    class="text-3xl text-foreground/90 hover:text-yellow-400 focus:outline-none star-btn"
+                    data-val="5">★</button>
+            </div>
+            <textarea
+                class="owner-review-text w-full bg-background border border-border rounded-xl p-3 text-sm text-foreground mb-4 placeholder:text-foreground/90 focus:outline-none focus:border-primary/60"
+                rows="3" placeholder="Any comments about the driver? (Optional)"></textarea>
+            <div class="flex flex-col gap-2">
+                <button type="button"
+                    class="owner-review-submit w-full bg-primary hover:opacity-90 text-primary-foreground font-bold py-3 rounded-xl shadow-lg transition-all disabled:opacity-50">Submit
+                    & Finish</button>
+                <button type="button"
+                    class="owner-review-skip w-full bg-transparent border border-border hover:border-primary/30 text-foreground/90 font-bold py-3 rounded-xl transition-all">Skip
+                    Rating</button>
+            </div>
+        </dialog>
+    </template>
+
+    <!-- Template: Analytics Tab Content containing graphs and heatmaps -->
+    <template id="tpl-owner-analytics">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Revenue Chart Container -->
+            <div class="bg-card border border-border rounded-2xl p-6 shadow-xl relative overflow-hidden min-h-[300px]">
+                <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    <i data-lucide="trending-up" class="w-5 h-5 text-primary"></i> Projected Revenue
+                </h3>
+                <div class="revenue-chart-loader absolute inset-0 flex items-center justify-center bg-card/80 z-10">
+                    <div class="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <!-- The canvas size needs to be responsive securely -->
+                <div class="h-[200px] w-full"><canvas class="owner-chart-revenue"></canvas></div>
+            </div>
+
+            <!-- Occupancy Rate Container -->
+            <div class="bg-card border border-border rounded-2xl p-6 shadow-xl min-h-[300px]">
+                <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5 text-green-500"></i> Occupancy Rate
+                </h3>
+                <div class="flex flex-col items-center justify-center h-[200px]">
+                    <div
+                        class="occupancy-ring relative w-32 h-32 rounded-full border-8 border-slate-800 flex items-center justify-center transition-all duration-1000">
+                        <span class="occupancy-val text-2xl font-black text-white">0%</span>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-4 uppercase tracking-[0.2em]">Overall Utilization</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Heatmap Section -->
+        <div class="heatmap-container mb-6 bg-card border border-border rounded-2xl p-6 overflow-x-auto">
+            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <i data-lucide="bar-chart-3" class="w-5 h-5 text-primary"></i> Peak Hours Heatmap
+            </h3>
+            <div class="min-w-[700px] heatmap-grid-wrapper">
+                <!-- Header row for Heatmap -->
+                <div
+                    class="heatmap-header grid grid-cols-[50px_repeat(24,minmax(20px,1fr))] gap-1 mb-2 text-[10px] text-slate-500 text-center">
+                    <div></div>
+                </div>
+                <div class="heatmap-body"></div>
+            </div>
+        </div>
+
+        <!-- Earnings Breakdown Section -->
+        <div class="bg-card border border-border rounded-2xl p-6 mb-6">
+            <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <i data-lucide="dollar-sign" class="w-5 h-5 text-yellow-500"></i> Earnings Breakdown
+            </h3>
+            <div class="earnings-list-container space-y-4">
+                <p class="text-slate-500 text-xs italic animate-pulse">Calculating earnings...</p>
+            </div>
+        </div>
+    </template>
+
+    <!-- Template: Individual item in the Earnings Breakdown list -->
+    <template id="tpl-earnings-item">
+        <div
+            class="flex items-center justify-between p-4 bg-slate-900/50 rounded-xl border border-border/50 hover:border-primary/30 transition-all">
+            <div>
+                <p class="spot-name text-sm font-bold text-white"></p>
+                <p class="spot-bookings text-[10px] text-slate-500"></p>
+            </div>
+            <div class="text-right">
+                <p class="spot-total text-primary font-bold text-lg"></p>
+            </div>
+        </div>
+    </template>
+
+    <!-- Template: Card showing a driver who has arrived at the parking spot, awaiting owner confirmation -->
+    <template id="tpl-owner-arrival-card">
+        <div class="arrival-card flex items-center justify-between gap-3 bg-input border border-border rounded-xl p-3">
+            <div>
+                <p class="arrival-user text-sm font-bold text-foreground"></p>
+                <p class="arrival-details text-xs text-foreground/90"></p>
+            </div>
+            <button
+                class="btn-confirm-arrival px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1">
+                <span>✅</span> Confirm Access
+            </button>
+        </div>
+    </template>
+
+    <!-- Template: On-page notification cards for quick alerts (e.g. New Booking) -->
+    <template id="tpl-owner-notif">
+        <div class="notif-card flex items-start gap-4 p-4 rounded-2xl border animate-fade-in">
+            <div class="notif-icon-box flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center">
+                <i data-lucide="" class="notif-icon w-5 h-5"></i>
+            </div>
+            <div class="flex-1">
+                <p class="notif-title text-sm font-bold mb-0.5"></p>
+                <p class="notif-msg text-xs text-foreground/90 font-medium"><span
+                        class="notif-spot-name font-semibold text-foreground"></span> — <span
+                        class="notif-msg-text"></span></p>
+                <p class="notif-reason-box text-xs mt-1.5 text-foreground/80 hidden"><span
+                        class="font-bold text-foreground/90 font-medium">Reason:</span> <span
+                        class="notif-reason-text"></span></p>
+            </div>
+            <button class="btn-dismiss text-foreground/90 hover:text-foreground transition-colors flex-shrink-0">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </template>
+
+    <!-- Template: Individual Parking Spot Card managed by the owner -->
+    <template id="tpl-owner-spot">
+        <article class="bg-card border border-border p-5 rounded-2xl flex gap-6 animate-fade-in">
+            <img class="spot-img w-32 h-24 rounded-xl object-cover bg-card" src="" alt="">
+            <div class="flex-1">
+                <h4 class="spot-name font-bold text-foreground text-lg"></h4>
+                <p class="spot-address text-xs text-foreground/90 font-medium mb-2"></p>
+                <div class="spot-features flex gap-2 mt-2 flex-wrap"></div>
+            </div>
+            <div class="text-right">
+                <span class="block text-xl font-bold text-foreground">$ <span class="spot-price"></span><span
+                        class="text-xs text-foreground/80">/hr</span></span>
+                <div class="spot-badge-container mt-2"></div>
+                <button
+                    class="btn-edit-spot mt-3 w-full border border-border hover:border-primary/50 text-[10px] font-bold uppercase tracking-widest py-1.5 rounded-lg text-foreground/90 font-medium hover:text-foreground transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="edit-3" class="w-3 h-3"></i>
+                    Edit Spot
+                </button>
+            </div>
+        </article>
+    </template>
+
+    <!-- Template: Empty state when the owner has 0 parking spots -->
+    <template id="tpl-empty-spots">
+        <div class="text-center py-20 text-foreground/80">
+            <div class="w-16 h-16 bg-card rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="parking-square" class="w-8 h-8 text-foreground/80"></i>
+            </div>
+            <p>You haven't published any spots yet.</p>
+        </div>
+    </template>
+
+    <!-- Template: Booking Reservation List Item for the owner to view -->
+    <template id="tpl-owner-reservation">
+        <div
+            class="bg-card border border-border p-5 rounded-2xl flex items-center gap-4 hover:border-slate-600 transition-all mb-4">
+            <div
+                class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-card border-2 border-border flex items-center justify-center">
+                <img class="res-driver-avatar w-full h-full object-cover hidden" src="" alt="">
+                <span class="res-driver-initials text-xs font-bold text-foreground/80">?</span>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex justify-between">
+                    <div>
+                        <h4 class="res-driver-name font-bold text-foreground text-sm truncate"></h4>
+                        <p class="res-spot-name text-[10px] text-foreground/80 font-bold uppercase tracking-widest"></p>
+                    </div>
+                    <div class="res-status-badge px-2 py-0.5 rounded-lg text-[9px] font-black uppercase"></div>
+                </div>
+                <div class="flex items-center gap-4 mt-2">
+                    <div class="flex items-center gap-1 text-sm text-foreground/90 font-bold">
+                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                        <span class="res-date"></span>
+                    </div>
+                    <div class="flex items-center gap-1 text-sm text-foreground/90 font-bold">
+                        <i data-lucide="clock" class="w-4 h-4"></i>
+                        <span class="res-time"></span>
+                    </div>
+                    <div class="flex items-center gap-1 text-base font-extrabold text-primary shadow-sm drop-shadow-sm">
+                        <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+                        <span class="res-price"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button
+                    class="res-btn-chat p-2.5 rounded-xl border border-border bg-card dark:hover:bg-border hover:bg-primary/5 text-foreground/90 font-medium hover:text-foreground transition-all"
+                    title="Message Driver">
+                    <i data-lucide="message-square" class="w-4 h-4"></i>
+                </button>
+                <button class="res-btn-action px-4 py-2 rounded-xl text-xs font-bold transition-all"></button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Template: Empty state when the owner has 0 reservations to show -->
+    <template id="tpl-empty-reservations">
+        <div class="text-center py-20 text-foreground opacity-70">
+            <div
+                class="w-16 h-16 bg-card rounded-2xl flex items-center justify-center mx-auto mb-4 border border-border">
+                <i data-lucide="calendar" class="w-8 h-8 text-foreground opacity-100"></i>
+            </div>
+            <p class="font-bold">No reservations found in this category.</p>
+        </div>
+    </template>
+
+    <!-- PQR Dialog Modal (Petitions, Questions, Reports) -->
+    <dialog id="pqr-dialog" aria-labelledby="pqr-dialog-title" aria-modal="true"
+        class="bg-card border border-border rounded-3xl p-8 w-full max-w-md text-foreground backdrop:bg-black/70 backdrop:backdrop-blur-sm shadow-2xl">
+        <h2 id="pqr-dialog-title" class="text-xl font-extrabold text-foreground mb-2">How can we help?</h2>
+        <p class="text-sm text-foreground/90 font-medium mb-6">Our support team will respond within 24 hours.</p>
+
+        <form id="pqr-form" method="dialog">
+            <div class="mb-5">
+                <label for="pqr-type"
+                    class="block text-xs font-bold uppercase tracking-widest text-foreground/90 font-medium mb-2">Issue
+                    Type</label>
+                <select id="pqr-type"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary appearance-none shadow-inner">
+                    <option value="claim">Claim / Complaint</option>
+                    <option value="question">Question</option>
+                    <option value="suggestion">Suggestion</option>
+                </select>
+            </div>
+
+            <div class="mb-5">
+                <label for="pqr-subject"
+                    class="block text-xs font-bold uppercase tracking-widest text-foreground/90 font-medium mb-2">Subject</label>
+                <input type="text" id="pqr-subject" placeholder="e.g. Issues with payment"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary shadow-inner">
+            </div>
+
+            <div class="mb-5">
+                <label for="pqr-description"
+                    class="block text-xs font-bold uppercase tracking-widest text-foreground/90 font-medium mb-2">Details</label>
+                <textarea id="pqr-description" rows="4" placeholder="Describe what happened..."
+                    class="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder-slate-600 focus:outline-none focus:border-primary resize-none shadow-inner"></textarea>
+            </div>
+
+            <div class="flex gap-3">
+                <button id="pqr-cancel-btn" type="button"
+                    class="px-5 py-2.5 rounded-xl border border-border text-foreground/90 font-medium hover:text-foreground hover:border-slate-500 text-sm font-semibold transition-all">Cancel</button>
+                <button id="pqr-submit-btn" type="button"
+                    class="flex-1 bg-primary hover:opacity-90 text-primary-foreground font-bold py-2.5 rounded-xl text-sm transition-all shadow-md">Send
+                    Message →</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Template: Success message displayed inside PQR Dialog after submission -->
+    <template id="tpl-pqr-success">
+        <div class="text-center py-8 pqr-success-msg">
+            <div
+                class="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="check" class="w-8 h-8"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-foreground mb-2">Message Sent!</h2>
+            <p class="text-foreground/80">Support will reply to your email soon.</p>
+            <button class="btn-close-pqr mt-6 px-6 py-2 bg-primary text-white font-bold rounded-xl">Return</button>
+        </div>
+    </template>
+
+    <!-- ── CHATBOX — same floating AI widget as on the search page ── -->
+    <ul class="chatbox-launcher">
+        <li id="chatbox-toggle" style="--i:#3b82f6; --j:#1d4ed8" aria-label="Open support chat" role="button"
+            tabindex="0">
+            <span class="notif-dot"></span>
+            <span class="icon icon-chat" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+            </span>
+            <span class="icon icon-close" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </span>
+            <span class="title">Chat</span>
+        </li>
+    </ul>
+
+    <div id="chatbox-panel" role="dialog" aria-modal="true" aria-label="PARKLY Support Chat">
+        <div class="chat-header">
+            <div class="chat-avatar" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2C8 2 5 5 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-4-3-7-7-7z" />
+                    <circle cx="12" cy="9" r="2.5" />
+                </svg>
+            </div>
+            <div class="chat-header-info">
+                <h3>PARK<span>LY</span> Support</h3>
+                <p class="status-line"><span class="status-dot" aria-hidden="true"></span>Online — responding instantly
+                </p>
+            </div>
+            <div class="mode-badge" id="mode-badge" aria-live="polite">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"
+                    aria-hidden="true">
+                    <path
+                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+                <span>Quick Replies</span>
+            </div>
+        </div>
+
+        <div id="chatbox-messages" role="log" aria-live="polite" aria-label="Chat messages">
+            <div class="chat-bubble bot welcome-bubble">
+                👋 Hi, I'm the <strong>PARKLY</strong> assistant.<br>
+                How can I help you today?
+            </div>
+
+            <div class="quick-options" id="quick-options">
+                <p class="quick-options-label">What can I help you with?</p>
+                <ul class="flex flex-col gap-1.5 items-start w-full border-l border-white/10 pl-1.5">
+                    <li
+                        class="w-full rounded-xl border border-primary/20 bg-primary/5 transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5">
+                        <button data-flow="1"
+                            class="flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition-transform active:scale-95">
+                            <div class="shrink-0 rounded-lg border border-primary/40 bg-primary/15 p-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                </svg>
+                            </div>
+                            <div class="whitespace-nowrap">
+                                <strong class="block text-[13px] font-bold text-foreground">1. Spot management</strong>
+                                <small class="block text-[11px] font-medium text-foreground/60">How to add or edit
+                                    spots</small>
+                            </div>
+                        </button>
+                    </li>
+                    <li
+                        class="w-full rounded-xl border border-cyan-500/20 bg-cyan-500/5 transition-all duration-300 hover:border-cyan-500/40 hover:shadow-lg hover:shadow-cyan-500/5">
+                        <button data-flow="2"
+                            class="flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition-transform active:scale-95">
+                            <div class="shrink-0 rounded-lg border border-cyan-500/40 bg-cyan-500/15 p-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor"
+                                    class="w-5 h-5 text-cyan-600 dark:text-cyan-400">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                                </svg>
+                            </div>
+                            <div class="whitespace-nowrap">
+                                <strong class="block text-[13px] font-bold text-foreground">2. Reservations &
+                                    Income</strong>
+                                <small class="block text-[11px] font-medium text-foreground/60">How to manage
+                                    reservations</small>
+                            </div>
+                        </button>
+                    </li>
+                    <li
+                        class="w-full rounded-xl border border-emerald-500/20 bg-emerald-500/5 transition-all duration-300 hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/5">
+                        <button data-flow="3"
+                            class="flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition-transform active:scale-95">
+                            <div class="shrink-0 rounded-lg border border-emerald-500/40 bg-emerald-500/15 p-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor"
+                                    class="w-5 h-5 text-emerald-600 dark:text-emerald-400">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+                                </svg>
+                            </div>
+                            <div class="whitespace-nowrap">
+                                <strong class="block text-[13px] font-bold text-foreground">3. Payments &
+                                    Withdrawals</strong>
+                                <small class="block text-[11px] font-medium text-foreground/60">How to get paid</small>
+                            </div>
+                        </button>
+                    </li>
+                    <li
+                        class="w-full rounded-xl border border-primary/30 bg-gradient-to-r from-primary/10 to-accent/10 transition-all duration-300 hover:border-primary/60 hover:shadow-lg hover:shadow-accent/10">
+                        <button data-flow="ai"
+                            class="flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition-transform active:scale-95">
+                            <div
+                                class="shrink-0 rounded-lg border border-primary/50 bg-gradient-to-br from-primary/20 to-primary/20 p-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor"
+                                    class="w-5 h-5 text-purple-600 dark:text-purple-300 ai-glow">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" />
+                                </svg>
+                            </div>
+                            <div class="whitespace-nowrap flex items-center gap-2">
+                                <div>
+                                    <strong class="block text-[13px] font-bold text-foreground">Talk to AI</strong>
+                                    <small class="block text-[11px] font-medium text-foreground/60">Free chat with the
+                                        assistant</small>
+                                </div>
+                                <span
+                                    class="shrink-0 bg-gradient-to-r from-primary to-accent text-white text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wide shadow-sm">AI</span>
+                            </div>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="chat-input-area hidden" id="chat-input-area">
+            <button class="back-btn" id="back-btn" title="Back to menu" aria-label="Back to menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                    aria-hidden="true">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+            </button>
+            <textarea id="chatbox-input" rows="1" placeholder="Type a message..." aria-label="Type your message"
+                autocomplete="off" spellcheck="true" maxlength="500">
+            </textarea>
+            <button id="chatbox-send" aria-label="Send message">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+            </button>
+        </div>
+    </div>
+    <!-- ── FIN CHATBOX ── -->
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js?v=3"></script>
+    <script src="IA/chatbox.js"></script>
+    <script src="js/owner.js?v=3"></script>
+
+    <!-- SweetAlert2 + Parkly Custom Alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/alerts.js"></script>
+
+</body>
+
+</html>
