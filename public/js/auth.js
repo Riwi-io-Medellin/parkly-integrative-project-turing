@@ -62,3 +62,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const goToStep2 = (role) => {
             selectedRoleInput.value = role;
+            step1.classList.add('hidden');
+            step2.classList.remove('hidden');
