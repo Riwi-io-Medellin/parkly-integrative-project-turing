@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<!-- Payment page — shows the booking summary and triggers the Wompi payment widget.
+     payment.js reads the spot data from localStorage and handles the checkout flow. -->
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book & Pay — PARKLY</title>
+
+    <!-- Tailwind CSS loaded from CDN; tailwind-config.js adds our custom design tokens -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+
+    <!-- Global stylesheet for custom components like toggles, animations, etc. -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Lucide icon library — rendered at the bottom via lucide.createIcons() -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- EmailJS SDK — used by payment.js to send email receipts after successful payment -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <!-- Wompi Payment Widget script — injects the secure checkout modal -->
+    <script src="https://checkout.wompi.co/widget.js"></script>
+</head>
+
+<body class="bg-background text-foreground min-h-screen font-sans antialiased">
+
+    <!-- Top Navigation Bar — sticks to the top with a blur effect -->
+    <header class="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl px-6 py-4">
+        <nav class="max-w-5xl mx-auto flex justify-between items-center" aria-label="Main navigation">
+
+            <!-- Logo linking back to home -->
+            <a href="index.html" aria-label="Parkly home"
+                class="flex items-center gap-2 font-bold text-xl text-foreground group">
+                <i data-lucide="circle-parking" class="text-primary group-hover:rotate-12 transition-transform"
+                    aria-hidden="true"></i>
+                <span class="tracking-tighter uppercase italic">PARK<span class="text-primary">LY</span></span>
+            </a>
+
+            <!-- User pill — shows the logged-in user's name and role; app.js populates this from session -->
+            <div class="flex items-center gap-2 border border-border rounded-full px-3 py-1 bg-card" role="status"
+                aria-label="Current user">
+                <span id="nav-username" class="text-xs font-bold text-foreground">Guest</span>
+                <span id="nav-role"
+                    class="text-[10px] bg-primary/10 text-primary-light px-1.5 rounded font-black uppercase">Driver</span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 py-10">
+
+        <!-- Booking steps progress indicator (Details -> Payment -> Confirmed) -->
+        <nav aria-label="Booking steps" class="mb-10">
+            <ol class="flex items-center justify-center list-none p-0 m-0">
+
+                <!-- Step 1: Details (Completed — checkmark icon) -->
+                <li class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-primary/20 border-2 border-primary text-primary text-sm font-black flex items-center justify-center"
+                        aria-label="Step 1: Details — completed">
+                        <i data-lucide="check" class="w-4 h-4" aria-hidden="true"></i>
+                    </div>
+                    <span class="text-xs font-bold text-primary uppercase tracking-widest">Details</span>
+                </li>
+
+                <div class="w-16 h-px bg-primary mx-3" aria-hidden="true"></div>
+
+                <!-- Step 2: Payment (Current — highlighted circle) -->
+                <li class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-black flex items-center justify-center"
+                        aria-current="step" aria-label="Step 2: Payment — current">2</div>
+                    <span class="text-xs font-bold text-foreground uppercase tracking-widest">Payment</span>
+                </li>
+
+                <div class="w-16 h-px bg-border mx-3" id="conn2" aria-hidden="true"></div>
+
+                <!-- Step 3: Confirmed (Pending — gray outline) -->
+                <li class="flex items-center gap-2" id="step3-li">
+                    <div class="w-8 h-8 rounded-full border-2 border-border text-foreground/90 text-sm font-black flex items-center justify-center"
+                        aria-label="Step 3: Confirmed — pending">
+                        <i data-lucide="check" class="w-4 h-4" aria-hidden="true"></i>
+                    </div>
+                    <span class="text-xs font-bold text-foreground/90 uppercase tracking-widest">Confirmed</span>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Main content grid: Payment options on the left (lg:col-span-3), Order summary on the right (lg:col-span-2) -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+            <!-- ── LEFT COLUMN: PAYMENT OPTIONS ──────────────────────────────────────── -->
+            <section class="lg:col-span-3 space-y-6" aria-label="Payment">
+
+                <!-- Breadcrumb to go back to the spot detail page -->
+                <nav aria-label="Breadcrumb">
+                    <!-- payment.js assigns the correct detail.html URL with the spot ID to this link -->
+                    <a href="#" id="btn-back-details"
+                        class="inline-flex items-center gap-2 text-foreground/90 hover:text-foreground transition-colors text-sm">
+                        <i data-lucide="arrow-left" class="w-4 h-4" aria-hidden="true"></i> Back to details
+                    </a>
+                </nav>
+
+                <!-- Section header -->
+                <hgroup>
+                    <h1 class="text-3xl font-extrabold text-foreground mb-1">Book & Pay</h1>
+                    <p class="text-foreground/90">Complete your payment securely through Wompi.</p>
+                </hgroup>
+
+                <!-- Wompi info card explaining the accepted methods -->
+                <div class="bg-card border border-border rounded-2xl p-6 space-y-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary"
+                            aria-hidden="true">
+                            <i data-lucide="landmark" class="w-7 h-7"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-black text-foreground text-lg">Wompi</h2>
+                            <p class="text-foreground/90 text-sm">Card, Nequi, PSE, Daviplata & more</p>
+                        </div>
+                    </div>
+
+                    <!-- List of payment benefits for user trust -->
+                    <ul class="space-y-2 text-sm text-foreground/90" aria-label="Wompi features">
+                        <li class="flex items-center gap-2"><i data-lucide="shield-check"
+                                class="w-4 h-4 text-primary shrink-0" aria-hidden="true"></i> 100% secure payment with
+                            SSL encryption</li>
+                        <li class="flex items-center gap-2"><i data-lucide="credit-card"
+                                class="w-4 h-4 text-primary shrink-0" aria-hidden="true"></i> Accepts all debit and
+                            credit cards</li>
+                        <li class="flex items-center gap-2"><i data-lucide="smartphone"
+                                class="w-4 h-4 text-primary shrink-0" aria-hidden="true"></i> Nequi, PSE, Daviplata and
+                            digital wallets</li>
+                        <li class="flex items-center gap-2"><i data-lucide="zap" class="w-4 h-4 text-primary shrink-0"
+                                aria-hidden="true"></i> Instant booking confirmation</li>
+                    </ul>
+                </div>
+
+                <!-- Main CTA — payment.js binds to this to open the Wompi widget with the order total -->
+                <button id="btn-pay" type="button"
+                    class="w-full bg-primary hover:opacity-90 text-primary-foreground font-bold py-4 rounded-xl shadow-lg shadow-primary/20 text-lg transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                    <i data-lucide="landmark" class="w-6 h-6" aria-hidden="true"></i>
+                    Pay $ <span id="btn-total">0</span> with Wompi
+                </button>
+
+            </section>
+
+            <!-- ── RIGHT COLUMN: ORDER SUMMARY ─────────────────────────────────────── -->
+            <aside class="lg:col-span-2" aria-label="Reservation summary">
+
+                <!-- Sticky card that stays visible when the user scrolls the left column -->
+                <div class="bg-card border border-border p-6 rounded-3xl sticky top-24">
+
+                    <h2 class="font-bold text-foreground mb-5 border-b border-border pb-4">Booking Summary</h2>
+
+                    <!-- Spot info header (image, name, address) — populated by payment.js -->
+                    <div class="flex gap-4 mb-5">
+                        <img id="summary-img" src="" alt="" class="w-20 h-20 rounded-xl object-cover bg-card shrink-0">
+                        <div>
+                            <p id="summary-name" class="font-bold text-foreground leading-tight mb-1">Loading...</p>
+                            <p id="summary-address" class="text-xs text-foreground/90">...</p>
+                        </div>
+                    </div>
+
+                    <!-- Line items for the reservation — dates, duration, rates, fees -->
+                    <dl class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <dt class="text-foreground/90">Date</dt>
+                            <dd id="summary-date" class="text-foreground font-medium">—</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-foreground/90">Schedule</dt>
+                            <dd id="summary-time" class="text-foreground font-medium">—</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-foreground/90">Duration</dt>
+                            <dd id="summary-duration" class="text-foreground font-medium">—</dd>
+                        </div>
+
+                        <!-- The rate interval (per hr, per day, etc) is rendered dynamically -->
+                        <div class="flex justify-between">
+                            <dt class="text-foreground/90">Rate / hr</dt>
+                            <dd id="summary-rate" class="text-foreground font-medium">—</dd>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <dt class="text-foreground/90">Subtotal</dt>
+                            <dd id="summary-subtotal" class="text-foreground font-medium">—</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-foreground/90">Service fee (5%)</dt>
+                            <dd id="summary-fee" class="text-foreground font-medium">—</dd>
+                        </div>
+                    </dl>
+
+                    <!-- Grand total row -->
+                    <div class="border-t border-border mt-5 pt-4 flex justify-between items-center">
+                        <span class="text-lg font-bold text-foreground">Total</span>
+                        <!-- The <output> tag implies this value is a calculated result -->
+                        <output id="summary-total" class="text-2xl font-black text-primary">$ 0</output>
+                    </div>
+
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- JS Scripts -->
+    <!-- data.js provides formatting helpers and API URLs -->
+    <script src="js/data.js"></script>
+    <!-- app.js handles the user pill in the top nav -->
+    <script src="js/app.js"></script>
+    <!-- payment.js takes the spot data from local storage, builds the summary, handles Wompi and creates the booking in the DB -->
+    <script src="js/payment.js"></script>
+
+    <!-- SweetAlert2 + Parkly Custom Alerts overrides for global popups during the flow -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/alerts.js"></script>
+
+</body>
+
+</html>

@@ -18,14 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const btn = loginForm.querySelector('button[type="submit"]');
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
-            
+
             if (btn) {
                 btn.disabled = true;
                 btn.textContent = 'Signing in...';
             }
 
             console.log("Attempting login for:", email);
-            
+
             try {
                 const user = await DB.login(email, password);
 
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     console.warn("Login failed: Invalid credentials");
                     const errorMsg = document.getElementById('error-msg');
-                    if(errorMsg) errorMsg.classList.remove('hidden');
+                    if (errorMsg) errorMsg.classList.remove('hidden');
                 }
             } catch (err) {
                 console.error("Login error:", err);
@@ -64,6 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedRoleInput.value = role;
             step1.classList.add('hidden');
             step2.classList.remove('hidden');
+            // Update the "Registering as X" label to reflect the chosen role
+            const roleLabel = document.getElementById('role-label');
+            if (roleLabel) roleLabel.textContent = role === 'owner' ? 'Owner' : 'Driver';
         };
 
         if (btnRoleClient) btnRoleClient.addEventListener('click', () => goToStep2('client'));
@@ -71,11 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const termsCheckbox = document.getElementById('terms-checkbox');
-            if (termsCheckbox && !termsCheckbox.checked) {
-                Alerts.error("You must accept the Terms and Conditions to continue.");
-                return;
-            }
 
             const password = document.getElementById('reg-password').value;
             const confirmPass = document.getElementById('confirm-password').value;
@@ -118,11 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnGoogleLogin) {
         btnGoogleLogin.addEventListener('click', (e) => {
             e.preventDefault();
-            const termsCheckbox = document.getElementById('terms-checkbox');
-            if (termsCheckbox && !termsCheckbox.checked) {
-                Alerts.error("You must accept the Terms and Conditions to continue.");
-                return;
-            }
             if (typeof window.handleGoogleLogin === 'function') {
                 window.handleGoogleLogin();
             }
