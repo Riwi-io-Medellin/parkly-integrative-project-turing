@@ -23,3 +23,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
         themeBtn.replaceChildren();
         const icon = document.createElement('i');
+        icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+        icon.className = isDark ? 'h-5 w-5 text-yellow-400' : 'h-5 w-5 text-foreground opacity-70';
+
+        themeBtn.appendChild(icon);
+
+        if (window.lucide) lucide.createIcons();
+    };
+
+    syncThemeUI();
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            const isNowDark = html.classList.toggle('dark');
+            localStorage.setItem('parkly_theme', isNowDark ? 'dark' : 'light');
+            syncThemeUI();
+        });
+    }
+
+    // Navigate to the search page when this button is clicked (used from the landing page)
+    const navSearchBtn = document.getElementById('btn-nav-search');
+    if (navSearchBtn) {
+        navSearchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = './search.html';
+        });
+    }
+
+    // Global logout button — asks for confirmation before clearing the session
+    const logoutBtn = document.getElementById('btn-logout');
