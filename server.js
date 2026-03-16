@@ -1438,3 +1438,43 @@ app.post('/api/waitlist', async (req, res) => {
     }
 });
 
+// Get waitlist for a specific parking spot
+app.get('/api/spots/:spotId/waitlist', async (req, res) => {
+    const { spotId } = req.params;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute(`
+            SELECT 
+                w.id, w.requested_time, w.status,
+                u.id AS userId, u.name AS userName, u.email AS userEmail
+            FROM waitlist w
+            JOIN users u ON w.user_id = u.id
+            WHERE w.parking_id = ? AND w.status = "pending"
+            ORDER BY w.requested_time ASC
+        `, [spotId]);
+        res.json(rows);
+    } catch (error) {
+        console.error("Fetch Waitlist Error:", error.message);
+        res.status(500).json({ error: "Failed to retrieve waitlist." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Remove user from waitlist (e.g., when a spot becomes available or user cancels)
+app.delete('/api/waitlist/:id', async (req, res) => {
+    const { id } = req.params;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [result] = await connection.execute('UPDATE waitlist SET status = "removed" WHERE id = ? AND status = "pending"', [id]);
+        if (result.affectedRows > 0) {
+            console.log(`Waitlist entry ${id} removed.`);
+            res.json({ message: "Removed from waitlist successfully." });
+        } else {
+            res.status(404).json({ error: "Waitlist entry not found or already removed." });
+        }
+    } catch (error) {
+        console.error("Remove from Waitlist Error:", error.message);
+        res.status(500).json({ error: "Failed to remove from waitlist." });
