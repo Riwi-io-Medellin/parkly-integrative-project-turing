@@ -926,3 +926,19 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('border-primary', 'bg-primary/10'));
             e.currentTarget.classList.add('border-primary', 'bg-primary/10');
             wizardData.type = e.currentTarget.innerText.trim();
+        });
+    });
+
+    // Schedule selector buttons (24h / day / custom)
+    document.querySelectorAll('.schedule-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const mode = e.currentTarget.dataset.sched;
+            document.querySelectorAll('.schedule-btn').forEach(b => {
+                b.classList.remove('bg-primary', 'text-primary-foreground', 'border-primary');
+                b.classList.add('text-foreground/90');
+            });
+            e.currentTarget.classList.add('bg-primary', 'text-primary-foreground', 'border-primary');
+            e.currentTarget.classList.remove('text-foreground/90');
+            wizardData.schedule = mode;
+            const customBox = document.getElementById('custom-schedule-box');
