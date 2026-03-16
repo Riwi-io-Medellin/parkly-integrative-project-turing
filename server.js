@@ -1478,3 +1478,43 @@ app.delete('/api/waitlist/:id', async (req, res) => {
     } catch (error) {
         console.error("Remove from Waitlist Error:", error.message);
         res.status(500).json({ error: "Failed to remove from waitlist." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// --- 8. FAVORITES ---
+// Add spot to user's favorites
+app.post('/api/users/:userId/favorites', async (req, res) => {
+    const { userId } = req.params;
+    const { spotId } = req.body;
+    let connection;
+    try {
+        connection = await getConnection();
+        await connection.execute(
+            'INSERT IGNORE INTO favorites (user_id, spot_id) VALUES (?, ?)',
+            [userId, spotId]
+        );
+        res.status(201).json({ message: "Added to favorites." });
+    } catch (error) {
+        console.error("Add Favorite Error:", error.message);
+        res.status(500).json({ error: "Failed to add favorite." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Remove spot from user's favorites
+app.delete('/api/users/:userId/favorites/:spotId', async (req, res) => {
+    const { userId, spotId } = req.params;
+    let connection;
+    try {
+        connection = await getConnection();
+        await connection.execute(
+            'DELETE FROM favorites WHERE user_id = ? AND spot_id = ?',
+            [userId, spotId]
+        );
+        res.json({ message: "Removed from favorites." });
+    } catch (error) {
+        console.error("Remove Favorite Error:", error.message);
+        res.status(500).json({ error: "Failed to remove favorite." });
