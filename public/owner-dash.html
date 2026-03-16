@@ -252,3 +252,98 @@
                                     <input type="time"
                                         class="day-open flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
                                         data-day="wed" value="08:00" disabled>
+                                    <span class="text-[10px] text-foreground/80 font-bold">TO</span>
+                                    <input type="time"
+                                        class="day-close flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="wed" value="20:00" disabled>
+                                </div>
+                                <!-- Thu -->
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="sched-thu"
+                                        class="custom-day-check w-4 h-4 accent-primary cursor-pointer" data-day="thu">
+                                    <label for="sched-thu"
+                                        class="text-xs font-bold w-7 text-foreground/90 font-medium cursor-pointer select-none">Thu</label>
+                                    <input type="time"
+                                        class="day-open flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="thu" value="08:00" disabled>
+                                    <span class="text-[10px] text-foreground/80 font-bold">TO</span>
+                                    <input type="time"
+                                        class="day-close flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="thu" value="20:00" disabled>
+                                </div>
+                                <!-- Fri -->
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="sched-fri"
+                                        class="custom-day-check w-4 h-4 accent-primary cursor-pointer" data-day="fri">
+                                    <label for="sched-fri"
+                                        class="text-xs font-bold w-7 text-foreground/90 font-medium cursor-pointer select-none">Fri</label>
+                                    <input type="time"
+                                        class="day-open flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="fri" value="08:00" disabled>
+                                    <span class="text-[10px] text-foreground/80 font-bold">TO</span>
+                                    <input type="time"
+                                        class="day-close flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="fri" value="20:00" disabled>
+                                </div>
+                                <!-- Sat -->
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="sched-sat"
+                                        class="custom-day-check w-4 h-4 accent-primary cursor-pointer" data-day="sat">
+                                    <label for="sched-sat"
+                                        class="text-xs font-bold w-7 text-foreground/90 font-medium cursor-pointer select-none">Sat</label>
+                                    <input type="time"
+                                        class="day-open flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="sat" value="08:00" disabled>
+                                    <span class="text-[10px] text-foreground/80 font-bold">TO</span>
+                                    <input type="time"
+                                        class="day-close flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="sat" value="20:00" disabled>
+                                </div>
+                                <!-- Sun -->
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="sched-sun"
+                                        class="custom-day-check w-4 h-4 accent-primary cursor-pointer" data-day="sun">
+                                    <label for="sched-sun"
+                                        class="text-xs font-bold w-7 text-foreground/90 font-medium cursor-pointer select-none">Sun</label>
+                                    <input type="time"
+                                        class="day-open flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="sun" value="08:00" disabled>
+                                    <span class="text-[10px] text-foreground/80 font-bold">TO</span>
+                                    <input type="time"
+                                        class="day-close flex-1 bg-input border border-border rounded-lg px-2 py-1.5 text-xs text-foreground focus:border-primary outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                                        data-day="sun" value="20:00" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Details, Pricing, Photos, and Amenities -->
+                <div class="wizard-step hidden" id="step-3">
+                    <h2 class="text-xl font-bold text-foreground mb-6">Services & Legal</h2>
+                    <div class="mb-4">
+                        <label class="block text-xs uppercase font-bold text-foreground/80 mb-2">Price per Hour
+                            (COP)</label>
+                        <input type="number" id="wiz-price" placeholder="Ex: 5000"
+                            class="w-full bg-input border border-border rounded-lg p-3 text-foreground focus:border-primary outline-none">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-xs uppercase font-bold text-foreground/80 mb-2">Ownership
+                            Certificate</label>
+                        <div class="relative">
+                            <input type="file" id="owner-certificate-file" accept=".pdf,.jpg,.png" class="hidden">
+                            <label for="owner-certificate-file"
+                                class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-border rounded-xl bg-input hover:bg-card hover:border-primary/50 cursor-pointer transition-all">
+                                <i data-lucide="upload-cloud" class="w-6 h-6 text-foreground/80 mb-2"></i>
+                                <span id="cert-file-label" class="text-xs text-foreground/80">Click to upload PDF or
+                                    Photo</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs uppercase font-bold text-foreground/80">Parking Photos (Max
+                                5)</label>
+                            <span class="text-[10px] text-primary font-bold">Recommended: Real photos increase
+                                bookings</span>
+                        </div>
