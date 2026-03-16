@@ -62,3 +62,67 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // If the user is already logged in on the landing page (index.html),
+    // I swap the "Login" buttons with a "Go to my Panel" button and a logout link.
+    const session = JSON.parse(localStorage.getItem('parkly_session'));
+    const navActions = document.getElementById('nav-actions');
+
+    if (session && navActions) {
+        const existingToggle = navActions.querySelector('#theme-toggle');
+        navActions.replaceChildren();
+
+        if (existingToggle) {
+            navActions.appendChild(existingToggle);
+        } else {
+            const toggleBtn = document.createElement('button');
+            toggleBtn.id = 'theme-toggle';
+            toggleBtn.setAttribute('aria-label', 'Toggle theme');
+            toggleBtn.className = 'p-2 rounded-lg border border-border hover:border-primary/50 transition-colors';
+            navActions.appendChild(toggleBtn);
+            toggleBtn.addEventListener('click', () => {
+                const isNowDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('parkly_theme', isNowDark ? 'dark' : 'light');
+                syncThemeUI();
+            });
+        }
+
+        let dashUrl = './search.html';
+        if (session.role === 'owner') dashUrl = './owner-dash.html';
+        if (session.role === 'admin') dashUrl = './admin-dash.html';
+
+        const btnPanel = document.createElement('a');
+        btnPanel.href = dashUrl;
+        btnPanel.className = 'inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition-all hover:bg-primary-dark shadow-lg shadow-primary/20';
+        btnPanel.textContent = 'Go to my Panel';
+
+        const btnLogoutIndex = document.createElement('button');
+        btnLogoutIndex.className = 'text-sm font-medium text-foreground/90 hover:text-danger transition-colors ml-4';
+        btnLogoutIndex.textContent = 'Logout';
+        btnLogoutIndex.addEventListener('click', async () => {
+            if (await Alerts.confirm("Are you sure you want to logout?")) {
+                localStorage.removeItem('parkly_session');
+                window.location.reload();
+            }
+        });
+
+        navActions.appendChild(btnPanel);
+        navActions.appendChild(btnLogoutIndex);
+        syncThemeUI();
+    }
+
+    // Login buttons on the landing page — I force navigation instead of relying on href
+    // because some browsers were ignoring the click in certain edge cases
+    const navLoginBtn = document.getElementById('btn-nav-login');
+    const heroLoginBtn = document.getElementById('btn-hero-login');
+
+    const goToLogin = (e) => {
+        e.preventDefault();
+        window.location.href = './login.html';
+    };
+
+    if (navLoginBtn) navLoginBtn.addEventListener('click', goToLogin);
+    if (heroLoginBtn) heroLoginBtn.addEventListener('click', goToLogin);
+
+    // Set up the navbar avatar — shows initials by default, or the avatar image if one is saved
+    const navAvatarImg = document.getElementById('nav-avatar-img');
+    const navAvatarText = document.getElementById('nav-avatar-text');
