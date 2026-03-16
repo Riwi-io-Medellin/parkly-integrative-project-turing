@@ -1598,3 +1598,43 @@ app.post('/api/send-email', async (req, res) => {
 // Get messages for a reservation
 app.get('/api/chat/:resId', async (req, res) => {
     try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({ error: 'Chat service not connected' });
+        }
+        const messages = await ChatMessage.find({ reservationId: req.params.resId })
+            .sort({ createdAt: 1 });
+        res.json(messages);
+    } catch (error) {
+        console.error("Fetch Messages Error:", error.message);
+        res.status(500).json({ error: "Failed to fetch messages" });
+    }
+});
+
+// Send a new message
+app.post('/api/chat', async (req, res) => {
+    try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({ error: 'Chat service not connected' });
+        }
+        const { reservationId, senderId, senderEmail, receiverEmail, message } = req.body;
+
+        const newMessage = new ChatMessage({
+            reservationId,
+            senderId,
+            senderEmail,
+            receiverEmail,
+            message
+        });
+
+        const savedMessage = await newMessage.save();
+
+        // Trigger automation webhook
+        triggerAutomation('new_chat_message', {
+            reservationId,
+            senderEmail,
+            receiverEmail,
+            message,
+            timestamp: savedMessage.createdAt
+        });
+
+        res.status(201).json(savedMessage);
