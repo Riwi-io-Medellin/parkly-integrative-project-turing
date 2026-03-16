@@ -1678,3 +1678,43 @@ app.post('/api/pqr', async (req, res) => {
     try {
         const [result] = await pool.query(
             'INSERT INTO pqr (user_id, user_name, type, subject, description) VALUES (?, ?, ?, ?, ?)',
+            [user_id, user_name, type, subject, description]
+        );
+        res.status(201).json({ id: result.insertId, message: 'PQR filed successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.patch('/api/pqr/:id/respond', async (req, res) => {
+    const { admin_response, status } = req.body;
+    try {
+        await pool.query(
+            'UPDATE pqr SET admin_response = ?, status = ? WHERE id = ?',
+            [admin_response, status, req.params.id]
+        );
+        res.json({ message: 'Response recorded' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// --- EXPORTS ---
+app.get('/api/export/reservations', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM reservations');
+        if (rows.length === 0) return res.send('No reservations to export.');
+
+        const headers = Object.keys(rows[0]).join(',');
+        const csvContent = [headers, ...rows.map(row =>
+            Object.values(row).map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')
+        )].join('\n');
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=reservations_export.csv');
+        res.status(200).send(csvContent);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
