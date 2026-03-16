@@ -777,3 +777,52 @@ document.addEventListener('DOMContentLoaded', () => {
                 content.appendChild(header);
 
                 if (items.length === 0) {
+                    const empty = document.createElement('p');
+                    empty.className = 'text-xs text-slate-500 italic p-4 bg-slate-900/30 rounded-xl border border-dashed border-border';
+                    empty.textContent = `No ${title.toLowerCase()} at the moment.`;
+                    content.appendChild(empty);
+                    return;
+                }
+
+                items.forEach(async res => {
+                    const clone = tplRes.content.cloneNode(true);
+                    const container = document.createElement('div');
+                    container.appendChild(clone);
+                    const root = container.firstElementChild;
+
+                    const name = res.userName || res.userEmail || "Driver";
+                    root.querySelector('.res-driver-name').textContent = name;
+                    root.querySelector('.res-driver-initials').textContent = name.charAt(0).toUpperCase();
+
+                    root.querySelector('.res-spot-name').textContent = res.spotName || `Spot #${res.spotId}`;
+                    root.querySelector('.res-date').textContent = res.date;
+                    root.querySelector('.res-time').textContent = `${res.startTime} - ${res.endTime}`;
+                    root.querySelector('.res-price').textContent = `$${res.totalPrice?.toLocaleString('es-CO') || '0'}`;
+
+                    // Try to fetch the driver's average rating and show it next to their name
+                    try {
+                        const drvRes = await fetch(`/api/reviews/driver/${res.userId}`);
+                        if (drvRes.ok) {
+                            const drvReviews = await drvRes.json();
+                            if (drvReviews.length > 0) {
+                                const avg = (drvReviews.reduce((s, r) => s + r.rating, 0) / drvReviews.length).toFixed(1);
+                                const ratingSpan = document.createElement('span');
+                                ratingSpan.className = 'flex items-center gap-1 text-[10px] text-yellow-500 font-bold ml-2';
+                                ratingSpan.innerHTML = '';
+                                const icon = document.createElement('i');
+                                icon.setAttribute('data-lucide', 'star');
+                                icon.className = 'w-3 h-3 fill-current';
+                                ratingSpan.appendChild(icon);
+                                ratingSpan.appendChild(document.createTextNode(` ${avg}`));
+                                root.querySelector('.res-driver-name').parentElement.appendChild(ratingSpan);
+                                if (window.lucide) lucide.createIcons();
+                            }
+                        }
+                    } catch (e) { /* driver rating is optional ÔÇö continue silently */ }
+
+                    const badge = root.querySelector('.res-status-badge');
+                    badge.textContent = res.status;
+                    if (res.status === 'pending') badge.className += ' bg-yellow-100 text-yellow-700 border border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-500 dark:border-transparent';
+                    else if (res.status === 'in-use') badge.className += ' bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-transparent';
+                    else if (res.status === 'completed') badge.className += ' bg-green-100 text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-transparent';
+                    else badge.className += ' bg-red-100 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-transparent';
