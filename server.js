@@ -798,3 +798,43 @@ app.get('/api/users/:userId/spots', async (req, res) => {
             FROM parking_spots
             WHERE owner_id = ? AND deleted_at IS NULL
             ORDER BY id DESC
+        `, [userId]);
+        const parsedRows = rows.map(r => {
+            try { r.images = r.images ? JSON.parse(r.images) : []; } catch (e) { r.images = []; }
+            return r;
+        });
+        res.json(parsedRows);
+    } catch (error) {
+        console.error("Owner Spots Error:", error.message);
+        res.status(500).json({ error: "Unable to retrieve owner spots." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Admin: approve a spot
+app.patch('/api/spots/:id/approve', async (req, res) => {
+    const { id } = req.params;
+    let connection;
+    try {
+        connection = await getConnection();
+        await connection.execute('UPDATE parking_spots SET available = 1, verified = 1 WHERE id = ?', [id]);
+        res.json({ message: 'Spot approved.' });
+    } catch (error) {
+        console.error("Approve Spot Error:", error.message);
+        res.status(500).json({ error: "Failed to approve spot." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Admin: reject a spot
+app.patch('/api/spots/:id/reject', async (req, res) => {
+    const { id } = req.params;
+    let connection;
+    try {
+        connection = await getConnection();
+        await connection.execute('UPDATE parking_spots SET available = -1 WHERE id = ?', [id]);
+        res.json({ message: 'Spot rejected.' });
+    } catch (error) {
+        console.error("Reject Spot Error:", error.message);
