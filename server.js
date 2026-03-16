@@ -518,3 +518,43 @@ app.post('/api/auth/google', async (req, res) => {
             // Update avatar if we have a new photo and none exists
             if (photo && !user.avatar_url) {
                 await connection.execute('UPDATE users SET avatar_url = ? WHERE id = ?', [photo, user.id]);
+                user.avatar_url = photo;
+            }
+            console.log(`Google Login: Existing user ${email}`);
+        } else {
+            // 2. Create new user
+            const [result] = await connection.execute(
+                'INSERT INTO users (name, email, role, avatar_url, password) VALUES (?, ?, ?, ?, ?)',
+                [name || 'Google User', email, role || 'client', photo, 'GOOGLE_AUTH']
+            );
+            user = {
+                id: result.insertId,
+                name: name || 'Google User',
+                email: email,
+                role: role || 'client',
+                avatar_url: photo,
+                status: 'active'
+            };
+            console.log(`Google Login: Created new user ${email}`);
+        }
+        res.json(user);
+    } catch (error) {
+        console.error("Google Auth Sync Error:", error.message);
+        res.status(500).json({ error: "Failed to synchronize Google login." });
+    } finally {
+        if (connection) await connection.end();
+    }
+});
+
+// Get user by ID
+app.get('/api/users/:id', async (req, res) => {
+    const { id } = req.params;
+    let connection;
+    try {
+        connection = await getConnection();
+        const [rows] = await connection.execute(
+            'SELECT id, name, email, phone, role, photo, avatar_url, status, vehicle_type, license_plate FROM users WHERE id = ?',
+            [id]
+        );
+        if (rows.length > 0) {
+            const u = rows[0];
