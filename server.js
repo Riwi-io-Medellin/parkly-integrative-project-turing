@@ -1078,3 +1078,43 @@ app.get('/api/users/:userId/reservations', async (req, res) => {
 app.post('/api/reservations', async (req, res) => {
     const { id, userId, userName, userEmail, spotId, spotName, ownerId, date, startTime, endTime, total, carPlate } = req.body;
     let connection;
+    try {
+        connection = await getConnection();
+        // Check for conflicts
+        const [conflicts] = await connection.execute(
+            `SELECT id FROM reservations 
+             WHERE spotId = ? AND date = ? 
+             AND (startTime < ? AND endTime > ?)
+             AND status IN ('pending', 'active', 'in-use')`,
+            [spotId, date, endTime, startTime]
+        );
+        if (conflicts.length > 0) {
+            return res.status(409).json({ error: "Parking spot is already reserved for the requested time." });
+        }
+
+        const resId = id || `res_${Date.now()}`;
+        await connection.execute(
+            `INSERT INTO reservations 
+             (id, userId, userName, userEmail, spotId, spotName, ownerId, date, startTime, endTime, total, carPlate, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')`,
+            [resId, userId || '', userName || '', userEmail || '', spotId || 0, spotName || '', ownerId || '',
+                date, startTime, endTime, total || 0, carPlate || '']
+        );
+
+        // Send confirmation email via Resend
+        if (userEmail) {
+            try {
+                await sendEmail({
+                    to: userEmail,
+                    subject: '✅ Parkly Reservation Confirmed!',
+                    html: `<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
+                                <div style="background-color: #10b981; padding: 30px; text-align: center;">
+                                    <span style="color: #ffffff; font-size: 28px; font-weight: bold; letter-spacing: -1px;">PARK<span style="color: #d1fae5;">LY</span></span>
+                                </div>
+                                <div style="padding: 40px 30px;">
+                                    <h2 style="color: #111827; margin-top: 0; font-size: 24px;">✅ Reservation Confirmed!</h2>
+                                    <p style="font-size: 16px; color: #4b5563;">Hello ${userName || userEmail},</p>
+                                    <p style="font-size: 16px; color: #4b5563;">Your reservation for <b style="color: #10b981;">${spotName}</b> is all set.</p>
+                                    <div style="background-color: #f3f4f6; border-radius: 10px; padding: 20px; margin: 25px 0;">
+                                        <p style="margin: 5px 0;">📅 <b>Date:</b> ${date}</p>
+                                        <p style="margin: 5px 0;">⏰ <b>Time:</b> ${startTime} - ${endTime}</p>
