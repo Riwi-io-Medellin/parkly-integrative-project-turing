@@ -109,3 +109,17 @@ Do not invent data. If you do not know something, refer the user to support@park
       "Could not generate a response. Please try again.";
 
     res.json({ reply });
+    } catch (error) {
+    console.error("ERROR:", error?.message || error);
+
+    const status = error?.status;
+    res.status(500).json({
+      reply:
+        status === 401
+          ? "Authentication error with the AI server."
+          : status === 429
+          ? "Too many requests. Please wait a moment."
+          : "Error connecting to the AI server.",
+    });
+  }
+});
