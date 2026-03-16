@@ -1,6 +1,6 @@
 /**
 * ARCHIVO: js/detail.js
-* DESCRIPCIÓN: 100% Lógica. Sin HTML inyectado por strings.
+* DESCRIPCIÓN: 100% Lógica. Sin HTML inyectado por strings, mostrando los datos de la base de datos y del mapa.
 */
 
 let currentSpot = null;
