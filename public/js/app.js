@@ -59,3 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('parkly_session');
                 window.location.href = './index.html';
             }
+        });
+    }
+
