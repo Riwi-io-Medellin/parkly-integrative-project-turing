@@ -1,5 +1,3 @@
-
-
 # Parkly
 
 Parkly is an innovative platform that connects drivers looking for parking with hosts who offer available spots. Designed to optimize urban spaces, Parkly provides a secure, efficient, and easy-to-use experience for both drivers and owners.
@@ -154,6 +152,7 @@ docker-compose up --build
 
 ## Features
 - **Smart Search**: Filter spots by price, zone, and availability
+- **Google Maps Integration**: Interactive maps for location visualization and navigation
 - **Secure Payments**: Integrated with Wompi for seamless transactions
 - **Real-time Chat**: In-app communication between drivers and hosts
 - **AI Assistant**: Intelligent support for user queries
