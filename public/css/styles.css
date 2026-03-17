@@ -1,0 +1,202 @@
+/* ARCHIVO: css/styles.css */
+/* DESCRIPCIÓN: Variables de color HSL para soporte de modo claro y oscuro con transiciones */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+    /* MODO CLARO — Azul Profesional (estilo Airbnb minimalista) */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%; /* Pure Black */
+    --primary: 224 81% 53%;
+    --primary-dark: 224 81% 42%;
+    --primary-light: 217 91% 65%;
+    --primary-foreground: 0 0% 100%;
+    --card: 220 20% 97%;
+    --border: 220 13% 88%;
+    --input: 220 18% 96%;
+    --accent: 38 92% 50%;
+    --accent-light: 45 93% 64%;
+    --accent-foreground: 0 0% 100%;
+    --success: 142 71% 38%;
+    --danger: 0 84% 55%;
+    --radius: 0.75rem;
+    --chatbox-launcher: 220 18% 96%;
+    --chatbox-panel: 0 0% 100%;
+}
+
+.dark {
+    /* MODO OSCURO — Navy Dark (fondo azul marino muy oscuro) */
+    --background: 222 47% 7%;
+    --foreground: 213 27% 93%;
+    --primary: 217 91% 60%;
+    --primary-dark: 217 91% 48%;
+    --primary-light: 217 91% 74%;
+    --primary-foreground: 0 0% 100%;
+    --card: 222 40% 12%;
+    --border: 220 30% 20%;
+    --input: 222 36% 15%;
+    --accent: 38 92% 52%;
+    --accent-light: 45 93% 66%;
+    --accent-foreground: 0 0% 100%;
+    --success: 142 71% 42%;
+    --danger: 0 84% 58%;
+    --radius: 0.75rem;
+    --chatbox-launcher: 222 47% 6%;
+    --chatbox-panel: 222 47% 5%;
+}
+
+/* Transición suave para el cambio de tema */
+*, *::before, *::after {
+    box-sizing: border-box;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Excepciones: no animar transforms/opacidad con la transición global */
+*[class*="animate-"],
+*[class*="transition-"],
+.bubble-in,
+.chat-bubble,
+.typing-indicator span {
+    transition: none;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar global */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.4);
+}
+
+/* Selección de texto */
+::selection {
+    background: hsl(var(--primary) / 0.3);
+    color: #fff;
+}
+
+/* Focus visible accesible */
+:focus-visible {
+    outline: 2px solid hsl(var(--primary) / 0.7);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Chips de filtros activos */
+.filter-chip.active {
+    background-color: hsl(var(--primary) / 0.2);
+    border-color: hsl(var(--primary));
+    color: hsl(var(--primary));
+}
+
+/* ── Toggle switches (search sidebar) ── */
+.toggle-track {
+    width: 38px;
+    height: 22px;
+    background: hsl(var(--border));
+    border-radius: 999px;
+    position: relative;
+    transition: background 0.25s ease;
+    flex-shrink: 0;
+    cursor: pointer;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.toggle-track.on {
+    background: hsl(var(--primary));
+    box-shadow: 0 0 8px hsl(var(--primary) / 0.4);
+}
+
+.toggle-knob {
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    transition: left 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.toggle-track.on .toggle-knob { left: 19px; }
+
+/* ── Sort options (search sidebar) ── */
+.sort-opt {
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    color: hsl(var(--foreground) / 0.95);
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+}
+
+.sort-opt:hover {
+    color: hsl(var(--foreground));
+    background: hsl(var(--border) / 0.4);
+    border-color: hsl(var(--border));
+}
+
+.sort-opt.active {
+    background: hsl(var(--primary) / 0.12);
+    color: hsl(var(--primary));
+    border-color: hsl(var(--primary) / 0.3);
+}
+/* Status Text Colors */
+.text-available { color: hsl(var(--success)); font-weight: 600; }
+.text-occupied  { color: hsl(var(--danger));  font-weight: 600; }
+
+/* Progress Bar Utilities */
+.progress-bar-fill { height: 100%; border-radius: 9999px; transition: width 1s ease-in-out; }
+
+/* Avatar Gradients */
+.bg-gradient-avatar { background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent))); }
+
+/* ── PREMIUM ANIMATIONS & UTILITIES ── */
+
+@keyframes bounce-subtle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.animate-bounce-subtle {
+    animation: bounce-subtle 2s infinite ease-in-out;
+}
+
+/* Glassmorphism utility */
+.glass {
+    background: hsla(var(--background), 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsla(var(--border), 0.1);
+}
+
+/* Premium hover effect for cards */
+.premium-card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -10px hsla(var(--primary), 0.15);
+    border-color: hsla(var(--primary), 0.3);
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}

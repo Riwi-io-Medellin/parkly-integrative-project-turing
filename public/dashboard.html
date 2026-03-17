@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings — PARKLY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="bg-background text-foreground min-h-screen font-sans antialiased">
+    <header class="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl px-6 py-4">
+        <nav class="max-w-5xl mx-auto flex justify-between items-center" aria-label="Main navigation">
+            <a href="index.html" aria-label="Parkly home"
+                class="flex items-center gap-2 font-bold text-xl text-foreground group">
+                <i data-lucide="circle-parking" class="text-primary group-hover:rotate-12 transition-transform"
+                    aria-hidden="true"></i>
+                <span class="tracking-tighter uppercase italic">PARK<span class="text-primary">LY</span></span>
+            </a>
+            
+            <div class="flex items-center gap-3">
+                <!-- Desktop nav items -->
+                <div class="hidden md:flex items-center gap-3">
+                    <a href="search.html"
+                        class="text-sm text-foreground font-bold hover:text-primary transition-colors uppercase tracking-tighter">Search</a>
+                </div>
+
+                <button id="theme-toggle" aria-label="Toggle theme"
+                    class="p-2 rounded-lg border border-border hover:border-primary/50 transition-colors">
+                    <i data-lucide="moon" class="w-4 h-4 text-foreground"></i>
+                </button>
+
+                <!-- Profile Dropdown (Desktop) -->
+                <div class="relative hidden md:block">
+                    <button id="profile-pill"
+                        class="flex items-center gap-2 border border-border rounded-full pl-1 pr-3 py-1 bg-card hover:border-primary/50 transition-colors">
+                        <div class="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center text-[10px] font-black text-foreground bg-gradient-avatar">
+                            <img id="nav-avatar-img" src="" alt="" class="hidden w-full h-full object-cover">
+                            <span id="nav-avatar-text">?</span>
+                        </div>
+                        <span id="nav-username" class="text-xs font-bold text-foreground">Guest</span>
+                        <i data-lucide="chevron-down" class="w-3 h-3 text-foreground/90 font-medium"></i>
+                    </button>
+                    <!-- Dropdown content omitted for brevity, logic handles it -->
+                </div>
+
+                <!-- Mobile menu toggle -->
+                <button id="mobile-menu-open" class="md:hidden p-2 rounded-lg border border-border text-foreground">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu" class="fixed inset-0 z-[100] bg-background p-6 translate-x-full transition-transform duration-300 md:hidden">
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex items-center gap-2 font-bold">
+                    <i data-lucide="circle-parking" class="text-primary"></i>
+                    <span>PARK<span class="text-primary">LY</span></span>
+                </div>
+                <button id="mobile-menu-close" class="p-2"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center gap-3 p-4 bg-card border border-border rounded-2xl mb-4">
+                    <div class="w-10 h-10 rounded-full bg-gradient-avatar flex items-center justify-center text-xs font-bold">
+                        <span id="mobile-avatar-text">?</span>
+                    </div>
+                    <div>
+                        <p id="mobile-username" class="font-bold text-foreground">Guest</p>
+                        <p class="text-xs text-foreground/60 uppercase font-black">Driver</p>
+                    </div>
+                </div>
+                <a href="profile.html" class="flex items-center gap-3 p-4 border border-border rounded-2xl font-bold">
+                    <i data-lucide="user" class="w-5 h-5"></i> Profile
+                </a>
+                <a href="search.html" class="flex items-center gap-3 p-4 border border-border rounded-2xl font-bold">
+                    <i data-lucide="search" class="w-5 h-5"></i> Find Parking
+                </a>
+                <a href="chat.html" class="flex items-center gap-3 p-4 border border-border rounded-2xl font-bold text-primary bg-primary/10">
+                    <i data-lucide="message-square" class="w-5 h-5"></i> Messages
+                </a>
+                <button id="btn-logout-mobile" class="mt-4 flex items-center gap-3 p-4 text-red-500 font-bold">
+                    <i data-lucide="log-out" class="w-5 h-5"></i> Log out
+                </button>
+            </div>
+        </div>
+    </header>
+
+
+    <main class="max-w-5xl mx-auto px-6 py-10">
+
+        <header class="mb-4">
+            <h1 class="text-3xl font-extrabold text-foreground mb-1">My Bookings</h1>
+            <p id="dash-subtitle" class="text-foreground font-medium opacity-80"></p>
+        </header>
+
+        <!-- PQR / Help Section (Moved Up + High Visibility) -->
+        <section class="mb-12">
+            <div
+                class="bg-primary/10 border-2 border-primary/30 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg shadow-primary/5">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+                        <i data-lucide="life-buoy" class="w-7 h-7 text-foreground animate-pulse"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-extrabold text-foreground">Need support or have a claim?</h2>
+                        <p class="text-xs text-foreground/90 font-medium">File a report, ask a question, or share a
+                            suggestion with us.</p>
+                    </div>
+                </div>
+                <button id="pqr-open-btn"
+                    class="w-full md:w-auto px-10 py-4 bg-primary hover:bg-primary-dark text-primary-foreground font-black rounded-2xl shadow-xl shadow-primary/20 transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3">
+                    <i data-lucide="plus" class="w-5 h-5"></i> FILE A CLAIM NOW
+                </button>
+            </div>
+        </section>
+
+        <nav aria-label="Booking filter tabs">
+            <ul class="flex gap-1 bg-card border border-border rounded-xl p-1 w-fit mb-8 list-none" role="tablist">
+                <li role="presentation"><button id="tab-all" role="tab" aria-selected="true" data-tab="all"
+                        class="tab-btn px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all text-primary-foreground bg-primary">All</button>
+                </li>
+                <li role="presentation"><button id="tab-active" role="tab" aria-selected="false" data-tab="active"
+                        class="tab-btn px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all text-foreground/90 font-medium hover:text-foreground">Active</button>
+                </li>
+                <li role="presentation"><button id="tab-completed" role="tab" aria-selected="false" data-tab="completed"
+                        class="tab-btn px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all text-foreground/90 font-medium hover:text-foreground">Completed</button>
+                </li>
+                <li role="presentation"><button id="tab-cancelled" role="tab" aria-selected="false" data-tab="cancelled"
+                        class="tab-btn px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all text-foreground/90 font-medium hover:text-foreground">Cancelled</button>
+                </li>
+            </ul>
+        </nav>
+
+        <section id="reservations-panel" role="tabpanel" aria-live="polite" aria-label="Reservations list">
+            <ol id="reservations-list" class="flex flex-col gap-4 list-none p-0 m-0"></ol>
+        </section>
+
+    </main>
+
+    <dialog id="pqr-dialog" aria-labelledby="pqr-dialog-title" aria-modal="true"
+        class="bg-card border border-border rounded-3xl p-8 w-full max-w-md text-foreground backdrop:bg-black/70 backdrop:backdrop-blur-sm">
+        <h2 id="pqr-dialog-title" class="text-xl font-extrabold text-foreground mb-2">How can we help?</h2>
+        <p class="text-sm text-foreground/90 font-medium mb-6">Our support team will respond within 24 hours.</p>
+
+        <form id="pqr-form" method="dialog">
+            <div class="mb-5">
+                <label for="pqr-type"
+                    class="block text-xs font-bold uppercase tracking-widest text-foreground/90 font-medium mb-2">Issue
+                    Type</label>
+                <select id="pqr-type"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary appearance-none">
+                    <option value="claim">Claim / Complaint</option>
+                    <option value="question">Question</option>
+                    <option value="suggestion">Suggestion</option>
+                </select>
+            </div>
+
+            <div class="mb-5">
+                <label for="pqr-subject"
+                    class="block text-xs font-bold uppercase tracking-widest text-foreground/90 font-medium mb-2">Subject</label>
+                <input type="text" id="pqr-subject" placeholder="e.g. Issues with payment"
+                    class="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary">
+            </div>
+
+            <div class="mb-5">
+                <label for="pqr-description"
+                    class="block text-xs font-bold uppercase tracking-widest text-foreground/90 font-medium mb-2">Details</label>
+                <textarea id="pqr-description" rows="4" placeholder="Describe what happened..."
+                    class="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder-slate-600 focus:outline-none focus:border-primary resize-none"></textarea>
+            </div>
+
+            <div class="flex gap-3">
+                <button id="pqr-cancel-btn" type="button"
+                    class="px-5 py-2.5 rounded-xl border border-border text-foreground/90 font-medium hover:text-foreground hover:border-slate-500 text-sm font-semibold transition-all">Cancel</button>
+                <button id="pqr-submit-btn" type="button"
+                    class="flex-1 bg-primary hover:opacity-90 text-primary-foreground font-bold py-2.5 rounded-xl text-sm transition-all">Send
+                    Message →</button>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog id="review-dialog" aria-labelledby="review-dialog-title" aria-modal="true"
+        class="bg-card border border-border rounded-3xl p-8 w-full max-w-md text-foreground backdrop:bg-black/70 backdrop:backdrop-blur-sm">
+        <h2 id="review-dialog-title" class="text-xl font-extrabold text-foreground mb-1">Leave a Review</h2>
+        <p id="review-parking-name" class="text-sm text-foreground/90 font-medium mb-6"></p>
+
+        <form id="review-form" method="dialog">
+            <div class="mb-5">
+                <label class="block text-xs font-bold uppercase tracking-widest text-foreground/90 font-medium mb-2"
+                    id="stars-label">Your Rating</label>
+                <div id="review-stars" class="flex gap-2 text-4xl" role="radiogroup" aria-labelledby="stars-label">
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label for="review-comment"
+                    class="block text-xs font-bold uppercase tracking-widest text-foreground/90 font-medium mb-2">Your
+                    Review</label>
+                <textarea id="review-comment" rows="4" placeholder="Share your experience..."
+                    class="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder-slate-600 focus:outline-none focus:border-primary resize-none"></textarea>
+            </div>
+
+            <p id="review-error" role="alert" aria-live="assertive" class="hidden text-red-400 text-sm mb-3"></p>
+
+            <div class="flex gap-3">
+                <button id="review-cancel-btn" type="button"
+                    class="px-5 py-2.5 rounded-xl border border-border text-foreground/90 font-medium hover:text-foreground hover:border-slate-500 text-sm font-semibold transition-all">Cancel</button>
+                <button id="review-submit-btn" type="button"
+                    class="flex-1 bg-primary hover:opacity-90 text-primary-foreground font-bold py-2.5 rounded-xl text-sm transition-all">Submit
+                    Review →</button>
+            </div>
+        </form>
+    </dialog>
+
+    <template id="tpl-extend-modal">
+        <div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center modal-overlay">
+            <div class="bg-card border border-border rounded-2xl p-6 w-full max-w-sm mx-4">
+                <h3 class="text-lg font-bold text-foreground mb-1">Extend Reservation</h3>
+                <p class="text-xs text-foreground/90 mb-5">Current end time: <strong
+                        class="text-foreground current-end-time"></strong></p>
+                <div class="grid grid-cols-3 gap-3 mb-5 options-container">
+                    <!-- Button template for options -->
+                    <template class="opt-btn-tpl">
+                        <button
+                            class="extend-opt py-3 rounded-xl border border-border text-foreground font-bold hover:border-primary hover:bg-primary/10 transition-all text-sm">
+                            <span class="opt-hours"></span><br>
+                            <span class="text-xs text-foreground/90 opt-time"></span>
+                        </button>
+                    </template>
+                </div>
+                <button
+                    class="close-extend w-full py-2 text-foreground/90 text-sm hover:text-foreground font-semibold transition-colors">Cancel</button>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-arrive-modal">
+        <dialog
+            class="bg-card border border-border rounded-3xl p-6 w-full max-w-sm backdrop:bg-black/80 shadow-2xl modal-dialog">
+            <h3 class="font-bold text-lg text-foreground mb-2">Confirm Arrival</h3>
+            <p class="text-sm text-foreground/90 mb-4">Upload up to 3 photos of your parked car for security.</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-foreground/90 uppercase mb-1">Upload Photos (Max
+                        3)</label>
+                    <input type="file"
+                        class="arrive-photos w-full bg-background border border-border rounded-xl px-3 py-2 text-sm text-foreground"
+                        accept="image/*" multiple max="3">
+                    <p class="arrive-upload-status text-xs text-primary mt-1 hidden font-semibold">Uploading... please
+                        wait.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 mt-6">
+                <button type="button"
+                    class="arrive-cancel flex-1 bg-card hover:bg-input text-foreground font-bold py-2.5 rounded-xl text-sm border border-border transition-colors">Cancel</button>
+                <button type="button"
+                    class="arrive-confirm flex-1 bg-primary hover:bg-primary-dark text-primary-foreground font-bold py-2.5 rounded-xl text-sm transition-colors">Confirm</button>
+            </div>
+        </dialog>
+    </template>
+
+    <template id="res-card-tpl">
+        <li>
+            <article class="bg-card border border-border rounded-2xl p-5 hover:border-slate-600 transition-all">
+                <div class="flex gap-4">
+                    <img data-field="thumb-img" class="w-24 h-20 object-cover rounded-xl flex-shrink-0 bg-card hidden"
+                        alt="">
+                    <div data-field="thumb-placeholder"
+                        class="w-24 h-20 rounded-xl bg-card flex items-center justify-center text-3xl font-black text-foreground/90 flex-shrink-0"
+                        aria-hidden="true">P</div>
+
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between gap-3 mb-2">
+                            <h2 data-field="name" class="font-bold text-foreground text-base leading-tight"></h2>
+                            <span data-field="status-badge"
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-current" aria-hidden="true"></span>
+                                <span data-field="status-label"></span>
+                            </span>
+                        </div>
+
+                        <dl class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-foreground font-semibold mb-3">
+                            <div class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i>
+                                <dd data-field="address"></dd>
+                            </div>
+                            <div class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i>
+                                <dd data-field="date"></dd>
+                            </div>
+                            <div class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>
+                                <dd data-field="time"></dd>
+                            </div>
+                            <div class="flex items-center gap-1"><i data-lucide="timer" class="w-3 h-3"></i>
+                                <dd data-field="duration"></dd>
+                            </div>
+                            <div>
+                                <dd data-field="total" class="font-black text-primary text-base font-mono"></dd>
+                            </div>
+                        </dl>
+                        <p data-field="booking-id" class="text-xs text-foreground font-mono opacity-50"></p>
+                    </div>
+                </div>
+
+                <div data-field="progress-block" class="hidden mt-4 bg-background border border-border rounded-xl p-4">
+                    <p class="text-xs font-bold uppercase tracking-widest text-foreground/70 mb-2">Service in Progress
+                    </p>
+                    <div class="h-1 bg-border rounded-full overflow-hidden mb-2">
+                        <div class="progress-bar-fill bg-primary w-[60%]"></div>
+                    </div>
+                    <p class="text-xs text-foreground/70 mb-3">Your spot is active until <strong data-field="end-time"
+                            class="text-foreground"></strong></p>
+                    <button data-action="finish"
+                        class="w-full bg-primary hover:opacity-90 text-primary-foreground font-bold py-2 rounded-xl text-sm transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i> Finish Service
+                    </button>
+                </div>
+
+                <div class="mt-4 flex flex-col gap-2">
+                    <button data-action="review"
+                        class="hidden w-full border border-border hover:border-primary text-foreground/90 font-medium hover:text-foreground font-semibold py-2 rounded-xl text-sm flex items-center justify-center gap-2"><i
+                            data-lucide="star" class="w-4 h-4"></i> Leave a Review</button>
+                    <div data-field="review-done"
+                        class="hidden items-center justify-center gap-2 text-xs font-bold text-green-400 bg-green-900/20 border border-green-800/30 rounded-xl py-2">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Review submitted</div>
+                    <button data-action="cancel"
+                        class="hidden w-full border border-red-800/50 hover:bg-red-900/20 text-red-400 font-semibold py-2 rounded-xl text-sm transition-all">Cancel
+                        Reservation</button>
+                    <button data-action="view"
+                        class="w-full border border-border hover:border-slate-500 text-foreground/90 font-medium hover:text-foreground font-semibold py-2 rounded-xl text-sm transition-all">View
+                        Parking</button>
+                </div>
+            </article>
+        </li>
+    </template>
+
+    <template id="res-empty-tpl">
+        <li>
+            <div class="text-center py-20 text-foreground/70">
+                <div class="w-16 h-16 bg-card rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="inbox" class="w-8 h-8 text-foreground/70" aria-hidden="true"></i>
+                </div>
+                <strong data-field="title" class="block text-lg text-foreground mb-2"></strong>
+                <p data-field="subtitle" class="text-sm mb-6"></p>
+                <a data-field="cta" href="search.html"
+                    class="hidden inline-flex items-center gap-2 bg-primary hover:opacity-90 text-primary-foreground font-bold px-6 py-3 rounded-xl text-sm transition-all">Find
+                    Parking →</a>
+            </div>
+        </li>
+    </template>
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js?v=3"></script>
+    <script src="js/dashboard.js?v=3"></script>
+
+    <!-- SweetAlert2 + Parkly Custom Alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/alerts.js"></script>
+
+    <script>
+        // Mobile Menu Logic
+        const openBtn = document.getElementById('mobile-menu-open');
+        const closeBtn = document.getElementById('mobile-menu-close');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (openBtn && closeBtn && mobileMenu) {
+            openBtn.addEventListener('click', () => mobileMenu.classList.remove('translate-x-full'));
+            closeBtn.addEventListener('click', () => mobileMenu.classList.add('translate-x-full'));
+        }
+        
+        // Sync mobile user info
+        const syncMobile = () => {
+            const user = JSON.parse(localStorage.getItem('parkly_session'));
+            if (user) {
+                document.getElementById('mobile-username').textContent = user.name;
+                document.getElementById('mobile-avatar-text').textContent = user.name[0];
+            }
+        };
+        setTimeout(syncMobile, 100);
+
+        // Mobile Logout
+        document.getElementById('btn-logout-mobile')?.addEventListener('click', () => {
+            localStorage.removeItem('parkly_session');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+
+</html>

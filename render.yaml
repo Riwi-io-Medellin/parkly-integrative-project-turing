@@ -1,0 +1,63 @@
+# render.yaml — Configuración oficial de Render.com para Parkly
+# Detectado automáticamente al conectar el repositorio.
+# Docs: https://render.com/docs/infrastructure-as-code
+
+services:
+  - type: web
+    name: parkly-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+
+    # Render inyecta $PORT automáticamente — Node.js ya lo usa con process.env.PORT
+    # No es necesario definirlo aquí, Render lo asigna solo.
+
+    # Variables de entorno — agrega los valores reales en el dashboard de Render
+    # (Environment > Add Environment Variable) o descomentalas aquí con sus valores.
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # Base de datos MySQL (TiDB)
+      - key: DB_HOST
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_PORT
+        value: "4000"
+
+      # MongoDB (Chat)
+      - key: MONGODB_URI
+        sync: false
+
+      # Cloudinary (imágenes)
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+      # Otros servicios
+      - key: RESEND_API_KEY
+        sync: false
+      - key: WOMPI_INTEGRITY_SECRET
+        sync: false
+      - key: AUTOMATION_WEBHOOK_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+      # EmailJS
+      - key: EMAILJS_SERVICE_ID
+        sync: false
+      - key: EMAILJS_TEMPLATE_ID
+        sync: false
+      - key: EMAILJS_PUBLIC_KEY
+        sync: false
+      - key: EMAILJS_PRIVATE_KEY
+        sync: false

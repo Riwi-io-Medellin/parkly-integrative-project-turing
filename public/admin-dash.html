@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<!-- Admin dashboard — protected route, accessible only to admin users.
+     Contains tabs for Overview, Spots, Bookings, Users, Spot Requests, Analytics, and PQR.
+     admin.js loads all data and handles tab switching. -->
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - PARKLY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body
+    class="flex flex-col min-h-screen bg-background text-foreground font-sans antialiased transition-colors duration-300">
+
+    <header class="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md px-6 py-3">
+        <nav class="flex items-center justify-between gap-4" aria-label="Main Navigation">
+            <a href="index.html" class="flex items-center gap-2 mr-8 group" aria-label="Home">
+                <div class="bg-primary/10 p-1 rounded-lg group-hover:bg-primary/20 transition-colors">
+                    <i data-lucide="circle-parking"
+                        class="h-6 w-6 text-primary group-hover:scale-110 transition-transform"></i>
+                </div>
+                <span class="text-xl font-black tracking-tighter text-foreground">PARK<span
+                        class="text-primary">LY</span></span>
+            </a>
+
+            <div class="flex-1 max-w-xl hidden md:block">
+                <div class="relative group">
+                    <i data-lucide="search"
+                        class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground group-focus-within:text-primary transition-colors"></i>
+                    <input type="text" id="admin-table-filter" placeholder="Search users, spots, or bookings..."
+                        class="w-full bg-input border border-border rounded-xl py-2 pl-10 pr-4 text-sm text-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all">
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button id="btn-nav-search"
+                    class="hidden md:flex items-center gap-2 px-4 py-2 bg-primary/5 text-primary-light hover:bg-primary/10 rounded-xl text-sm font-bold transition-all border border-primary/15">
+                    <i data-lucide="compass" class="w-4 h-4"></i> View App
+                </button>
+                <button id="theme-toggle" aria-label="Toggle theme"
+                    class="p-2 rounded-lg bg-input border border-border hover:border-primary/50 transition-all"></button>
+                <div class="h-8 w-px bg-card mx-1"></div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold text-foreground leading-none">Admin Panel</p>
+                        <p class="text-[10px] text-primary uppercase font-black tracking-widest mt-0.5">Superuser</p>
+                    </div>
+                    <div
+                        class="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-primary-dark flex items-center justify-center text-foreground font-bold shadow-lg shadow-primary/20">
+                        A
+                    </div>
+                </div>
+                <button id="btn-logout"
+                    class="p-2 text-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors ml-2">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ── ADMIN DASHBOARD MAIN CONTAINER ───────────────────────────────────── -->
+    <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
+        
+        <!-- Dashboard Header -->
+        <header class="mb-8">
+            <h1 class="text-2xl font-black text-foreground mb-2">Control Center</h1>
+            <p class="text-sm text-foreground font-medium opacity-80">Manage the entire platform from one place.</p>
+        </header>
+
+        <!-- ── TAB NAVIGATION (Dynamically toggles section visibility via admin.js) ── -->
+        <nav id="tabs-container" class="flex overflow-x-auto border-b border-border mb-8 scrollbar-hide"
+            aria-label="Admin Sections">
+            <button data-tab="summary"
+                class="tab-btn active-tab flex items-center gap-2 px-6 py-2.5 text-sm font-bold border-b-2 border-primary text-primary transition-all"
+                role="tab">
+                Overview
+            </button>
+            <button data-tab="spots"
+                class="tab-btn flex items-center gap-2 px-6 py-2.5 text-sm font-medium border-b-2 border-transparent text-foreground/90 font-medium hover:text-foreground transition-all"
+                role="tab">
+                Spots <span id="badge-spots"
+                    class="ml-1.5 bg-card text-foreground font-semibold text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span>
+            </button>
+            <button data-tab="reservations"
+                class="tab-btn flex items-center gap-2 px-6 py-2.5 text-sm font-medium border-b-2 border-transparent text-foreground/90 font-medium hover:text-foreground transition-all"
+                role="tab">
+                Bookings <span id="badge-reservations"
+                    class="ml-1.5 bg-card text-foreground font-semibold text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span>
+            </button>
+            <button data-tab="users"
+                class="tab-btn flex items-center gap-2 px-6 py-2.5 text-sm font-medium border-b-2 border-transparent text-foreground/90 font-medium hover:text-foreground transition-all"
+                role="tab">
+                Users <span id="badge-users"
+                    class="ml-1.5 bg-card text-foreground font-semibold text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span>
+            </button>
+            <button data-tab="requests"
+                class="tab-btn flex items-center gap-2 px-6 py-2.5 text-sm font-medium border-b-2 border-transparent text-foreground font-medium opacity-70 hover:opacity-100 transition-all"
+                role="tab">
+                Spot Requests <span id="badge-requests"
+                    class="ml-1.5 bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400 text-[10px] px-1.5 py-0.5 rounded-full font-bold border border-yellow-200 dark:border-transparent">0</span>
+            </button>
+            <button data-tab="analytics"
+                class="tab-btn flex items-center gap-2 px-6 py-2.5 text-sm font-medium border-b-2 border-transparent text-foreground/90 font-medium hover:text-foreground transition-all"
+                role="tab">
+                Analytics
+            </button>
+            <button data-tab="pqr"
+                class="tab-btn flex items-center gap-2 px-6 py-2.5 text-sm font-medium border-b-2 border-transparent text-foreground font-medium opacity-70 hover:opacity-100 transition-all"
+                role="tab">
+                PQR <span id="badge-pqr"
+                    class="ml-1.5 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 text-[10px] px-1.5 py-0.5 rounded-full font-bold border border-red-200 dark:border-transparent">0</span>
+            </button>
+        </nav>
+
+        <!-- ── OVERVIEW (SUMMARY) TAB ── -->
+        <section id="view-summary" class="animate-fade-in" aria-live="polite">
+            
+            <!-- High-level KPI metrics container (Total users, earnings, total bookings) -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8" id="kpi-container"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <article class="bg-input border border-border p-6 rounded-2xl">
+                    <h3 class="text-xs font-black text-foreground uppercase tracking-widest mb-8">Reservation status
+                        distribution</h3>
+                    <div id="status-distribution-container" class="space-y-5"></div>
+                </article>
+                <article class="bg-input border border-border p-6 rounded-2xl">
+                    <h3 class="text-xs font-black text-foreground uppercase tracking-widest mb-8">Quick metrics</h3>
+                    <div id="quick-metrics-container" class="space-y-4"></div>
+                </article>
+            </div>
+
+            <section>
+                <h3 class="text-xs font-black text-foreground uppercase tracking-widest mb-6">Revenue by payment method
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="payment-methods-container"></div>
+            </section>
+        </section>
+
+        <!-- ── SPOT REQUESTS TAB (Approve/Reject new parking spots created by owners) ── -->
+        <section id="view-requests" class="hidden animate-fade-in" aria-live="polite">
+            
+            <!-- Pending Requests Queue -->
+            <div id="pending-requests-wrapper">
+                <h3 class="text-xs font-black text-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <i data-lucide="clock" class="w-4 h-4 text-yellow-600 dark:text-yellow-400"></i> Pending Approval
+                    (<span id="pending-count">0</span>)
+                </h3>
+                <div id="pending-requests-container" class="space-y-4 mb-8"></div>
+            </div>
+
+            <div id="resolved-requests-wrapper">
+                <h3 class="text-xs font-black text-foreground/80 font-bold uppercase tracking-widest mb-4">Resolved
+                    Requests (<span id="resolved-count">0</span>)</h3>
+                <div id="resolved-requests-container" class="space-y-3"></div>
+            </div>
+
+            <div id="empty-requests" class="hidden text-center py-20">
+                <div class="w-16 h-16 bg-card rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="inbox" class="w-8 h-8 text-foreground/80 font-bold"></i>
+                </div>
+                <p class="text-foreground/80 font-bold font-bold uppercase tracking-widest text-xs">No pending requests
+                </p>
+            </div>
+        </section>
+
+        <!-- ── SHARED DATATABLE TAB (Recycled view for Users, Spots, and Bookings tables) ── -->
+        <section id="view-table" class="hidden animate-fade-in" aria-live="polite">
+            <div class="flex justify-end mb-4">
+                
+                <!-- Export current table table filtered data to CSV sheet via JS -->
+                <button id="btn-export-csv"
+                    class="hidden flex items-center gap-2 px-4 py-2 bg-green-900/30 border border-green-800/50 text-green-400 text-xs font-bold rounded-xl hover:bg-green-900/50 transition-colors">
+                    Export CSV
+                </button>
+            </div>
+            
+            <!-- Core generic table layout -->
+            <div class="bg-card border border-border rounded-2xl overflow-hidden shadow-2xl">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-input text-[10px] uppercase font-black text-foreground border-b border-border">
+                        <tr>
+                            <th class="p-4">Item</th>
+                            <th class="p-4">Status / Role</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="text-sm text-foreground font-semibold divide-y divide-border/30">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ANALYTICS TAB -->
+        <section id="view-analytics" class="hidden animate-fade-in" aria-live="polite">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <article class="bg-input border border-border p-6 rounded-2xl">
+                    <h3 class="text-xs font-black text-foreground uppercase tracking-widest mb-4">Monthly Revenue
+                        Projection</h3>
+                    <canvas id="chart-revenue" height="200"></canvas>
+                </article>
+                <article class="bg-input border border-border p-6 rounded-2xl">
+                    <h3 class="text-xs font-black text-foreground uppercase tracking-widest mb-4">Occupancy Rate</h3>
+                    <canvas id="chart-occupancy" height="200"></canvas>
+                </article>
+            </div>
+            <article class="bg-input border border-border p-6 rounded-2xl">
+                <h3 class="text-xs font-black text-foreground uppercase tracking-widest mb-4">Top 3 Most Booked Spots
+                </h3>
+                <div id="top-spots-container" class="space-y-3"></div>
+            </article>
+        </section>
+
+        <!-- PQR TAB -->
+        <section id="view-pqr" class="hidden animate-fade-in" aria-live="polite">
+            <div id="pqr-list" class="space-y-4"></div>
+            <div id="pqr-empty" class="hidden text-center py-20 text-foreground/80 font-bold">
+                <div class="w-16 h-16 bg-card rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="inbox" class="w-8 h-8 text-foreground/80 font-bold"></i>
+                </div>
+                <p class="font-bold uppercase tracking-widest text-xs">No open PQRs</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- ── DYNAMIC JAVASCRIPT TEMPLATES ─────────────────────────────────────── -->
+
+    <!-- Template: KPI metric card shown in Summary View -->
+    <template id="tpl-kpi-card">
+        <article class="bg-input border border-border p-5 rounded-2xl">
+            <div class="kpi-icon-box w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                <i class="kpi-icon w-6 h-6"></i>
+            </div>
+            <h3 class="kpi-value text-3xl font-bold text-foreground mb-1 tracking-tighter"></h3>
+            <p class="kpi-label text-[10px] text-foreground/80 font-bold font-bold uppercase tracking-wider"></p>
+        </article>
+    </template>
+
+    <template id="tpl-status-bar">
+        <div class="flex items-center gap-3 text-xs">
+            <span class="status-label w-20 text-foreground/80 font-bold font-bold"></span>
+            <div class="flex-1 h-2 bg-background/50 rounded-full overflow-hidden">
+                <div class="status-fill progress-bar-fill bg-primary w-0"></div>
+            </div>
+            <span class="status-count w-6 text-right text-foreground font-bold"></span>
+        </div>
+    </template>
+
+    <template id="tpl-metric-row">
+        <div class="flex justify-between items-center p-3.5 bg-background/50 border border-border rounded-xl">
+            <div class="flex items-center gap-2">
+                <i class="metric-icon w-4 h-4 text-foreground/80 font-bold"></i>
+                <span class="metric-label text-sm text-foreground/90 font-medium font-medium"></span>
+            </div>
+            <span class="metric-value text-sm font-bold"></span>
+        </div>
+    </template>
+
+    <template id="tpl-payment-card">
+        <article class="p-5 bg-input border border-border rounded-2xl text-center">
+            <p class="payment-method text-[10px] text-foreground/80 font-bold font-bold uppercase mb-2"></p>
+            <p class="payment-count text-2xl font-bold text-foreground mb-1"></p>
+            <p class="payment-amount text-[10px] font-bold text-primary-light"></p>
+        </article>
+    </template>
+
+    <!-- Template: Individual spot request pending admin review (with approve/reject panels) -->
+    <template id="tpl-pending-request">
+        <article class="bg-input border border-yellow-900/40 rounded-2xl overflow-hidden shadow-lg">
+            <div class="flex gap-5 p-5">
+                <img class="req-img w-28 h-20 rounded-xl object-cover bg-card flex-shrink-0" src="" alt="">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-start justify-between gap-4 mb-1">
+                        <h4 class="req-name font-bold text-foreground text-base leading-tight"></h4>
+                        <span
+                            class="flex-shrink-0 text-[10px] font-black px-2 py-1 bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 rounded-lg uppercase tracking-wide border border-yellow-200 dark:border-transparent">Pending</span>
+                    </div>
+                    <p class="text-xs text-foreground/90 font-medium mb-1 flex items-center gap-1"><i
+                            data-lucide="map-pin" class="w-3 h-3"></i> <span class="req-address"></span></p>
+                    <p class="text-xs text-foreground/80 font-bold flex items-center gap-1"><i data-lucide="user"
+                            class="w-3 h-3"></i>
+                        Owner: <span class="req-owner-name text-foreground font-semibold ml-1 font-medium"></span> <span
+                            class="req-owner-id text-foreground/90 ml-1"></span></p>
+                    <div class="flex gap-3 mt-2 text-xs text-foreground/90 font-medium">
+                        <span class="req-price"></span> <span>·</span> <span class="req-cells"></span> <span>·</span>
+                        <span class="req-schedule"></span> <span>·</span>
+                        <span>Cert: <span class="req-cert text-foreground font-semibold"></span></span>
+                    </div>
+                    <div class="req-features flex flex-wrap gap-1 mt-2"></div>
+                </div>
+            </div>
+
+            <div class="border-t border-border px-5 py-4 bg-background/30">
+                <div class="reject-panel hidden mb-4 bg-red-950/30 border border-red-900/40 rounded-xl p-4 space-y-3">
+                    <p class="text-xs font-bold text-red-400 uppercase tracking-widest mb-2">Select rejection reason:
+                    </p>
+                    <div class="reasons-container space-y-2"></div>
+                    <div class="flex gap-2 mt-3">
+                        <button
+                            class="btn-confirm-reject flex-1 bg-red-600 hover:bg-red-700 text-foreground text-xs font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-1">
+                            <i data-lucide="x-circle" class="w-3 h-3"></i> Confirm Rejection
+                        </button>
+                        <button
+                            class="btn-cancel-reject px-4 py-2 text-xs text-foreground/90 font-medium hover:text-foreground transition-colors">Cancel</button>
+                    </div>
+                </div>
+                <div class="action-buttons flex gap-3">
+                    <button
+                        class="btn-approve flex-1 bg-green-600 hover:bg-green-700 text-foreground text-sm font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-green-900/30">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i> Approve
+                    </button>
+                    <button
+                        class="btn-show-reject flex-1 bg-red-900/30 hover:bg-red-800/40 text-red-400 border border-red-900/50 text-sm font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="x-circle" class="w-4 h-4"></i> Reject
+                    </button>
+                </div>
+            </div>
+        </article>
+    </template>
+
+    <template id="tpl-resolved-request">
+        <div class="flex items-center gap-4 p-4 bg-input border border-border rounded-2xl">
+            <div class="resolved-icon-box w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0">
+                <i class="resolved-icon w-4 h-4"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="resolved-name text-sm font-bold text-foreground truncate"></p>
+                <p class="resolved-owner text-xs text-foreground/80 font-bold"></p>
+            </div>
+            <span class="resolved-badge text-[10px] font-black px-2 py-1 rounded-lg uppercase"></span>
+        </div>
+    </template>
+
+    <template id="tpl-table-row">
+        <tr class="hover:bg-card/20 transition-colors">
+            <td class="cell-primary p-4 font-bold text-foreground"></td>
+            <td class="cell-secondary p-4"></td>
+            <td class="cell-actions p-4"></td>
+        </tr>
+    </template>
+    <template id="tpl-top-spot">
+        <div
+            class="flex justify-between items-center p-4 bg-background/50 border border-border rounded-xl hover:border-primary/30 transition-all">
+            <div class="flex items-center gap-3">
+                <span class="spot-medal text-xl"></span>
+                <div class="flex flex-col">
+                    <span class="spot-name text-sm font-bold text-foreground"></span>
+                    <span
+                        class="text-[10px] text-foreground/50 uppercase font-bold tracking-widest leading-none">Popular
+                        Spot</span>
+                </div>
+            </div>
+            <div class="flex flex-col items-end">
+                <span class="spot-bookings text-xs font-black text-primary bg-primary/10 px-2 py-1 rounded-lg"></span>
+            </div>
+        </div>
+    </template>
+
+    <!-- Template: PQR (Petition, Question, Report) support ticket list item -->
+    <template id="tpl-admin-pqr">
+        <article class="bg-card border border-border rounded-2xl p-5">
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <span class="pqr-type text-xs font-bold uppercase tracking-widest text-foreground/90"></span>
+                    <h3 class="pqr-subject font-bold text-foreground mt-0.5"></h3>
+                    <p class="text-xs text-foreground/90 mt-1">By <strong
+                            class="pqr-user font-bold text-foreground/90"></strong> · <span class="pqr-date"></span></p>
+                </div>
+                <span class="pqr-badge text-[10px] font-black px-2 py-1 rounded-lg border"></span>
+            </div>
+            <p class="pqr-desc text-sm text-foreground/90 mb-4"></p>
+            <div class="pqr-action-area"></div>
+        </article>
+    </template>
+
+    <script src="js/app.js?v=3"></script>
+    <script src="js/admin.js?v=3"></script>
+
+    <!-- SweetAlert2 + Parkly Custom Alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/alerts.js"></script>
+
+</body>
+
+</html>
