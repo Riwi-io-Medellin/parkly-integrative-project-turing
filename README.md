@@ -1,191 +1,128 @@
 # Parkly
 
-A peer-to-peer parking space rental platform that connects drivers looking for parking with hosts who offer available spots.
+Parkly is an innovative platform that connects drivers looking for parking with hosts who offer available spots. Designed to optimize the use of urban spaces, Parkly provides a secure, efficient, and easy-to-use experience for both drivers and owners.
 
-## Features
-
-**For drivers**
-- Search and filter parking spots by zone, price, schedule, and features (EV charging, 24h, security, verified)
-- View spot details, images, ratings, and hourly pricing
-- Make, modify, and cancel reservations
-- Process payments via Wompi
-- In-app chat with spot owners
-- AI-powered assistant for support queries
-
-**For owners**
-- List and manage parking spaces with pricing and availability
-- View bookings and occupancy from the owner dashboard
-- Communicate with renters via in-app chat
-
-**Platform**
-- User authentication (email/password + Google OAuth)
-- Password recovery via email
-- Admin dashboard for platform management
-- Analytics and reporting (monthly revenue, occupancy rate, top spots)
-- Dark / light theme
-- Fully responsive UI
-
----
-
-## Tech Stack
-
-### Frontend
-- HTML5, CSS3, JavaScript (ES6)
-- [Tailwind CSS](https://tailwindcss.com) via CDN + custom CSS variables
-- [Lucide](https://lucide.dev) icons
-
-### Backend — Node.js
-| Package | Purpose |
-|---|---|
-| Express 5 | REST API |
-| Mongoose | MongoDB ODM (chat) |
-| MySQL2 | Relational data (TiDB) |
-| bcryptjs | Password hashing |
-| jsonwebtoken | Session tokens |
-| Multer + Cloudinary | Image uploads |
-| Resend / EmailJS | Transactional email |
-| OpenAI SDK | AI chat assistant |
-| Wompi | Payment processing |
-
-### Backend — Python microservice
-| Package | Purpose |
-|---|---|
-| FastAPI + Uvicorn | Analytics REST API |
-| Pandas | Data processing |
-| mysql-connector-python | TiDB queries |
-
-### Databases
-| Database | Used for |
-|---|---|
-| TiDB (MySQL-compatible) | Users, spots, reservations, payments |
-| MongoDB Atlas | Chat messages |
-
-### Infrastructure
-- Docker + Docker Compose
-- Cloudinary CDN (images)
-
----
-
-## Project Structure
-
-```
-Parkly-1/
-├── server.js                 # Main Node.js API
-├── stats.py                  # Python analytics microservice
-├── docker-compose.yml
-├── Dockerfile
-├── Dockerfile.python
-├── requirements.txt
-├── package.json
-├── docs/
-├── diagrams/             # Architecture and wireframe diagrams
-└── public/
-    ├── index.html            # Landing page
-    ├── login.html
-    ├── register.html
-    ├── search.html           # Spot search and filters
-    ├── detail.html           # Spot detail and booking
-    ├── payment.html
-    ├── dashboard.html        # User bookings dashboard
-    ├── owner-dash.html       # Owner management dashboard
-    ├── admin-dash.html       # Admin panel
-    ├── profile.html          # User profile and settings
-    ├── chat.html             # In-app messaging
-    ├── legalidad.html        # Terms and conditions
-    ├── IA/
-    │   ├── box.js            # AI chat Express server (port 3001)
-    │   ├── chatbox.js        # Chat widget logic
-    │   └── chatbox.css       # Chat widget styles
-    ├── js/                   # Frontend modules
-    └── css/
-        └── styles.css        # Global styles and CSS variables
-```
-
----
 
 ## Getting Started
 
+Follow these instructions to get the project up and running on your local machine.
+
 ### Prerequisites
-- Node.js 18+
-- Python 3.10+
-- Docker (optional)
 
-### Environment variables
+Ensure you have the following installed:
+- **Node.js**: v18 or higher
+- **Python**: v3.10 or higher
+- **MySQL/TiDB**: Access to a relational database
+- **MongoDB**: Access to a MongoDB instance (for chat)
 
-Create a `.env` file at the project root:
+### Installation
 
-```env
-# Database
-TIDB_HOST=
-TIDB_PORT=
-TIDB_USER=
-TIDB_PASSWORD=
-TIDB_DATABASE=
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Riwi-io-Medellin/parkly-integrative-project-turing
+   cd parkly-integrative-project-turing
+   ```
 
-MONGODB_URI=
+2. **Install dependencies:**
+   ```bash
+   # Install Node.js dependencies
+   npm install
 
-# Auth
-JWT_SECRET=
+   # Install Python dependencies
+   pip install -r requirements.txt
+   ```
 
-# Cloudinary
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
+3. **Environment Setup:**
+   Create a `.env` file in the root directory and configure the variables (refer to `.env.example`):
+   ```env
+   DB_HOST=your_host
+   DB_USER=your_user
+   DB_PASSWORD=your_password
+   DB_NAME=your_database
+   MONGODB_URI=your_mongodb_uri
+   JWT_SECRET=your_secret
+   CLOUDINARY_CLOUD_NAME=your_cloud_name
+   CLOUDINARY_API_KEY=your_api_key
+   CLOUDINARY_API_SECRET=your_api_secret
+   OPENAI_API_KEY=your_openai_key
+   GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+   ```
 
-# Email
-RESEND_API_KEY=
+### Running the Project
 
-# OpenAI
-OPENAI_API_KEY=
+You need to run three separate services:
 
-# Wompi
-WOMPI_PUBLIC_KEY=
-WOMPI_PRIVATE_KEY=
-WOMPI_WEBHOOK_SECRET=
-```
+1. **Main API (Node.js):**
+   ```bash
+   npm run dev
+   ```
+   *Runs on [http://localhost:3000](http://localhost:3000)*
 
-### Install and run
+2. **Analytics Microservice (Python):**
+   ```bash
+   uvicorn stats:app --reload --port 8000
+   ```
+   *Runs on [http://localhost:8000](http://localhost:8000)*
 
-```bash
-# Install Node dependencies
-npm install
+3. **AI Chat Proxy (Node.js):**
+   ```bash
+   node public/IA/box.js
+   ```
+   *Runs on [http://localhost:3001](http://localhost:3001)*
 
-# Install Python dependencies
-pip install -r requirements.txt
-
-# Start the main API (port 3000)
-node server.js
-
-# Start the analytics microservice (port 8000)
-uvicorn stats:app --reload
-
-# Start the AI chat server (port 3001)
-node public/IA/box.js
-```
-
-### With Docker
-
+#### Using Docker
+Alternatively, you can run everything using Docker Compose:
 ```bash
 docker-compose up --build
 ```
 
 ---
 
-## API Endpoints (summary)
+## Technologies Used
 
-| Method | Path | Description |
-|---|---|---|
-| POST | `/api/auth/register` | Register a new user |
-| POST | `/api/auth/login` | Login |
-| GET | `/api/spots` | List parking spots |
-| POST | `/api/bookings` | Create a reservation |
-| POST | `/api/ai-chat` | AI assistant proxy |
-| GET | `/api/python/stats/monthly-projection` | Revenue projection |
-| GET | `/api/python/stats/occupancy-rate` | Occupancy rate |
-| GET | `/api/python/stats/top-spots` | Top performing spots |
+### Frontend
+- **HTML5 & CSS3**: Semantic structure and custom styling.
+- **JavaScript (ES6+)**: Frontend logic and interactivity.
+- **Tailwind CSS**: Modern utility-first CSS framework.
+- **Lucide Icons**: Clean and consistent iconography.
+
+### Backend
+- **Node.js (Express 5)**: Core REST API and server logic.
+- **Python (FastAPI)**: Specialized microservice for analytics and data processing.
+- **Mongoose**: ODM for MongoDB chat storage.
+- **MySQL2**: Driver for relational data (TiDB).
+- **OpenAI SDK**: Powering the AI chat assistant.
+
+### Infrastructure & Tools
+- **MongoDB Atlas**: Cloud database for messaging.
+- **TiDB Cloud**: Distributed SQL database for primary data.
+- **Cloudinary**: Image hosting and management.
+- **Wompi**: Payment gateway integration.
+- **Docker**: Containerization for consistent environments.
 
 ---
 
-## Governing Law
+## Features
 
-This platform operates under the laws of Colombia. Payments are processed through Wompi.
+- **Smart Search**: Filter spots by price, zone, and availability.
+- **Secure Payments**: Integrated with Wompi for seamless transactions.
+- **Real-time Chat**: In-app communication between drivers and hosts.
+- **AI Assistant**: Intelligent support for user queries.
+- **Owner Dashboard**: Detailed analytics on revenue and occupancy.
+- **Responsive Design**: Optimized for both desktop and mobile devices.
+
+---
+
+## Team Credits
+
+This project was developed by:
+
+1. **Sergio Espina Tabares**
+2. **Andrés Hidrobo**
+3. **Juan Eduardo Zorrilla Chavez**
+4. **Wenjin Yu**
+5. **Sebastian Montaño**
+
+---
+
+© 2026 Crudzaso - Parkly.
