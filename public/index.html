@@ -33,15 +33,48 @@
                 </span>
             </a>
             
-            <!-- Navigation Actions: Theme toggle, Login link, Sign up button -->
-            <div id="nav-actions" class="flex items-center gap-4">
+            <!-- Desktop Navigation Actions -->
+            <div id="nav-actions" class="hidden md:flex items-center gap-4">
                 <button id="theme-toggle" aria-label="Toggle theme" class="p-2 rounded-lg border border-border hover:border-primary/50 transition-colors">
-                    <i data-lucide="moon" class="w-4 h-4 text-foreground font-medium"></i>
+                    <i data-lucide="moon" class="w-4 h-4 text-foreground"></i>
                 </button>
-                <a href="./login.html" id="btn-nav-login" class="text-sm font-medium text-foreground font-medium hover:text-foreground transition-colors cursor-pointer">Log in</a>
+                <a href="./login.html" id="btn-nav-login" class="text-sm font-bold text-foreground hover:text-primary transition-colors cursor-pointer">Log in</a>
                 <a href="register.html" class="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition-all hover:bg-primary-dark shadow-lg shadow-primary/20">Sign up</a>
             </div>
+
+            <!-- Mobile Menu Toggle Button -->
+            <div class="flex md:hidden items-center gap-2">
+                <button id="theme-toggle-mobile" class="p-2 rounded-lg border border-border">
+                    <i data-lucide="moon" class="w-4 h-4 text-foreground"></i>
+                </button>
+                <button id="mobile-menu-open" class="p-2 rounded-lg text-foreground hover:bg-card transition-colors">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
         </nav>
+
+        <!-- Mobile Menu Overlay (Hidden by default) -->
+        <div id="mobile-menu" class="fixed inset-0 z-[100] bg-background p-6 translate-x-full transition-transform duration-300 md:hidden">
+            <div class="flex justify-between items-center mb-10">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="circle-parking" class="h-6 w-6 text-primary"></i>
+                    <span class="text-xl font-bold tracking-tight">PARK<span class="text-primary">LY</span></span>
+                </div>
+                <button id="mobile-menu-close" class="p-2 rounded-lg text-foreground hover:bg-card">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="flex flex-col gap-6">
+                <a href="./login.html" class="text-lg font-bold p-4 border border-border rounded-xl">Log in</a>
+                <a href="register.html" class="text-lg font-bold p-4 bg-primary text-primary-foreground rounded-xl text-center">Sign up free</a>
+                <hr class="border-border">
+                <nav class="flex flex-col gap-4 text-foreground/80 font-medium">
+                    <a href="#">Security</a>
+                    <a href="#">Support</a>
+                    <a href="#">Terms & Conditions</a>
+                </nav>
+            </div>
+        </div>
     </header>
 
     <main class="flex-1">
@@ -280,6 +313,21 @@
     <!-- SweetAlert2 + Parkly Custom Alerts overrides -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/js/alerts.js"></script>
+
+    <script>
+        // Mobile Menu Logic
+        const openBtn = document.getElementById('mobile-menu-open');
+        const closeBtn = document.getElementById('mobile-menu-close');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        openBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('translate-x-full');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            mobileMenu.classList.add('translate-x-full');
+        });
+    </script>
 
 </body>
 

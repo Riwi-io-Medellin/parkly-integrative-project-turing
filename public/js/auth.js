@@ -97,9 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('parkly_terms_accepted', 'true');
                 const user = await DB.login(newUser.email, newUser.password);
                 if (user) {
-                    if (user.role === 'admin') window.location.href = 'admin-dash.html';
-                    else if (user.role === 'owner') window.location.href = 'owner-dash.html';
-                    else window.location.href = 'dashboard.html';
+                    const dashUrl = user.role === 'owner' ? 'owner-dash.html' : (user.role === 'admin' ? 'admin-dash.html' : 'search.html');
+                    window.location.href = dashUrl;
                 } else {
                     window.location.href = 'login.html';
                 }

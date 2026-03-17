@@ -218,12 +218,14 @@
 .chat-header-info h3 {
     font-size: 13px;
     font-weight: 800;
-    color: #f1f5f9;
+    color: #000; /* Black for visibility in light mode */
     letter-spacing: -0.01em;
     line-height: 1.2;
     text-transform: uppercase;
     font-style: italic;
 }
+
+.dark .chat-header-info h3 { color: #f1f5f9; }
 
 .chat-header-info h3 span { color: hsl(var(--primary)); }
 
@@ -287,11 +289,17 @@
 }
 
 .chat-bubble.bot {
+    background: rgba(0, 0, 0, 0.05); /* Darker for light mode */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #000; /* Black text */
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+}
+
+.dark .chat-bubble.bot {
     background: rgba(255, 255, 255, 0.055);
     border: 1px solid rgba(255, 255, 255, 0.08);
     color: #cbd5e1;
-    border-bottom-left-radius: 4px;
-    align-self: flex-start;
 }
 
 .chat-bubble.user {
@@ -468,8 +476,10 @@
     box-shadow: 0 4px 16px hsl(var(--primary) / 0.08);
 }
 
-.quick-btn strong { display: block; font-size: 13px; font-weight: 600; color: #dde4f0; line-height: 1.3; }
-.quick-btn small  { display: block; font-size: 11px; color: #5e7a99; margin-top: 1px; }
+.quick-btn strong { display: block; font-size: 13px; font-weight: 700; color: #000; line-height: 1.3; }
+.dark .quick-btn strong { color: #dde4f0; }
+.quick-btn small  { display: block; font-size: 11px; color: #334155; margin-top: 1px; }
+.dark .quick-btn small { color: #5e7a99; }
 .quick-icon       { font-size: 18px; flex-shrink: 0; width: 28px; text-align: center; }
 
 /* ── AI Button ── */

@@ -1,4 +1,4 @@
-﻿// Owner dashboard ÔÇö handles the spot catalog, publish wizard, reservations, and analytics.
+// Owner dashboard ÔÇö handles the spot catalog, publish wizard, reservations, and analytics.
 // Route protection runs immediately before DOMContentLoaded so we don't waste time loading the page.
 
 const parkly_session = JSON.parse(localStorage.getItem('parkly_session'));
@@ -234,7 +234,10 @@ document.addEventListener('DOMContentLoaded', () => {
         wizardData.vehicleTypes = Array.from(vehicleTypeChecks).map(c => c.value);
 
         const formData = new FormData();
-        formData.append('ownerId', user ? user.id : '0');
+        if (!user || !user.id) {
+            return Alerts.error("Session error: User ID not found. Please log out and log in again.");
+        }
+        formData.append('ownerId', user.id);
         formData.append('name', `${wizardData.type} at ${document.getElementById('wiz-address').value.split(',')[0]}`);
         formData.append('address', document.getElementById('wiz-address').value);
         formData.append('price', parseInt(document.getElementById('wiz-price').value) || 5000);
@@ -259,6 +262,12 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('max_length', wizardData.maxLength);
         formData.append('max_height', wizardData.maxHeight);
         formData.append('mainImageIndex', wizardData.mainIdx);
+        formData.append('zone', 'General'); // Default zone
+
+        const certInput = document.getElementById('owner-certificate-file');
+        if (certInput && certInput.files.length > 0) {
+            formData.append('certificate', certInput.files[0]);
+        }
 
         if (editingSpotId) {
             formData.append('existingImages', JSON.stringify(wizardData.existingPhotos));
@@ -266,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (wizardData.photos && wizardData.photos.length > 0) {
             wizardData.photos.forEach(file => {
-                formData.append('images', file);
+                formData.append('photos', file);
             });
         }
 
@@ -473,7 +482,8 @@ document.addEventListener('DOMContentLoaded', () => {
             clone.querySelector('.spot-img').src = item.image || 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=600';
             clone.querySelector('.spot-name').textContent = item.name;
             clone.querySelector('.spot-address').textContent = item.address;
-            clone.querySelector('.spot-price').textContent = item.price.toLocaleString('es-CO');
+            const price = item.price || item.price_hour || 0;
+            clone.querySelector('.spot-price').textContent = `$ ${Number(price).toLocaleString('es-CO')}`;
 
             const featContainer = clone.querySelector('.spot-features');
             if (item.features) {
@@ -535,6 +545,22 @@ document.addEventListener('DOMContentLoaded', () => {
             clone.querySelector('.btn-edit-spot').addEventListener('click', (e) => {
                 e.stopPropagation();
                 editSpot(item);
+            });
+
+            clone.querySelector('.btn-delete-spot').addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (confirm(`Are you sure you want to delete "${item.name}"?`)) {
+                    try {
+                        const res = await fetch(`/api/spots/${item.id}`, { method: 'DELETE' });
+                        if (res.ok) {
+                            renderTab();
+                        } else {
+                            alert("Failed to delete spot.");
+                        }
+                    } catch (err) {
+                        console.error("Delete error:", err);
+                    }
+                }
             });
 
             content.appendChild(clone);
@@ -640,7 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 row.className = 'grid grid-cols-[50px_repeat(24,minmax(20px,1fr))] gap-1 mb-1 items-center';
 
                 const dayLabel = document.createElement('div');
-                dayLabel.className = 'text-[10px] text-slate-400 font-bold';
+                dayLabel.className = 'text-[10px] text-foreground/70 font-bold';
                 dayLabel.textContent = day;
                 row.appendChild(dayLabel);
 
@@ -712,6 +738,15 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(r => r.ok ? r.json() : null)
             .then(proj => {
                 const loader = document.getElementById('revenue-chart-loader');
+
+                // Safety timeout to hide loader if fetch hangs
+                const analyticsTimeout = setTimeout(() => {
+                    if (loader && !loader.classList.contains('hidden')) {
+                        loader.textContent = 'Service Unavailable';
+                        loader.className = 'text-red-500 text-[10px] text-center pt-8';
+                    }
+                }, 5000);
+
                 if (loader) loader.classList.add('hidden');
 
                 const canvasEl = document.getElementById('owner-chart-revenue');
@@ -1004,7 +1039,7 @@ document.addEventListener('DOMContentLoaded', () => {
         allItems.forEach((item, idx) => {
             const url = item.type === 'file' ? URL.createObjectURL(item.data) : item.data;
             const wrapper = document.createElement('div');
-            wrapper.className = `relative aspect-video rounded-lg overflow-hidden border-2 cursor-pointer transition-all ${idx === wizardData.mainIdx ? 'border-primary shadow-lg shadow-primary/20' : 'border-slate-800 opacity-60 hover:opacity-100'}`;
+            wrapper.className = `relative h-24 aspect-video rounded-lg overflow-hidden border-2 cursor-pointer transition-all ${idx === wizardData.mainIdx ? 'border-primary shadow-lg shadow-primary/20' : 'border-slate-800 opacity-60 hover:opacity-100'}`;
 
             const img = document.createElement('img');
             img.src = url;
@@ -1137,21 +1172,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (pqrSubmitBtn && pqrDialog) {
-        pqrSubmitBtn.addEventListener('click', () => {
+        pqrSubmitBtn.addEventListener('click', async () => {
             const subject = document.getElementById('pqr-subject').value;
             const desc = document.getElementById('pqr-description').value;
+            const type = document.getElementById('pqr-type').value;
 
             if (!subject || !desc) {
                 Alerts.toast("Please fill out all fields.", 'warning');
                 return;
             }
 
-            const tpl = document.getElementById('tpl-pqr-success');
-            if (tpl) {
-                pqrDialog.innerHTML = '';
-                const clone = tpl.content.cloneNode(true);
-                clone.querySelector('.btn-close-pqr').addEventListener('click', () => pqrDialog.close());
-                pqrDialog.appendChild(clone);
+            try {
+                const user = JSON.parse(localStorage.getItem('parkly_session'));
+                const res = await fetch('/api/pqr', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: user?.id || 0,
+                        type,
+                        subject,
+                        description: desc
+                    })
+                });
+
+                if (res.ok) {
+                    const tpl = document.getElementById('tpl-pqr-success');
+                    if (tpl) {
+                        pqrDialog.innerHTML = '';
+                        const clone = tpl.content.cloneNode(true);
+                        clone.querySelector('.btn-close-pqr').addEventListener('click', () => pqrDialog.close());
+                        pqrDialog.appendChild(clone);
+                    }
+                } else {
+                    Alerts.error("Failed to submit PQR.");
+                }
+            } catch (err) {
+                console.error("PQR submit error:", err);
+                Alerts.error("Connection error.");
             }
             if (window.lucide) lucide.createIcons();
         });

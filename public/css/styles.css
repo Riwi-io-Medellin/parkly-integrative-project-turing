@@ -6,7 +6,7 @@
 :root {
     /* MODO CLARO — Azul Profesional (estilo Airbnb minimalista) */
     --background: 0 0% 100%;
-    --foreground: 220 15% 8%;
+    --foreground: 0 0% 0%; /* Pure Black */
     --primary: 224 81% 53%;
     --primary-dark: 224 81% 42%;
     --primary-light: 217 91% 65%;
@@ -169,3 +169,34 @@ body {
 
 /* Avatar Gradients */
 .bg-gradient-avatar { background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent))); }
+
+/* ── PREMIUM ANIMATIONS & UTILITIES ── */
+
+@keyframes bounce-subtle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.animate-bounce-subtle {
+    animation: bounce-subtle 2s infinite ease-in-out;
+}
+
+/* Glassmorphism utility */
+.glass {
+    background: hsla(var(--background), 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsla(var(--border), 0.1);
+}
+
+/* Premium hover effect for cards */
+.premium-card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -10px hsla(var(--primary), 0.15);
+    border-color: hsla(var(--primary), 0.3);
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}

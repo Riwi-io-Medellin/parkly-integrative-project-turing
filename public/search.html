@@ -95,8 +95,25 @@
 
     <main class="max-w-[1400px] mx-auto flex gap-0 px-6 py-8">
 
-        <aside aria-label="Search filters" class="w-64 shrink-0 mr-8">
-            <div class="sticky top-24 bg-card border border-border rounded-2xl p-5 flex flex-col gap-5">
+        <!-- Mobile Filter Button (Floating) -->
+        <button id="mobile-filter-btn" class="fixed bottom-6 right-6 z-[60] md:hidden bg-primary text-primary-foreground p-4 rounded-full shadow-2xl flex items-center gap-2 font-bold focus:ring-4 focus:ring-primary/40 animate-bounce-subtle">
+            <i data-lucide="sliders-horizontal" class="w-6 h-6"></i>
+            Filters
+        </button>
+
+        <!-- Sidebar / Filter Drawer -->
+        <aside id="filter-sidebar" aria-label="Search filters" 
+            class="fixed inset-0 z-[100] bg-background p-6 translate-x-full transition-transform duration-300 md:static md:translate-x-0 md:z-auto md:w-64 md:mr-8 md:bg-transparent md:p-0 md:block">
+            
+            <div class="flex justify-between items-center md:hidden mb-8">
+                <div class="flex items-center gap-2 font-bold text-xl">
+                    <i data-lucide="sliders-horizontal" class="text-primary w-6 h-6"></i>
+                    <span>Search Filters</span>
+                </div>
+                <button id="filter-close" class="p-2 rounded-lg hover:bg-card"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+
+            <div class="sticky top-24 bg-card border border-border rounded-2xl p-5 flex flex-col gap-5 max-h-[80vh] overflow-y-auto md:overflow-visible">
 
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-black text-foreground flex items-center gap-2">
@@ -611,6 +628,23 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/js/alerts.js"></script>
 
+    <script>
+        // Mobile Filter Drawer Logic
+        const filterBtn = document.getElementById('mobile-filter-btn');
+        const filterClose = document.getElementById('filter-close');
+        const sidebar = document.getElementById('filter-sidebar');
+
+        if (filterBtn && filterClose && sidebar) {
+            filterBtn.addEventListener('click', () => {
+                sidebar.classList.remove('translate-x-full');
+                document.body.style.overflow = 'hidden'; // Prevent background scroll
+            });
+            filterClose.addEventListener('click', () => {
+                sidebar.classList.add('translate-x-full');
+                document.body.style.overflow = ''; // Restore scroll
+            });
+        }
+    </script>
 </body>
 
 </html>

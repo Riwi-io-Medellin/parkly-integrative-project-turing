@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const tableFilter = document.getElementById('admin-table-filter');
     const tabs = document.getElementById('tabs-container');
+    const reqBadge = document.getElementById('badge-requests');
 
     const viewSummary = document.getElementById('view-summary');
     const viewRequests = document.getElementById('view-requests');
@@ -38,32 +39,42 @@ document.addEventListener('DOMContentLoaded', async () => {
                 fetch('/api/reservations'),
                 fetch('/api/users')
             ]);
-            const statsData = await statsRes.json();
+            
+            if (statsRes.ok) {
+                const statsData = await statsRes.json();
+                // do something with statsData if needed, though they aren't used globally yet
+            }
+
             const allSpots = allSpotsRes.ok ? await allSpotsRes.json() : [];
-            spots = allSpots.filter(s => s.available === 1);
+            spots = allSpots.filter(s => Number(s.available) === 1);
             requests = allSpots
-                .filter(s => s.available !== 1)
+                .filter(s => Number(s.available) !== 1)
                 .map(s => ({
                     id: s.id,
                     name: s.name,
                     address: s.address,
-                    ownerId: s.ownerId,
+                    ownerId: s.owner_id,
                     ownerName: s.ownerName || 'Unknown Owner',
-                    price: s.price,
+                    price: s.price || s.price_hour,
                     cells: s.dimensions || '-',
                     schedule: s.schedule || '-',
                     certificate: '-',
-                    features: s.features ? s.features.split(',').filter(Boolean) : [],
+                    features: s.features ? (Array.isArray(s.features) ? s.features : s.features.split(',').filter(Boolean)) : [],
                     image: s.image,
-                    status: s.available === 0 ? 'pending' : 'rejected'
+                    status: Number(s.available) === 0 ? 'pending' : 'rejected'
                 }));
-            reservations = await resRes.json();
+            reservations = resRes.ok ? await resRes.json() : [];
             users = usersRes.ok ? await usersRes.json() : [];
             console.log("Database Sync: Data loaded from TiDB Cloud.");
         } catch (error) {
             console.error("Sync Error: Using local fallback.", error);
             users = JSON.parse(localStorage.getItem('parkly_users')) || [];
-            spots = JSON.parse(localStorage.getItem('parkly_spots')) || [];
+            const localSpots = JSON.parse(localStorage.getItem('parkly_spots')) || [];
+            spots = localSpots.filter(s => Number(s.available) === 1);
+            requests = localSpots.filter(s => Number(s.available) !== 1).map(s => ({
+                ...s,
+                status: Number(s.available) === 0 ? 'pending' : 'rejected'
+            }));
             reservations = JSON.parse(localStorage.getItem('parkly_reservations')) || [];
         }
     }

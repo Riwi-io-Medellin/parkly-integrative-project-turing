@@ -293,10 +293,28 @@ async function setupFavoriteBtn(spotId) {
   let isFav = false;
   try {
     const res = await fetch(`/api/users/${session.id}/favorites`);
-    if (res.ok) { const favs = await res.json(); isFav = favs.some(f => String(f.id) === String(spotId)); }
+    if (res.ok) { 
+      const favs = await res.json(); 
+      isFav = favs.some(f => String(f.id) === String(spotId)); 
+    }
   } catch (e) { console.error('Error loading favorites', e); }
-  favBtn.textContent = isFav ? 'Remove from Favs' : 'Add to Favs';
-  favBtn.title = isFav ? 'Remove from favorites' : 'Add to favorites';
+
+  const updateUI = () => {
+    const icon = favBtn.querySelector('i');
+    if (icon) {
+      if (isFav) {
+        icon.classList.add('fill-primary', 'text-primary');
+        icon.classList.remove('text-foreground');
+      } else {
+        icon.classList.remove('fill-primary', 'text-primary');
+        icon.classList.add('text-foreground');
+      }
+    }
+    favBtn.title = isFav ? 'Remove from favorites' : 'Add to favorites';
+  };
+
+  updateUI();
+
   favBtn.addEventListener('click', async () => {
     try {
       if (isFav) {
@@ -310,8 +328,7 @@ async function setupFavoriteBtn(spotId) {
         });
         isFav = true;
       }
-      favBtn.textContent = isFav ? 'Remove from Favs' : 'Add to Favs';
-      favBtn.title = isFav ? 'Remove from favorites' : 'Add to favorites';
+      updateUI();
     } catch (e) { Alerts.error('Failed to update favorites.'); }
   });
 }

@@ -105,7 +105,68 @@ async def get_top_spots():
             LIMIT 3
         """
         df = pd.read_sql(query, conn)
-        return df.to_dict(orient="records")
+    finally:
+        conn.close()
+
+
+@app.get("/metrics/full")
+async def get_full_metrics():
+    """Aggregates all metrics into a single response for the Admin dashboard."""
+    conn = get_db_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection failed")
+
+    try:
+        cursor = conn.cursor(dictionary=True)
+
+        # 1. Occupancy Rate
+        cursor.execute("SELECT COUNT(*) as count FROM parking_spots WHERE verified = 1")
+        total_spots_row = cursor.fetchone()
+        total_spots = total_spots_row['count'] if total_spots_row else 0
+        
+        cursor.execute("SELECT COUNT(*) as count FROM reservations WHERE status != 'cancelled'")
+        active_res_row = cursor.fetchone()
+        active_res = active_res_row['count'] if active_res_row else 0
+        
+        occupancy = round((active_res / total_spots * 100), 1) if total_spots > 0 else 0
+
+        # 2. Monthly Revenue (calculated from completions)
+        cursor.execute("""
+            SELECT MONTH(createdAt) as month, SUM(total) as revenue 
+            FROM reservations 
+            WHERE status = 'completed' AND YEAR(createdAt) = YEAR(CURDATE())
+            GROUP BY MONTH(createdAt)
+        """)
+        revenue_rows = cursor.fetchall()
+        monthly_revenue = [0] * 12
+        for r in revenue_rows:
+            m = r['month']
+            if 1 <= m <= 12:
+                monthly_revenue[m-1] = float(r['revenue'])
+
+        # 3. Top Spots
+        cursor.execute("""
+            SELECT p.name, COUNT(r.id) as reservation_count
+            FROM parking_spots p
+            JOIN reservations r ON p.id = r.spotId
+            GROUP BY p.id
+            ORDER BY reservation_count DESC
+            LIMIT 3
+        """)
+        top_spots = cursor.fetchall()
+
+        return {
+            "occupancy_rate": occupancy,
+            "monthly_revenue": monthly_revenue,
+            "top_spots": top_spots
+        }
+    except Exception as e:
+        print(f"Metrics aggregation error: {e}")
+        return {
+            "occupancy_rate": 0,
+            "monthly_revenue": [0]*12,
+            "top_spots": []
+        }
     finally:
         conn.close()
 
