@@ -1,0 +1,106 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0" version="29.6.3">
+  <diagram id="nav-diagram" name="Navigation Diagram">
+    <mxGraphModel dx="1753" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="leg_container" parent="1" style="swimlane;fontStyle=1;fontSize=11;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" value="LEGEND" vertex="1">
+          <mxGeometry height="160" width="180" x="20" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg_client" parent="1" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" value="Client" vertex="1">
+          <mxGeometry height="30" width="160" x="30" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="leg_owner" parent="1" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="Owner" vertex="1">
+          <mxGeometry height="30" width="160" x="30" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="leg_admin" parent="1" style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" value="Admin" vertex="1">
+          <mxGeometry height="30" width="160" x="30" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="p_landing" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=13;" value="Landing Page&lt;br&gt;index.html" vertex="1">
+          <mxGeometry height="60" width="200" x="580" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p_login" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=13;" value="Sign In&lt;br&gt;login.html" vertex="1">
+          <mxGeometry height="60" width="180" x="330" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="p_register" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=13;" value="Register&lt;br&gt;register.html" vertex="1">
+          <mxGeometry height="60" width="180" x="990" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p_search" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=13;" value="Parking Search&lt;br&gt;search.html" vertex="1">
+          <mxGeometry height="60" width="240" x="560" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="p_detail" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=13;" value="&amp;nbsp;Parking Detail&lt;br&gt;detail.html" vertex="1">
+          <mxGeometry height="60" width="240" x="560" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="p_payment" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=13;" value="Payment / Reservation&lt;br&gt;payment.html" vertex="1">
+          <mxGeometry height="60" width="200" x="130" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="p_chat" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=13;" value="Chat&lt;br&gt;chat.html" vertex="1">
+          <mxGeometry height="60" width="180" x="850" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="p_dashboard" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=13;" value="Client Dashboard&lt;br&gt;dashboard.html" vertex="1">
+          <mxGeometry height="60" width="210" x="330" y="790" as="geometry" />
+        </mxCell>
+        <mxCell id="p_profile" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=13;" value="&amp;nbsp;Perfil&lt;br&gt;profile.html" vertex="1">
+          <mxGeometry height="60" width="180" x="60" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="p_owner" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=13;" value="Owner Dashboard&lt;br&gt;owner-dash.html" vertex="1">
+          <mxGeometry height="60" width="220" x="700" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="p_admin" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=13;" value="Panel Admin&lt;br&gt;admin-dash.html" vertex="1">
+          <mxGeometry height="60" width="200" x="1050" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="p_landing" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="p_login" value="Sign In">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="p_landing" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" target="p_register" value="Register">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="p_landing" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" target="p_search" value="Search parking">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="p_register" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;dashed=1;" target="p_login" value="Successful registration">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="p_login" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;strokeColor=#82b366;fontColor=#82b366;" target="p_dashboard" value="role: client">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="p_login" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;strokeColor=#9673a6;fontColor=#9673a6;" target="p_owner" value="role: owner">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="p_login" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;strokeColor=#b85450;fontColor=#b85450;" target="p_admin" value="role: admin">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="p_search" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" target="p_detail" value="View detail">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="p_detail" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" target="p_payment" value="Reserve now">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="p_detail" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" target="p_chat" value="Contact owner">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="p_payment" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" target="p_dashboard" value="Payment confirmed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="p_dashboard" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" target="p_chat" value="Go to chat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="p_dashboard" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" target="p_profile" value="Edit profile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="p_dashboard" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;dashed=1;" target="p_search" value="New reservation">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="p_owner" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;strokeColor=#9673a6;" target="p_chat" value="Chat with drivers">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" edge="1" parent="1" source="p_profile" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;dashed=1;" target="p_dashboard" value="Back">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#333333;" value="PARKLY — Navigation Diagram" vertex="1">
+          <mxGeometry height="40" width="560" x="400" y="940" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
