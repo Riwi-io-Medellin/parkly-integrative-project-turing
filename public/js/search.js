@@ -175,7 +175,7 @@ function renderParkings() {
         if (isFav) {
             const favBadge = document.createElement('span');
             favBadge.className = 'absolute top-2 right-2 text-lg z-10';
-            favBadge.textContent = '❤️';
+            favBadge.textContent = 'FAV';
             const imgWrapper = clone.querySelector('.relative') || article;
             imgWrapper.appendChild(favBadge);
         }

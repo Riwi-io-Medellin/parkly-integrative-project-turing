@@ -295,7 +295,7 @@ async function setupFavoriteBtn(spotId) {
     const res = await fetch(`/api/users/${session.id}/favorites`);
     if (res.ok) { const favs = await res.json(); isFav = favs.some(f => String(f.id) === String(spotId)); }
   } catch (e) { console.error('Error loading favorites', e); }
-  favBtn.textContent = isFav ? '❤️' : '🤍';
+  favBtn.textContent = isFav ? 'Remove from Favs' : 'Add to Favs';
   favBtn.title = isFav ? 'Remove from favorites' : 'Add to favorites';
   favBtn.addEventListener('click', async () => {
     try {
@@ -310,7 +310,7 @@ async function setupFavoriteBtn(spotId) {
         });
         isFav = true;
       }
-      favBtn.textContent = isFav ? '❤️' : '🤍';
+      favBtn.textContent = isFav ? 'Remove from Favs' : 'Add to Favs';
       favBtn.title = isFav ? 'Remove from favorites' : 'Add to favorites';
     } catch (e) { Alerts.error('Failed to update favorites.'); }
   });

@@ -486,9 +486,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const tplSpot = document.getElementById('tpl-top-spot');
             if (tplSpot) {
                 metrics.top_spots.forEach((s, i) => {
-                    const medals = ['🥇', '🥈', '🥉'];
+                    const medals = ['1.', '2.', '3.'];
                     const clone = tplSpot.content.cloneNode(true);
-                    clone.querySelector('.spot-medal').textContent = medals[i] || '📈';
+                    clone.querySelector('.spot-medal').textContent = medals[i] || '-';
                     clone.querySelector('.spot-name').textContent = s.name;
                     clone.querySelector('.spot-bookings').textContent = `${s.reservation_count} bookings`;
                     container.appendChild(clone);

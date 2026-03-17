@@ -194,7 +194,7 @@
     function resetToMenu() {
         messages.innerHTML = `
             <div class="chat-bubble bot welcome-bubble bubble-in">
-                👋 Hi, I'm the <strong>PARKLY</strong> assistant.<br>
+                Hi, I'm the <strong>PARKLY</strong> assistant.<br>
                 How can I help you today?
             </div>
         `;
@@ -249,7 +249,7 @@
         const t = showTyping();
         setTimeout(() => {
             t.remove();
-            addBubble("✨ <strong>AI Mode activated.</strong> Feel free to ask me anything about Parkly!", "bot");
+            addBubble("<strong>AI Mode activated.</strong> Feel free to ask me anything about Parkly!", "bot");
         }, 900);
     }
 
