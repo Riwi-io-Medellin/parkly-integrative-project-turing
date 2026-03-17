@@ -1,139 +1,127 @@
-// handles login, two-step registration, and the Google login button
+// This file handles everything related to Google Sign-In using Firebase.
+// I use Firebase Auth because it handles the OAuth flow for me — I just need to open a popup.
+// After Google authenticates the user, I sync their info with our own MySQL database via the API.
 
-document.addEventListener('DOMContentLoaded', () => {
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
-    const step1 = document.getElementById('step-1');
-    const step2 = document.getElementById('step-2');
-    const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
-    const btnBack = document.getElementById('btn-back');
+// Firebase project config — these values come from the Firebase console
+const firebaseConfig = {
+    apiKey: "AIzaSyBQw83KIxHycKVRHHrvsBbve5lx3al-aRQ",
+    authDomain: "parkly-web-fecd0.firebaseapp.com",
+    projectId: "parkly-web-fecd0",
+    storageBucket: "parkly-web-fecd0.firebasestorage.app",
+    messagingSenderId: "423865534808",
+    appId: "1:423865534808:web:7f32e209c25591282efd2d",
+    measurementId: "G-VQTW1EL4F1"
+};
 
-    // --- LOGIN ---
-    // sends creds to the API, redirects based on role if successful
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = loginForm.querySelector('button[type="submit"]');
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-            if (btn) {
-                btn.disabled = true;
-                btn.textContent = 'Signing in...';
+// Shows a terms modal if the user hasn't accepted them yet.
+// On the register page there's a checkbox; on login we use this modal instead.
+async function showTermsModal() {
+    const termsCheckbox = document.getElementById('terms-checkbox');
+    if (termsCheckbox && termsCheckbox.checked) return true;
+    if (localStorage.getItem('parkly_terms_accepted') === 'true') return true;
+
+    const result = await Swal.fire({
+        title: 'Terms and Conditions',
+        html: `
+            <p class="text-sm mb-4" style="text-align:left">To continue using Parkly you must accept our Terms and Conditions.</p>
+            <div style="text-align:left; display:flex; align-items:flex-start; gap:10px; padding:12px; border-radius:10px; background:rgba(var(--primary-rgb),0.08); border:1px solid rgba(var(--primary-rgb),0.2)">
+                <input type="checkbox" id="swal-terms-check" style="margin-top:3px; width:16px; height:16px; accent-color:var(--primary); flex-shrink:0; cursor:pointer">
+                <label for="swal-terms-check" style="font-size:13px; cursor:pointer; line-height:1.5">
+                    I have read and accept the
+                    <a href="legalidad.html" target="_blank" style="color:var(--primary); font-weight:600; text-decoration:underline">Parkly Terms and Conditions</a>
+                </label>
+            </div>`,
+        confirmButtonText: 'Continue',
+        cancelButtonText: 'Cancel',
+        showCancelButton: true,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        preConfirm: () => {
+            const checked = document.getElementById('swal-terms-check')?.checked;
+            if (!checked) {
+                Swal.showValidationMessage('You must check the box to accept the Terms and Conditions.');
+                return false;
             }
+            return true;
+        }
+    });
+    return result.isConfirmed;
+}
 
-            console.log("Attempting login for:", email);
+// Main Google login handler — exposed globally so auth.js can call it from the button click.
+window.handleGoogleLogin = async function () {
+    try {
+        // Check terms acceptance before opening the Google popup
+        const termsAccepted = await showTermsModal();
+        if (!termsAccepted) return;
 
-            try {
-                const user = await DB.login(email, password);
+        console.log("Starting Google Auth...");
 
-                if (user) {
-                    console.log("Login success:", user.role);
-                    if (user.role === 'admin') window.location.href = 'admin-dash.html';
-                    else if (user.role === 'owner') window.location.href = 'owner-dash.html';
-                    else window.location.href = 'search.html';
-                } else {
-                    console.warn("Login failed: Invalid credentials");
-                    const errorMsg = document.getElementById('error-msg');
-                    if(errorMsg) errorMsg.classList.remove('hidden');
-                }
-            } catch (err) {
-                console.error("Login error:", err);
-                Alerts.error("Server error. Check if the backend is running.");
-            } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.textContent = 'Sign In';
-                }
-            }
-        });
-    }
+        // Open the Google sign-in popup and get the authenticated user
+        const result = await signInWithPopup(auth, provider);
+        const googleUser = result.user;
 
-    // --- REGISTRATION ---
-    // step 1: pick a role (client or owner)
-    // step 2: fill in the actual form fields
-    if (registerForm) {
-        const selectedRoleInput = document.getElementById('selected-role');
-        const btnRoleClient = document.getElementById('btn-role-client');
-        const btnRoleOwner = document.getElementById('btn-role-owner');
+        console.log("Google Auth Success:", googleUser.email);
 
-        const goToStep2 = (role) => {
-            selectedRoleInput.value = role;
-            step1.classList.add('hidden');
-            step2.classList.remove('hidden');
+        // Read the selected role if the user is on the register page
+        const roleInput = document.getElementById('selected-role');
+        const selectedRole = roleInput && roleInput.value ? roleInput.value : 'client';
+
+        const userData = {
+            name: googleUser.displayName,
+            email: googleUser.email,
+            photo: googleUser.photoURL,
+            role: selectedRole
         };
 
-        if (btnRoleClient) btnRoleClient.addEventListener('click', () => goToStep2('client'));
-        if (btnRoleOwner) btnRoleOwner.addEventListener('click', () => goToStep2('owner'));
+        let userToSave = null;
 
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const termsCheckbox = document.getElementById('terms-checkbox');
-            if (termsCheckbox && !termsCheckbox.checked) {
-                Alerts.error("You must accept the Terms and Conditions to continue.");
-                return;
-            }
+        const API_URL = (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost")
+            ? "http://localhost:3000/api"
+            : "/api";
 
-            const password = document.getElementById('reg-password').value;
-            const confirmPass = document.getElementById('confirm-password').value;
-
-            if (password !== confirmPass) {
-                Alerts.error("Passwords do not match!");
-                return;
-            }
-
-            const newUser = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('reg-email').value.trim(),
-                password: password,
-                role: selectedRoleInput.value || 'client',
-                phone: document.getElementById('reg-phone')?.value || null
-            };
-
-            const success = await DB.register(newUser);
-            if (success) {
-                localStorage.setItem('parkly_terms_accepted', 'true');
-                // auto-login after registering so the user doesn't have to type creds again
-                const user = await DB.login(newUser.email, newUser.password);
-                if (user) {
-                    if (user.role === 'admin') window.location.href = 'admin-dash.html';
-                    else if (user.role === 'owner') window.location.href = 'owner-dash.html';
-                    else window.location.href = 'dashboard.html';
-                } else {
-                    window.location.href = 'login.html';
-                }
+        try {
+            // Send Google user data to our backend so it can create or update the user record
+            const res = await fetch(`${API_URL}/auth/google`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+            if (res.ok) {
+                userToSave = await res.json();
             } else {
-                Alerts.error("Error: Email already exists.");
+                throw new Error("Server rejected Google login");
             }
-        });
-    }
+        } catch (err) {
+            console.error(err);
+            Alerts.error("Google login failed trying to reach the server.");
+            return;
+        }
 
-    // --- GOOGLE LOGIN ---
-    // on the register page we check terms first, then trigger the Firebase popup
-    const btnGoogleLogin = document.getElementById('btn-google-login');
-    if (btnGoogleLogin) {
-        btnGoogleLogin.addEventListener('click', (e) => {
-            e.preventDefault();
-            const termsCheckbox = document.getElementById('terms-checkbox');
-            if (termsCheckbox && !termsCheckbox.checked) {
-                Alerts.error("You must accept the Terms and Conditions to continue.");
-                return;
-            }
-            if (typeof window.handleGoogleLogin === 'function') {
-                window.handleGoogleLogin();
-            }
-        });
-    }
+        // Save the session and mark terms as accepted
+        localStorage.setItem('parkly_session', JSON.stringify(userToSave));
+        localStorage.setItem('parkly_terms_accepted', 'true');
 
-    // back button goes to step 1 if we're on step 2, otherwise back to login
-    if (btnBack) {
-        btnBack.addEventListener('click', () => {
-            if (step2 && !step2.classList.contains('hidden')) {
-                step2.classList.add('hidden');
-                step1.classList.remove('hidden');
-            } else {
-                window.location.href = 'login.html';
-            }
-        });
+        Alerts.success(`Welcome ${userToSave.name}!`);
+
+        // Redirect to the correct dashboard based on their role
+        if (userToSave.role === 'owner') {
+            window.location.href = 'owner-dash.html';
+        } else if (userToSave.role === 'admin') {
+            window.location.href = 'admin-dash.html';
+        } else {
+            window.location.href = 'search.html';
+        }
+
+    } catch (error) {
+        console.error("Google Auth Error:", error);
+        Alerts.error("Authentication failed: " + error.message);
     }
-});
+}
