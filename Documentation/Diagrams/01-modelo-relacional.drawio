@@ -1,0 +1,367 @@
+<mxfile host="app.diagrams.net" version="21.0.0">
+  <diagram name="Relational Model" id="er-parkly">
+    <mxGraphModel dx="1800" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ==================== TABLA: users ==================== -->
+        <mxCell id="t_users" value="users" style="swimlane;startSize=30;fontStyle=1;fontSize=13;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="50" y="180" width="260" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="u_1" value="PK   id   INT AUTO_INCREMENT" style="text;strokeColor=none;fillColor=#f0f8ff;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_users">
+          <mxGeometry y="30" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="u_2" value="     name   VARCHAR(100)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_users">
+          <mxGeometry y="55" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="u_3" value="     email   VARCHAR(150) UNIQUE" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_users">
+          <mxGeometry y="80" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="u_4" value="     password   VARCHAR(255)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_users">
+          <mxGeometry y="105" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="u_5" value="     phone   VARCHAR(20)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_users">
+          <mxGeometry y="130" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="u_6" value="     role   ENUM(client, owner, admin)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_users">
+          <mxGeometry y="155" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="u_7" value="     avatar_url   TEXT" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_users">
+          <mxGeometry y="180" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="u_8" value="     status   ENUM(active, suspended, deleted)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_users">
+          <mxGeometry y="205" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="u_9" value="     vehicle_type   VARCHAR(50)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_users">
+          <mxGeometry y="230" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="u_10" value="     license_plate   VARCHAR(20)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_users">
+          <mxGeometry y="255" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="u_11" value="     reset_token   VARCHAR(255)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_users">
+          <mxGeometry y="280" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="u_12" value="     reset_token_expires   DATETIME" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_users">
+          <mxGeometry y="305" width="260" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== TABLA: parking_spots ==================== -->
+        <mxCell id="t_spots" value="parking_spots" style="swimlane;startSize=30;fontStyle=1;fontSize=13;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="700" y="50" width="270" height="530" as="geometry" />
+        </mxCell>
+        <mxCell id="s_1" value="PK   id   INT AUTO_INCREMENT" style="text;strokeColor=none;fillColor=#f0fff0;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_spots">
+          <mxGeometry y="30" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_2" value="FK   owner_id   INT" style="text;strokeColor=none;fillColor=#fff3cd;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_spots">
+          <mxGeometry y="55" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_3" value="     name   VARCHAR(150)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="80" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_4" value="     address   TEXT" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="105" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_5" value="     zone   VARCHAR(100)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="130" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_6" value="     price_hour   DECIMAL(10,2)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="155" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_7" value="     price_day   DECIMAL(10,2)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="180" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_8" value="     price_month   DECIMAL(10,2)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="205" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_9" value="     image   TEXT" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="230" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_10" value="     images   JSON" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="255" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_11" value="     schedule   JSON" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="280" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_12" value="     services   JSON" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="305" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_13" value="     vehicle_types   JSON" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="330" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_14" value="     max_width / max_length / max_height   DECIMAL" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="355" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_15" value="     verified   TINYINT(1)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="380" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_16" value="     available   TINYINT(1)  [1=approved,0=pending,-1=rejected]" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="t_spots">
+          <mxGeometry y="405" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_17" value="     whatsapp   VARCHAR(20)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="430" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_18" value="     rating   DECIMAL(3,2)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="455" width="270" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="s_19" value="     deleted_at   DATETIME" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_spots">
+          <mxGeometry y="480" width="270" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== TABLA: reservations ==================== -->
+        <mxCell id="t_res" value="reservations" style="swimlane;startSize=30;fontStyle=1;fontSize=13;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="370" y="400" width="260" height="390" as="geometry" />
+        </mxCell>
+        <mxCell id="r_1" value="PK   id   INT AUTO_INCREMENT" style="text;strokeColor=none;fillColor=#fffde7;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_res">
+          <mxGeometry y="30" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="r_2" value="FK   spotId   INT" style="text;strokeColor=none;fillColor=#fff3cd;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_res">
+          <mxGeometry y="55" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="r_3" value="FK   userId   INT" style="text;strokeColor=none;fillColor=#fff3cd;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_res">
+          <mxGeometry y="80" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="r_4" value="FK   ownerId   INT" style="text;strokeColor=none;fillColor=#fff3cd;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_res">
+          <mxGeometry y="105" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="r_5" value="     userName   VARCHAR(100)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_res">
+          <mxGeometry y="130" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="r_6" value="     userEmail   VARCHAR(150)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_res">
+          <mxGeometry y="155" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="r_7" value="     spotName   VARCHAR(150)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_res">
+          <mxGeometry y="180" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="r_8" value="     date   DATE" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_res">
+          <mxGeometry y="205" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="r_9" value="     startTime / endTime   TIME" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_res">
+          <mxGeometry y="230" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="r_10" value="     total   DECIMAL(10,2)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_res">
+          <mxGeometry y="255" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="r_11" value="     carPlate   VARCHAR(20)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_res">
+          <mxGeometry y="280" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="r_12" value="     status   ENUM(pending, in-use, completed, cancelled)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="t_res">
+          <mxGeometry y="305" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="r_13" value="     payment_method   VARCHAR(50)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_res">
+          <mxGeometry y="330" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="r_14" value="     completed_at   DATETIME" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_res">
+          <mxGeometry y="355" width="260" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== TABLA: reviews ==================== -->
+        <mxCell id="t_rev" value="reviews" style="swimlane;startSize=30;fontStyle=1;fontSize=13;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="700" y="680" width="260" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="rv_1" value="PK   id   INT AUTO_INCREMENT" style="text;strokeColor=none;fillColor=#f5f0ff;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_rev">
+          <mxGeometry y="30" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="rv_2" value="FK   reservationId   INT" style="text;strokeColor=none;fillColor=#fff3cd;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_rev">
+          <mxGeometry y="55" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="rv_3" value="FK   spotId   INT" style="text;strokeColor=none;fillColor=#fff3cd;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_rev">
+          <mxGeometry y="80" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="rv_4" value="     userEmail   VARCHAR(150)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_rev">
+          <mxGeometry y="105" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="rv_5" value="     authorRole   ENUM(client, owner)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_rev">
+          <mxGeometry y="130" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="rv_6" value="     rating   TINYINT(1-5)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_rev">
+          <mxGeometry y="155" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="rv_7" value="     comment   TEXT" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_rev">
+          <mxGeometry y="180" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="rv_8" value="     createdAt   DATETIME" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_rev">
+          <mxGeometry y="205" width="260" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== TABLA: favorites ==================== -->
+        <mxCell id="t_fav" value="favorites" style="swimlane;startSize=30;fontStyle=1;fontSize=13;fillColor=#f8cecc;strokeColor=#b85450;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="50" y="620" width="220" height="115" as="geometry" />
+        </mxCell>
+        <mxCell id="fv_1" value="PK   id   INT AUTO_INCREMENT" style="text;strokeColor=none;fillColor=#fff0f0;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_fav">
+          <mxGeometry y="30" width="220" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="fv_2" value="FK   user_id   INT" style="text;strokeColor=none;fillColor=#fff3cd;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_fav">
+          <mxGeometry y="55" width="220" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="fv_3" value="FK   spot_id   INT" style="text;strokeColor=none;fillColor=#fff3cd;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_fav">
+          <mxGeometry y="80" width="220" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== TABLA: waitlist ==================== -->
+        <mxCell id="t_wait" value="waitlist" style="swimlane;startSize=30;fontStyle=1;fontSize=13;fillColor=#f8cecc;strokeColor=#b85450;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="50" y="810" width="220" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="w_1" value="PK   id   INT AUTO_INCREMENT" style="text;strokeColor=none;fillColor=#fff0f0;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_wait">
+          <mxGeometry y="30" width="220" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="w_2" value="FK   user_id   INT" style="text;strokeColor=none;fillColor=#fff3cd;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_wait">
+          <mxGeometry y="55" width="220" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="w_3" value="FK   parking_id   INT" style="text;strokeColor=none;fillColor=#fff3cd;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_wait">
+          <mxGeometry y="80" width="220" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="w_4" value="     requested_time   DATETIME" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_wait">
+          <mxGeometry y="105" width="220" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="w_5" value="     status   ENUM(pending, removed)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_wait">
+          <mxGeometry y="130" width="220" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== TABLA: pqr ==================== -->
+        <mxCell id="t_pqr" value="pqr" style="swimlane;startSize=30;fontStyle=1;fontSize=13;fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="370" y="870" width="260" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="p_1" value="PK   id   INT AUTO_INCREMENT" style="text;strokeColor=none;fillColor=#fff8f0;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_pqr">
+          <mxGeometry y="30" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p_2" value="FK   user_id   INT" style="text;strokeColor=none;fillColor=#fff3cd;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_pqr">
+          <mxGeometry y="55" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p_3" value="FK   reservation_id   INT" style="text;strokeColor=none;fillColor=#fff3cd;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_pqr">
+          <mxGeometry y="80" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p_4" value="     type   ENUM(claim, question, suggestion)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="t_pqr">
+          <mxGeometry y="105" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p_5" value="     subject   VARCHAR(200)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_pqr">
+          <mxGeometry y="130" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p_6" value="     description   TEXT" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_pqr">
+          <mxGeometry y="155" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p_7" value="     status   ENUM(open, in-review, resolved)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=10;" vertex="1" parent="t_pqr">
+          <mxGeometry y="180" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p_8" value="     admin_response   TEXT" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_pqr">
+          <mxGeometry y="205" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="p_9" value="     created_at / updated_at   DATETIME" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_pqr">
+          <mxGeometry y="230" width="260" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== TABLA: ChatMessage (MongoDB) ==================== -->
+        <mxCell id="t_chat" value="ChatMessage  [MongoDB]" style="swimlane;startSize=30;fontStyle=1;fontSize=13;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="700" y="990" width="260" height="215" as="geometry" />
+        </mxCell>
+        <mxCell id="c_1" value="PK   _id   ObjectId" style="text;strokeColor=none;fillColor=#f0f0f0;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_chat">
+          <mxGeometry y="30" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="c_2" value="Ref  reservationId   INT (MySQL ref)" style="text;strokeColor=none;fillColor=#fff3cd;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="t_chat">
+          <mxGeometry y="55" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="c_3" value="     senderId   INT" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_chat">
+          <mxGeometry y="80" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="c_4" value="     senderEmail   VARCHAR(150)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_chat">
+          <mxGeometry y="105" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="c_5" value="     receiverEmail   VARCHAR(150)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_chat">
+          <mxGeometry y="130" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="c_6" value="     message   TEXT" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_chat">
+          <mxGeometry y="155" width="260" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="c_7" value="     createdAt   Date" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=8;fontSize=11;" vertex="1" parent="t_chat">
+          <mxGeometry y="180" width="260" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== RELACIONES / FOREIGN KEYS ==================== -->
+
+        <!-- users -> parking_spots (1:N via owner_id) -->
+        <mxCell id="e1" value="1:N  owner_id" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;strokeWidth=2;fontStyle=1;fontSize=10;" edge="1" source="t_users" target="t_spots" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- users -> reservations (1:N via userId) -->
+        <mxCell id="e2" value="1:N  userId" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;fontStyle=1;fontSize=10;" edge="1" source="t_users" target="t_res" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- parking_spots -> reservations (1:N via spotId) -->
+        <mxCell id="e3" value="1:N  spotId" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;fontStyle=1;fontSize=10;" edge="1" source="t_spots" target="t_res" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- reservations -> reviews (1:N via reservationId) -->
+        <mxCell id="e4" value="1:N  reservationId" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;fontStyle=1;fontSize=10;" edge="1" source="t_res" target="t_rev" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- parking_spots -> reviews (1:N via spotId) -->
+        <mxCell id="e5" value="1:N  spotId" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;fontStyle=1;fontSize=10;" edge="1" source="t_spots" target="t_rev" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- users -> favorites (1:N) -->
+        <mxCell id="e6" value="1:N  user_id" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=2;fontStyle=1;fontSize=10;" edge="1" source="t_users" target="t_fav" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- parking_spots -> favorites (1:N) -->
+        <mxCell id="e7" value="1:N  spot_id" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=2;fontStyle=1;fontSize=10;" edge="1" source="t_spots" target="t_fav" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- users -> waitlist (1:N) -->
+        <mxCell id="e8" value="1:N  user_id" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=2;fontStyle=1;fontSize=10;" edge="1" source="t_users" target="t_wait" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- parking_spots -> waitlist (1:N) -->
+        <mxCell id="e9" value="1:N  parking_id" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=2;fontStyle=1;fontSize=10;" edge="1" source="t_spots" target="t_wait" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- users -> pqr (1:N) -->
+        <mxCell id="e10" value="1:N  user_id" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;strokeWidth=2;fontStyle=1;fontSize=10;" edge="1" source="t_users" target="t_pqr" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- reservations -> pqr (1:N) -->
+        <mxCell id="e11" value="1:N  reservation_id" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;strokeWidth=2;fontStyle=1;fontSize=10;" edge="1" source="t_res" target="t_pqr" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- reservations -> ChatMessage (1:N) -->
+        <mxCell id="e12" value="1:N  reservationId" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;strokeWidth=2;dashed=1;fontStyle=1;fontSize=10;" edge="1" source="t_res" target="t_chat" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="leyenda" value="Legend" style="swimlane;startSize=25;fontStyle=1;fontSize=12;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="50" width="200" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="l1" value="PK = Primary Key" style="text;strokeColor=none;fillColor=#f0f8ff;align=left;spacingLeft=6;fontSize=11;fontStyle=1;" vertex="1" parent="leyenda">
+          <mxGeometry y="30" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="l2" value="FK = Foreign Key" style="text;strokeColor=none;fillColor=#fff3cd;align=left;spacingLeft=6;fontSize=11;fontStyle=1;" vertex="1" parent="leyenda">
+          <mxGeometry y="60" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="l3" value="Ref = Logical Reference (MongoDB)" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=6;fontSize=10;" vertex="1" parent="leyenda">
+          <mxGeometry y="90" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="l4" value="--- = Relationship between databases" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=6;fontSize=10;" vertex="1" parent="leyenda">
+          <mxGeometry y="115" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="l5" value="Blue = MySQL / TiDB Cloud" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=6;fontSize=10;" vertex="1" parent="leyenda">
+          <mxGeometry y="140" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="l6" value="Gray = MongoDB Atlas" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=6;fontSize=10;" vertex="1" parent="leyenda">
+          <mxGeometry y="165" width="200" height="25" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
