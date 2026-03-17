@@ -1,6 +1,4 @@
-Here's an improved, fully English README with updated links, project structure, and team profiles:
 
-***
 
 # Parkly
 
