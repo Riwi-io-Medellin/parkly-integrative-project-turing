@@ -21,7 +21,7 @@ async function sendEmail({ to, subject, html }) {
     const privateKey = process.env.EMAILJS_PRIVATE_KEY;
 
     if (!serviceId || !templateId || !publicKey) {
-        console.error('❌ EmailJS credentials not set in .env');
+        console.error('EmailJS credentials not set in .env');
         return { error: 'Missing credentials' };
     }
 
@@ -47,10 +47,10 @@ async function sendEmail({ to, subject, html }) {
             throw new Error(`EmailJS Error: ${response.status} - ${errorText}`);
         }
 
-        console.log(`✅ Email sent successfully to ${to}`);
+        console.log(`Email sent successfully to ${to}`);
         return { data: { id: 'emailjs_success' } };
     } catch (err) {
-        console.error('❌ Failed to send email via EmailJS:', err.message);
+        console.error('Failed to send email via EmailJS:', err.message);
         return { error: err.message };
     }
 }
@@ -59,17 +59,17 @@ let openai = null;
 if (process.env.OPENAI_API_KEY) {
     openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 } else {
-    console.warn('⚠️ OPENAI_API_KEY not set. AI chat features will not work.');
+    console.warn('OPENAI_API_KEY not set. AI chat features will not work.');
 }
 
 // MongoDB Chat Configuration
 const mongoURI = process.env.MONGODB_URI;
 if (mongoURI) {
     mongoose.connect(mongoURI)
-        .then(() => console.log('📦 Connected to MongoDB (Chat)'))
+        .then(() => console.log('Connected to MongoDB (Chat)'))
         .catch(err => console.error('MongoDB connection error:', err));
 } else {
-    console.warn('⚠️ MONGODB_URI not set. Chat features will not work.');
+    console.warn('MONGODB_URI not set. Chat features will not work.');
 }
 
 const app = express();
@@ -122,7 +122,7 @@ async function getConnection() {
 async function triggerAutomation(event, payload) {
     const webhookUrl = process.env.AUTOMATION_WEBHOOK_URL || process.env.N8N_WEBHOOK_URL;
     if (!webhookUrl) {
-        console.warn(`⚠️ AUTOMATION_WEBHOOK_URL not set. Event '${event}' not sent to automation.`);
+        console.warn(`AUTOMATION_WEBHOOK_URL not set. Event '${event}' not sent to automation.`);
         return;
     }
     try {
@@ -131,9 +131,9 @@ async function triggerAutomation(event, payload) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ event, ...payload, timestamp: new Date() })
         });
-        console.log(`🚀 Automation: Event '${event}' triggered.`);
+        console.log(`Automation: Event '${event}' triggered.`);
     } catch (e) {
-        console.error(`❌ Automation Error (${event}):`, e.message);
+        console.error(`Automation Error (${event}):`, e.message);
     }
 }
 
