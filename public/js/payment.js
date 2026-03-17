@@ -1,9 +1,8 @@
-/**
- * ARCHIVO: js/payment.js
- * DESCRIPCIÓN: process the payment, initialize EmailJS and save in Database.
- */
+// Initialize EmailJS with the Public Key provided by the user
+emailjs.init("_MKHveCj2jqUC6GjS");
 
-// Backend handles the emails via Resend when saving the reservation.
+// Backend handles the emails via Resend when saving the reservation,
+// but we will also use EmailJS for reliable delivery without a domain.
 document.addEventListener('DOMContentLoaded', async () => {
 
     // Back button logic (replaces the onclick in HTML)
@@ -96,7 +95,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     currency: 'COP',
                     amountInCents: amountInCents,
                     reference: resId,
-                    publicKey: 'pub_test_5YLBFidfXmksfQX5KonhVOD7bmVTeWma',
+                    publicKey: 'pub_test_5YLBFidfXmksfQX5KonhVOD7bmVTeWma', // REPLACE with 'pub_prod_...' for Production
                     signature: { integrity: data.signature }, // <--- INTEGRITY SIGNATURE
                     customerData: {
                         email: session.email,
@@ -151,6 +150,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (typeof DB !== 'undefined' && DB.saveReservation) {
             await DB.saveReservation(reservationData);
         }
+
+        // --- EMAILJS FLOW (For delivery without domain) ---
+        const templateParams = {
+            to_email: session.email,
+            subject: `Booking Confirmed: ${spot.name}`,
+            message: `Hi ${session.name}! Your booking at ${spot.name} has been successfully confirmed.
+                      Date: ${reservationData.date}
+                      Time: ${reservationData.startTime} - ${reservationData.endTime}
+                      Total: $ ${totalAmount.toLocaleString('es-CO')}
+                      Reference: ${resId}`,
+            email: session.email // For Reply To
+        };
+
+        emailjs.send("service_hl10dzz", "template_1fsy5pf", templateParams)
+            .then(() => {
+                console.log("Email sent successfully via EmailJS");
+            })
+            .catch((error) => {
+                console.error("Failed to send email via EmailJS:", error);
+            });
 
         localStorage.removeItem('parkly_booking');
         Alerts.success(`Payment successful! Receipt sent to: ${session.email}`);
