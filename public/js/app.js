@@ -16,30 +16,34 @@ document.addEventListener('DOMContentLoaded', () => {
     // Theme toggle — swaps the dark class and saves the preference
     const html = document.documentElement;
     const themeBtn = document.getElementById('theme-toggle');
+    const themeBtnMobile = document.getElementById('theme-toggle-mobile');
 
     const syncThemeUI = () => {
-        if (!themeBtn) return;
         const isDark = html.classList.contains('dark');
 
-        themeBtn.replaceChildren();
-        const icon = document.createElement('i');
-        icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
-        icon.className = isDark ? 'h-5 w-5 text-yellow-400' : 'h-5 w-5 text-foreground opacity-70';
-
-        themeBtn.appendChild(icon);
+        // Update all theme toggle buttons on the page
+        [themeBtn, themeBtnMobile].forEach(btn => {
+            if (!btn) return;
+            btn.replaceChildren();
+            const icon = document.createElement('i');
+            icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+            icon.className = isDark ? 'h-5 w-5 text-yellow-400' : 'h-5 w-5 text-foreground opacity-70';
+            btn.appendChild(icon);
+        });
 
         if (window.lucide) lucide.createIcons();
     };
 
+    const toggleTheme = () => {
+        const isNowDark = html.classList.toggle('dark');
+        localStorage.setItem('parkly_theme', isNowDark ? 'dark' : 'light');
+        syncThemeUI();
+    };
+
     syncThemeUI();
 
-    if (themeBtn) {
-        themeBtn.addEventListener('click', () => {
-            const isNowDark = html.classList.toggle('dark');
-            localStorage.setItem('parkly_theme', isNowDark ? 'dark' : 'light');
-            syncThemeUI();
-        });
-    }
+    if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+    if (themeBtnMobile) themeBtnMobile.addEventListener('click', toggleTheme);
 
     // Navigate to the search page when this button is clicked (used from the landing page)
     const navSearchBtn = document.getElementById('btn-nav-search');
@@ -79,11 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleBtn.setAttribute('aria-label', 'Toggle theme');
             toggleBtn.className = 'p-2 rounded-lg border border-border hover:border-primary/50 transition-colors';
             navActions.appendChild(toggleBtn);
-            toggleBtn.addEventListener('click', () => {
-                const isNowDark = document.documentElement.classList.toggle('dark');
-                localStorage.setItem('parkly_theme', isNowDark ? 'dark' : 'light');
-                syncThemeUI();
-            });
+            toggleBtn.addEventListener('click', toggleTheme);
         }
 
         let dashUrl = './search.html';

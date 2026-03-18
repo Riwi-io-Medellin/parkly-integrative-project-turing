@@ -54,40 +54,41 @@
             </div>
         </nav>
 
-        <!-- Mobile Menu Overlay -->
-        <div id="mobile-menu" class="fixed inset-0 z-[100] bg-background p-6 translate-x-full transition-transform duration-300 md:hidden">
-            <div class="flex justify-between items-center mb-8">
-                <div class="flex items-center gap-2 font-bold">
-                    <i data-lucide="circle-parking" class="text-primary"></i>
-                    <span>PARK<span class="text-primary">LY</span></span>
-                </div>
-                <button id="mobile-menu-close" class="p-2"><i data-lucide="x" class="w-6 h-6"></i></button>
-            </div>
-            <div class="flex flex-col gap-4">
-                <div class="flex items-center gap-3 p-4 bg-card border border-border rounded-2xl mb-4">
-                    <div class="w-10 h-10 rounded-full bg-gradient-avatar flex items-center justify-center text-xs font-bold">
-                        <span id="mobile-avatar-text">?</span>
-                    </div>
-                    <div>
-                        <p id="mobile-username" class="font-bold text-foreground">Guest</p>
-                        <p class="text-xs text-foreground/60 uppercase font-black">Driver</p>
-                    </div>
-                </div>
-                <a href="profile.html" class="flex items-center gap-3 p-4 border border-border rounded-2xl font-bold">
-                    <i data-lucide="user" class="w-5 h-5"></i> Profile
-                </a>
-                <a href="search.html" class="flex items-center gap-3 p-4 border border-border rounded-2xl font-bold">
-                    <i data-lucide="search" class="w-5 h-5"></i> Find Parking
-                </a>
-                <a href="chat.html" class="flex items-center gap-3 p-4 border border-border rounded-2xl font-bold text-primary bg-primary/10">
-                    <i data-lucide="message-square" class="w-5 h-5"></i> Messages
-                </a>
-                <button id="btn-logout-mobile" class="mt-4 flex items-center gap-3 p-4 text-red-500 font-bold">
-                    <i data-lucide="log-out" class="w-5 h-5"></i> Log out
-                </button>
-            </div>
-        </div>
     </header>
+
+    <!-- Mobile Menu Overlay — OUTSIDE header to avoid backdrop-filter breaking fixed positioning on iOS -->
+    <div id="mobile-menu" class="fixed inset-0 z-[200] p-6 translate-x-full transition-transform duration-300 md:hidden" style="background-color: hsl(var(--background));">
+        <div class="flex justify-between items-center mb-8">
+            <div class="flex items-center gap-2 font-bold">
+                <i data-lucide="circle-parking" class="text-primary"></i>
+                <span>PARK<span class="text-primary">LY</span></span>
+            </div>
+            <button id="mobile-menu-close" class="p-3 rounded-lg hover:bg-card"><i data-lucide="x" class="w-6 h-6"></i></button>
+        </div>
+        <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-3 p-4 bg-card border border-border rounded-2xl mb-4">
+                <div class="w-10 h-10 rounded-full bg-gradient-avatar flex items-center justify-center text-xs font-bold">
+                    <span id="mobile-avatar-text">?</span>
+                </div>
+                <div>
+                    <p id="mobile-username" class="font-bold text-foreground">Guest</p>
+                    <p class="text-xs text-foreground/60 uppercase font-black">Driver</p>
+                </div>
+            </div>
+            <a href="profile.html" class="flex items-center gap-3 p-4 border border-border rounded-2xl font-bold">
+                <i data-lucide="user" class="w-5 h-5"></i> Profile
+            </a>
+            <a href="search.html" class="flex items-center gap-3 p-4 border border-border rounded-2xl font-bold">
+                <i data-lucide="search" class="w-5 h-5"></i> Find Parking
+            </a>
+            <a href="chat.html" class="flex items-center gap-3 p-4 border border-border rounded-2xl font-bold text-primary bg-primary/10">
+                <i data-lucide="message-square" class="w-5 h-5"></i> Messages
+            </a>
+            <button id="btn-logout-mobile" class="mt-4 flex items-center gap-3 p-4 text-red-500 font-bold">
+                <i data-lucide="log-out" class="w-5 h-5"></i> Log out
+            </button>
+        </div>
+    </div>
 
 
     <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
