@@ -53,29 +53,30 @@
             </div>
         </nav>
 
-        <!-- Mobile Menu Overlay (Hidden by default) -->
-        <div id="mobile-menu" class="fixed inset-0 z-[100] bg-background p-6 translate-x-full transition-transform duration-300 md:hidden">
-            <div class="flex justify-between items-center mb-10">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="circle-parking" class="h-6 w-6 text-primary"></i>
-                    <span class="text-xl font-bold tracking-tight">PARK<span class="text-primary">LY</span></span>
-                </div>
-                <button id="mobile-menu-close" class="p-2 rounded-lg text-foreground hover:bg-card">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
-            <div class="flex flex-col gap-6">
-                <a href="./login.html" class="text-lg font-bold p-4 border border-border rounded-xl">Log in</a>
-                <a href="register.html" class="text-lg font-bold p-4 bg-primary text-primary-foreground rounded-xl text-center">Sign up free</a>
-                <hr class="border-border">
-                <nav class="flex flex-col gap-4 text-foreground/80 font-medium">
-                    <a href="#">Security</a>
-                    <a href="#">Support</a>
-                    <a href="#">Terms & Conditions</a>
-                </nav>
-            </div>
-        </div>
     </header>
+
+    <!-- Mobile Menu Overlay — OUTSIDE header to avoid backdrop-filter breaking fixed positioning on iOS -->
+    <div id="mobile-menu" class="fixed inset-0 z-[200] p-6 translate-x-full transition-transform duration-300 md:hidden" style="background-color: hsl(var(--background));">
+        <div class="flex justify-between items-center mb-10">
+            <div class="flex items-center gap-2">
+                <i data-lucide="circle-parking" class="h-6 w-6 text-primary"></i>
+                <span class="text-xl font-bold tracking-tight">PARK<span class="text-primary">LY</span></span>
+            </div>
+            <button id="mobile-menu-close" class="p-3 rounded-lg text-foreground hover:bg-card">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <div class="flex flex-col gap-6">
+            <a href="./login.html" class="text-lg font-bold p-4 border border-border rounded-xl">Log in</a>
+            <a href="register.html" class="text-lg font-bold p-4 bg-primary text-primary-foreground rounded-xl text-center">Sign up free</a>
+            <hr class="border-border">
+            <nav class="flex flex-col gap-4 text-foreground/80 font-medium">
+                <a href="#">Security</a>
+                <a href="#">Support</a>
+                <a href="#">Terms & Conditions</a>
+            </nav>
+        </div>
+    </div>
 
     <main class="flex-1">
         
@@ -121,21 +122,21 @@
                 </div>
 
                 <!-- Hero Images Grid -->
-                <!-- The middle image floats slightly higher due to -mt-8 on md screens -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 opacity-90">
-                    <article class="h-48 rounded-2xl border border-border overflow-hidden relative group">
+                <!-- Always 3 columns; middle image floats slightly higher on md+ screens -->
+                <div class="grid grid-cols-3 gap-2 sm:gap-4 opacity-90">
+                    <article class="h-28 sm:h-36 md:h-48 rounded-xl sm:rounded-2xl border border-border overflow-hidden relative group">
                         <img src="https://images.unsplash.com/photo-1545179605-1296651e9d43?q=80&w=800"
                             alt="Modern Covered Parking"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         <div class="absolute inset-0 bg-black/40"></div>
                     </article>
-                    <article class="h-48 rounded-2xl border border-border overflow-hidden relative group md:-mt-8 shadow-2xl shadow-primary/10">
+                    <article class="h-28 sm:h-36 md:h-48 rounded-xl sm:rounded-2xl border border-border overflow-hidden relative group md:-mt-8 shadow-2xl shadow-primary/10">
                         <img src="https://images.unsplash.com/photo-1590674899484-d5640e854abe?q=80&w=800"
                             alt="Modern Underground Garage"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         <div class="absolute inset-0 bg-black/40"></div>
                     </article>
-                    <article class="h-48 rounded-2xl border border-border overflow-hidden relative group">
+                    <article class="h-28 sm:h-36 md:h-48 rounded-xl sm:rounded-2xl border border-border overflow-hidden relative group">
                         <img src="https://images.unsplash.com/photo-1506521781263-d8422e82f27a?q=80&w=800"
                             alt="Outdoor Secure Lot"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
@@ -322,10 +323,20 @@
 
         openBtn.addEventListener('click', () => {
             mobileMenu.classList.remove('translate-x-full');
+            document.body.style.overflow = 'hidden';
         });
 
         closeBtn.addEventListener('click', () => {
             mobileMenu.classList.add('translate-x-full');
+            document.body.style.overflow = '';
+        });
+
+        // Close menu when tapping outside (overlay click)
+        mobileMenu.addEventListener('click', (e) => {
+            if (e.target === mobileMenu) {
+                mobileMenu.classList.add('translate-x-full');
+                document.body.style.overflow = '';
+            }
         });
     </script>
 

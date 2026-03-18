@@ -71,8 +71,8 @@
         </nav>
     </header>
 
-    <main class="max-w-7xl mx-auto px-6 py-8">
-        <nav aria-label="Breadcrumb" class="mb-6 flex items-center justify-between">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-24 lg:pb-8">
+        <nav aria-label="Breadcrumb" class="mb-4 sm:mb-6 flex items-center justify-between">
             <a href="search.html"
                 class="inline-flex items-center gap-2 text-foreground font-medium hover:text-foreground transition-colors text-sm">
                 <i data-lucide="arrow-left" class="w-4 h-4" aria-hidden="true"></i>
@@ -80,17 +80,17 @@
             </a>
             <div class="flex items-center gap-2">
                 <button id="btn-favorite"
-                    class="w-9 h-9 rounded-xl border border-border hover:border-primary/50 flex items-center justify-center text-lg transition-all"
+                    class="w-10 h-10 sm:w-9 sm:h-9 rounded-xl border border-border hover:border-primary/50 flex items-center justify-center text-lg transition-all"
                     title="Save to favorites">
                     <i data-lucide="heart" class="w-4 h-4 text-foreground"></i>
                 </button>
                 <a id="btn-directions" href="#"
-                    class="w-9 h-9 rounded-xl border border-border hover:border-primary/50 flex items-center justify-center transition-all"
+                    class="w-10 h-10 sm:w-9 sm:h-9 rounded-xl border border-border hover:border-primary/50 flex items-center justify-center transition-all"
                     title="Get directions">
                     <i data-lucide="navigation" class="w-4 h-4 text-foreground font-medium"></i>
                 </a>
                 <button id="btn-open-map"
-                    class="w-9 h-9 rounded-xl border border-border hover:border-primary/50 flex items-center justify-center transition-all"
+                    class="w-10 h-10 sm:w-9 sm:h-9 rounded-xl border border-border hover:border-primary/50 flex items-center justify-center transition-all"
                     title="View on Map">
                     <i data-lucide="map" class="w-4 h-4 text-foreground font-medium"></i>
                 </button>
@@ -100,20 +100,20 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
             <div class="lg:col-span-2 space-y-8">
                 <section aria-label="Photo gallery">
-                    <figure class="relative h-[420px] rounded-3xl overflow-hidden border border-border m-0 group">
+                    <figure class="relative h-56 sm:h-72 lg:h-[420px] rounded-2xl lg:rounded-3xl overflow-hidden border border-border m-0 group">
                         <img id="gallery-main-img" src="" alt=""
                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
 
-                        <!-- Navigation Arrows -->
+                        <!-- Navigation Arrows — always visible on mobile, hover-reveal on desktop -->
                         <button id="gallery-prev"
-                            class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 disabled:opacity-30 disabled:cursor-not-allowed z-10"
+                            class="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-sm transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 disabled:opacity-30 disabled:cursor-not-allowed z-10"
                             aria-label="Previous image">
-                            <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                            <i data-lucide="chevron-left" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         </button>
                         <button id="gallery-next"
-                            class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 disabled:opacity-30 disabled:cursor-not-allowed z-10"
+                            class="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-sm transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 disabled:opacity-30 disabled:cursor-not-allowed z-10"
                             aria-label="Next image">
-                            <i data-lucide="chevron-right" class="w-6 h-6"></i>
+                            <i data-lucide="chevron-right" class="w-5 h-5 sm:w-6 sm:h-6"></i>
                         </button>
 
                         <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none"
@@ -419,6 +419,33 @@
             <p class="text-sm text-foreground font-medium leading-relaxed review-comment"></p>
         </article>
     </template>
+
+    <!-- Sticky Book Now bar — mobile only, hides once the booking form is in view -->
+    <div id="mobile-book-bar"
+        class="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-background/95 backdrop-blur-xl border-t border-border px-4 py-3 flex items-center justify-between gap-3"
+        style="padding-bottom: max(12px, env(safe-area-inset-bottom))">
+        <div class="min-w-0">
+            <p class="text-[11px] text-foreground/60 font-bold uppercase tracking-wide">Reserve your spot</p>
+            <p id="mobile-book-price" class="text-base font-black text-foreground truncate">Select dates above ↑</p>
+        </div>
+        <button
+            onclick="document.getElementById('booking-form').scrollIntoView({behavior:'smooth', block:'center'})"
+            class="flex-shrink-0 bg-primary text-primary-foreground font-black px-5 py-3 rounded-xl text-sm shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+            Book Now
+        </button>
+    </div>
+
+    <script>
+        // Update mobile book bar price from the spot-price element once detail.js populates it
+        const priceEl = document.getElementById('spot-price');
+        const mobileBarPrice = document.getElementById('mobile-book-price');
+        if (priceEl && mobileBarPrice) {
+            const observer = new MutationObserver(() => {
+                if (priceEl.textContent.trim()) mobileBarPrice.textContent = priceEl.textContent.trim() + ' / hr';
+            });
+            observer.observe(priceEl, { childList: true, subtree: true, characterData: true });
+        }
+    </script>
 
     <script src="js/data.js"></script>
     <script src="js/app.js?v=3"></script>

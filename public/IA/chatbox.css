@@ -422,19 +422,38 @@
 
 #chatbox-send svg { width: 17px; height: 17px; color: #fff; }
 
-/* Responsive */
+/* Responsive — mobile */
 @media (max-width: 480px) {
     #chatbox-panel {
         width: calc(100vw - 32px);
         right: 16px;
         bottom: 90px;
-        height: 68vh;
+        height: min(68vh, calc(100dvh - 160px));
         border-radius: 20px;
     }
     .chatbox-launcher {
         right: 16px;
-        bottom: 16px;
+        bottom: max(16px, env(safe-area-inset-bottom));
     }
+}
+
+/* Responsive — tablet */
+@media (min-width: 481px) and (max-width: 768px) {
+    #chatbox-panel {
+        width: 360px;
+        right: 20px;
+        bottom: 90px;
+        height: min(520px, calc(100dvh - 140px));
+    }
+    .chatbox-launcher {
+        right: 20px;
+        bottom: max(20px, env(safe-area-inset-bottom));
+    }
+}
+
+/* Max-height guard for all viewports */
+#chatbox-panel {
+    max-height: calc(100dvh - 120px);
 }
 
 /* ── Quick Options ── */

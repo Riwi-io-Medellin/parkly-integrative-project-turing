@@ -52,45 +52,45 @@
     <main class="max-w-5xl mx-auto px-6 py-10">
 
         <!-- Booking steps progress indicator (Details -> Payment -> Confirmed) -->
-        <nav aria-label="Booking steps" class="mb-10">
+        <nav aria-label="Booking steps" class="mb-8 sm:mb-10">
             <ol class="flex items-center justify-center list-none p-0 m-0">
 
                 <!-- Step 1: Details (Completed — checkmark icon) -->
-                <li class="flex items-center gap-2">
+                <li class="flex items-center gap-1.5 sm:gap-2">
                     <div class="w-8 h-8 rounded-full bg-primary/20 border-2 border-primary text-primary text-sm font-black flex items-center justify-center"
                         aria-label="Step 1: Details — completed">
                         <i data-lucide="check" class="w-4 h-4" aria-hidden="true"></i>
                     </div>
-                    <span class="text-xs font-bold text-primary uppercase tracking-widest">Details</span>
+                    <span class="hidden xs:inline text-xs font-bold text-primary uppercase tracking-widest">Details</span>
                 </li>
 
-                <div class="w-16 h-px bg-primary mx-3" aria-hidden="true"></div>
+                <div class="w-8 sm:w-16 h-px bg-primary mx-2 sm:mx-3" aria-hidden="true"></div>
 
                 <!-- Step 2: Payment (Current — highlighted circle) -->
-                <li class="flex items-center gap-2">
+                <li class="flex items-center gap-1.5 sm:gap-2">
                     <div class="w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-black flex items-center justify-center"
                         aria-current="step" aria-label="Step 2: Payment — current">2</div>
                     <span class="text-xs font-bold text-foreground uppercase tracking-widest">Payment</span>
                 </li>
 
-                <div class="w-16 h-px bg-border mx-3" id="conn2" aria-hidden="true"></div>
+                <div class="w-8 sm:w-16 h-px bg-border mx-2 sm:mx-3" id="conn2" aria-hidden="true"></div>
 
                 <!-- Step 3: Confirmed (Pending — gray outline) -->
-                <li class="flex items-center gap-2" id="step3-li">
+                <li class="flex items-center gap-1.5 sm:gap-2" id="step3-li">
                     <div class="w-8 h-8 rounded-full border-2 border-border text-foreground/90 text-sm font-black flex items-center justify-center"
                         aria-label="Step 3: Confirmed — pending">
                         <i data-lucide="check" class="w-4 h-4" aria-hidden="true"></i>
                     </div>
-                    <span class="text-xs font-bold text-foreground/90 uppercase tracking-widest">Confirmed</span>
+                    <span class="hidden xs:inline text-xs font-bold text-foreground/90 uppercase tracking-widest">Confirmed</span>
                 </li>
             </ol>
         </nav>
 
         <!-- Main content grid: Payment options on the left (lg:col-span-3), Order summary on the right (lg:col-span-2) -->
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8">
 
             <!-- ── LEFT COLUMN: PAYMENT OPTIONS ──────────────────────────────────────── -->
-            <section class="lg:col-span-3 space-y-6" aria-label="Payment">
+            <section class="md:col-span-1 lg:col-span-3 space-y-6" aria-label="Payment">
 
                 <!-- Breadcrumb to go back to the spot detail page -->
                 <nav aria-label="Breadcrumb">
@@ -146,7 +146,7 @@
             </section>
 
             <!-- ── RIGHT COLUMN: ORDER SUMMARY ─────────────────────────────────────── -->
-            <aside class="lg:col-span-2" aria-label="Reservation summary">
+            <aside class="md:col-span-1 lg:col-span-2" aria-label="Reservation summary">
 
                 <!-- Sticky card that stays visible when the user scrolls the left column -->
                 <div class="bg-card border border-border p-6 rounded-3xl sticky top-24">
