@@ -38,31 +38,66 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 md:gap-4">
                 <button id="btn-nav-search"
                     class="hidden md:flex items-center gap-2 px-4 py-2 bg-primary/5 text-primary-light hover:bg-primary/10 rounded-xl text-sm font-bold transition-all border border-primary/15">
                     <i data-lucide="compass" class="w-4 h-4"></i> View App
                 </button>
                 <button id="theme-toggle" aria-label="Toggle theme"
                     class="p-2 rounded-lg bg-input border border-border hover:border-primary/50 transition-all"></button>
-                <div class="h-8 w-px bg-card mx-1"></div>
-                <div class="flex items-center gap-3">
-                    <div class="text-right hidden sm:block">
-                        <p class="text-sm font-bold text-foreground leading-none">Admin Panel</p>
-                        <p class="text-[10px] text-primary uppercase font-black tracking-widest mt-0.5">Superuser</p>
+                <!-- Desktop: divider + admin info + logout -->
+                <div class="hidden md:flex items-center gap-3">
+                    <div class="h-8 w-px bg-card mx-1"></div>
+                    <div class="flex items-center gap-3">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-sm font-bold text-foreground leading-none">Admin Panel</p>
+                            <p class="text-[10px] text-primary uppercase font-black tracking-widest mt-0.5">Superuser</p>
+                        </div>
+                        <div
+                            class="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-primary-dark flex items-center justify-center text-foreground font-bold shadow-lg shadow-primary/20">
+                            A
+                        </div>
                     </div>
-                    <div
-                        class="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-primary-dark flex items-center justify-center text-foreground font-bold shadow-lg shadow-primary/20">
-                        A
-                    </div>
+                    <button id="btn-logout"
+                        class="p-2 text-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors ml-2">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
                 </div>
-                <button id="btn-logout"
-                    class="p-2 text-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors ml-2">
-                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                <!-- Mobile: hamburger -->
+                <button id="mobile-menu-open" class="md:hidden p-2 rounded-lg border border-border text-foreground">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
                 </button>
             </div>
         </nav>
     </header>
+
+    <!-- Mobile Menu Overlay — OUTSIDE header to avoid backdrop-filter breaking fixed positioning on iOS -->
+    <div id="mobile-menu" class="fixed inset-0 z-[200] p-6 translate-x-full transition-transform duration-300 md:hidden" style="background-color: hsl(var(--background));">
+        <div class="flex justify-between items-center mb-8">
+            <div class="flex items-center gap-2 font-black">
+                <i data-lucide="circle-parking" class="text-primary"></i>
+                <span>PARK<span class="text-primary">LY</span> <span class="text-xs text-primary font-black uppercase">Admin</span></span>
+            </div>
+            <button id="mobile-menu-close" class="p-3 rounded-lg hover:bg-card"><i data-lucide="x" class="w-6 h-6"></i></button>
+        </div>
+        <div class="flex flex-col gap-4">
+            <!-- Mobile search -->
+            <div class="relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/60"></i>
+                <input type="text" id="admin-table-filter-mobile" placeholder="Search..."
+                    class="w-full bg-input border border-border rounded-xl py-3 pl-10 pr-4 text-sm text-foreground focus:outline-none focus:border-primary/50">
+            </div>
+            <a href="search.html" class="flex items-center gap-3 p-4 border border-border rounded-2xl font-bold">
+                <i data-lucide="compass" class="w-5 h-5"></i> View App
+            </a>
+            <a href="profile.html" class="flex items-center gap-3 p-4 border border-border rounded-2xl font-bold">
+                <i data-lucide="user" class="w-5 h-5"></i> Profile
+            </a>
+            <button id="btn-logout-mobile" class="mt-2 flex items-center gap-3 p-4 text-red-500 font-bold">
+                <i data-lucide="log-out" class="w-5 h-5"></i> Log out
+            </button>
+        </div>
+    </div>
 
     <!-- ── ADMIN DASHBOARD MAIN CONTAINER ───────────────────────────────────── -->
     <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
@@ -385,6 +420,48 @@
     <!-- SweetAlert2 + Parkly Custom Alerts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/js/alerts.js"></script>
+
+    <script>
+        // Mobile Menu Logic
+        const openBtn = document.getElementById('mobile-menu-open');
+        const closeBtn = document.getElementById('mobile-menu-close');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (openBtn && closeBtn && mobileMenu) {
+            openBtn.addEventListener('click', () => {
+                mobileMenu.classList.remove('translate-x-full');
+                document.body.style.overflow = 'hidden';
+            });
+            closeBtn.addEventListener('click', () => {
+                mobileMenu.classList.add('translate-x-full');
+                document.body.style.overflow = '';
+            });
+            mobileMenu.addEventListener('click', (e) => {
+                if (e.target === mobileMenu) {
+                    mobileMenu.classList.add('translate-x-full');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        // Sync mobile admin search with desktop filter
+        const mobileFilter = document.getElementById('admin-table-filter-mobile');
+        const desktopFilter = document.getElementById('admin-table-filter');
+        if (mobileFilter && desktopFilter) {
+            mobileFilter.addEventListener('input', () => {
+                desktopFilter.value = mobileFilter.value;
+                desktopFilter.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+        }
+
+        // Mobile Logout
+        document.getElementById('btn-logout-mobile')?.addEventListener('click', async () => {
+            if (await Alerts.confirm('Are you sure you want to log out?')) {
+                localStorage.removeItem('parkly_session');
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
 
 </body>
 
