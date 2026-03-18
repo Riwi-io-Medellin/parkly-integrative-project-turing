@@ -90,7 +90,7 @@
     </header>
 
 
-    <main class="max-w-5xl mx-auto px-6 py-10">
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
 
         <header class="mb-4">
             <h1 class="text-3xl font-extrabold text-foreground mb-1">My Bookings</h1>
@@ -119,8 +119,8 @@
             </div>
         </section>
 
-        <nav aria-label="Booking filter tabs">
-            <ul class="flex gap-1 bg-card border border-border rounded-xl p-1 w-fit mb-8 list-none" role="tablist">
+        <nav aria-label="Booking filter tabs" class="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0">
+            <ul class="flex gap-1 bg-card border border-border rounded-xl p-1 w-max sm:w-fit mb-8 list-none" role="tablist">
                 <li role="presentation"><button id="tab-all" role="tab" aria-selected="true" data-tab="all"
                         class="tab-btn px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all text-primary-foreground bg-primary">All</button>
                 </li>
@@ -143,7 +143,7 @@
     </main>
 
     <dialog id="pqr-dialog" aria-labelledby="pqr-dialog-title" aria-modal="true"
-        class="bg-card border border-border rounded-3xl p-8 w-full max-w-md text-foreground backdrop:bg-black/70 backdrop:backdrop-blur-sm">
+        class="bg-card border border-border rounded-3xl p-5 sm:p-8 w-full max-w-md mx-4 text-foreground backdrop:bg-black/70 backdrop:backdrop-blur-sm">
         <h2 id="pqr-dialog-title" class="text-xl font-extrabold text-foreground mb-2">How can we help?</h2>
         <p class="text-sm text-foreground/90 font-medium mb-6">Our support team will respond within 24 hours.</p>
 
@@ -185,7 +185,7 @@
     </dialog>
 
     <dialog id="review-dialog" aria-labelledby="review-dialog-title" aria-modal="true"
-        class="bg-card border border-border rounded-3xl p-8 w-full max-w-md text-foreground backdrop:bg-black/70 backdrop:backdrop-blur-sm">
+        class="bg-card border border-border rounded-3xl p-5 sm:p-8 w-full max-w-md mx-4 text-foreground backdrop:bg-black/70 backdrop:backdrop-blur-sm">
         <h2 id="review-dialog-title" class="text-xl font-extrabold text-foreground mb-1">Leave a Review</h2>
         <p id="review-parking-name" class="text-sm text-foreground/90 font-medium mb-6"></p>
 
@@ -367,8 +367,20 @@
         const mobileMenu = document.getElementById('mobile-menu');
 
         if (openBtn && closeBtn && mobileMenu) {
-            openBtn.addEventListener('click', () => mobileMenu.classList.remove('translate-x-full'));
-            closeBtn.addEventListener('click', () => mobileMenu.classList.add('translate-x-full'));
+            openBtn.addEventListener('click', () => {
+                mobileMenu.classList.remove('translate-x-full');
+                document.body.style.overflow = 'hidden';
+            });
+            closeBtn.addEventListener('click', () => {
+                mobileMenu.classList.add('translate-x-full');
+                document.body.style.overflow = '';
+            });
+            mobileMenu.addEventListener('click', (e) => {
+                if (e.target === mobileMenu) {
+                    mobileMenu.classList.add('translate-x-full');
+                    document.body.style.overflow = '';
+                }
+            });
         }
         
         // Sync mobile user info

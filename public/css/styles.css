@@ -200,3 +200,26 @@ body {
 html {
     scroll-behavior: smooth;
 }
+
+/* Safe area bottom padding — used by fixed bottom bars on notched devices */
+.safe-bottom {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+/* Hide scrollbar while preserving scroll functionality */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Ensure dialogs are centered and have a max-height on mobile */
+@media (max-width: 640px) {
+    dialog {
+        max-height: calc(100dvh - 48px);
+        overflow-y: auto;
+        margin: 24px auto;
+    }
+}

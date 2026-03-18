@@ -23,22 +23,14 @@ async function isValidMessage(message) {
         role: "system",
         content: `You are a message classifier for the Parkly parking app.
 Respond ONLY with "YES" or "NO".
-
 Respond "YES" if the message is related to:
-
 Searching, reserving, or canceling parking spaces / parking lots / parking
-
 Availability, prices, schedules, or location of parking spaces
-
 Payments, invoices, or payment methods within the app
-
 Use, technical support, or problems with the Parkly application
-
 General questions about how the service works
-
 Respond "NO" only if the message clearly has nothing to do with parking spaces
 or with the app (e.g., cooking recipes, history homework, jokes, etc.).
-
 If in doubt, respond "YES".
         `.trim(),
       },

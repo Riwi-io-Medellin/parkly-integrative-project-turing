@@ -121,21 +121,21 @@
                 </div>
 
                 <!-- Hero Images Grid -->
-                <!-- The middle image floats slightly higher due to -mt-8 on md screens -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 opacity-90">
-                    <article class="h-48 rounded-2xl border border-border overflow-hidden relative group">
+                <!-- Always 3 columns; middle image floats slightly higher on md+ screens -->
+                <div class="grid grid-cols-3 gap-2 sm:gap-4 opacity-90">
+                    <article class="h-28 sm:h-36 md:h-48 rounded-xl sm:rounded-2xl border border-border overflow-hidden relative group">
                         <img src="https://images.unsplash.com/photo-1545179605-1296651e9d43?q=80&w=800"
                             alt="Modern Covered Parking"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         <div class="absolute inset-0 bg-black/40"></div>
                     </article>
-                    <article class="h-48 rounded-2xl border border-border overflow-hidden relative group md:-mt-8 shadow-2xl shadow-primary/10">
+                    <article class="h-28 sm:h-36 md:h-48 rounded-xl sm:rounded-2xl border border-border overflow-hidden relative group md:-mt-8 shadow-2xl shadow-primary/10">
                         <img src="https://images.unsplash.com/photo-1590674899484-d5640e854abe?q=80&w=800"
                             alt="Modern Underground Garage"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         <div class="absolute inset-0 bg-black/40"></div>
                     </article>
-                    <article class="h-48 rounded-2xl border border-border overflow-hidden relative group">
+                    <article class="h-28 sm:h-36 md:h-48 rounded-xl sm:rounded-2xl border border-border overflow-hidden relative group">
                         <img src="https://images.unsplash.com/photo-1506521781263-d8422e82f27a?q=80&w=800"
                             alt="Outdoor Secure Lot"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
@@ -322,10 +322,20 @@
 
         openBtn.addEventListener('click', () => {
             mobileMenu.classList.remove('translate-x-full');
+            document.body.style.overflow = 'hidden';
         });
 
         closeBtn.addEventListener('click', () => {
             mobileMenu.classList.add('translate-x-full');
+            document.body.style.overflow = '';
+        });
+
+        // Close menu when tapping outside (overlay click)
+        mobileMenu.addEventListener('click', (e) => {
+            if (e.target === mobileMenu) {
+                mobileMenu.classList.add('translate-x-full');
+                document.body.style.overflow = '';
+            }
         });
     </script>
 

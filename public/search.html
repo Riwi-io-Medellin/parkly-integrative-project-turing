@@ -30,7 +30,7 @@
                 <span class="tracking-tighter uppercase italic">PARK<span class="text-primary">LY</span></span>
             </a>
 
-            <search class="flex flex-1 max-w-lg mx-8">
+            <search class="hidden sm:flex flex-1 max-w-lg mx-4 sm:mx-8">
                 <label for="search-input" class="sr-only">Search parking spots</label>
                 <div class="relative flex-1">
                     <i data-lucide="search"
@@ -55,16 +55,16 @@
                 <!-- Profile Dropdown div -->
                 <div class="relative">
                     <button id="profile-pill"
-                        class="flex items-center gap-2 border border-border rounded-full pl-1 pr-3 py-1 bg-card hover:border-primary/50 transition-colors"
+                        class="flex items-center gap-2 border border-border rounded-full pl-1 pr-2 sm:pr-3 py-1 bg-card hover:border-primary/50 transition-colors"
                         role="status" aria-label="Account menu">
                         <div
                             class="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center text-[10px] font-black text-foreground flex-shrink-0 bg-gradient-avatar">
                             <img id="nav-avatar-img" src="" alt="" class="hidden w-full h-full object-cover">
                             <span id="nav-avatar-text">?</span>
                         </div>
-                        <span id="nav-username" class="text-xs font-bold text-foreground">Guest</span>
+                        <span id="nav-username" class="hidden sm:inline text-xs font-bold text-foreground">Guest</span>
                         <span id="nav-role"
-                            class="text-[10px] bg-primary/10 text-primary-light px-1.5 rounded font-black uppercase">Driver</span>
+                            class="hidden sm:inline text-[10px] bg-primary/10 text-primary-light px-1.5 rounded font-black uppercase">Driver</span>
                         <i data-lucide="chevron-down" class="w-3 h-3 text-foreground font-medium"></i>
                     </button>
 
@@ -93,10 +93,22 @@
         </nav>
     </header>
 
-    <main class="max-w-[1400px] mx-auto flex gap-0 px-6 py-8">
+    <!-- Mobile Search Bar (visible only on small screens, syncs with desktop #search-input) -->
+    <div class="sm:hidden border-b border-border bg-background px-4 py-2">
+        <div class="relative">
+            <i data-lucide="search"
+                class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/70 pointer-events-none"
+                aria-hidden="true"></i>
+            <input id="search-input-mobile" type="search" name="q" placeholder="Search parking spots..."
+                autocomplete="off"
+                class="w-full bg-card border border-border rounded-xl pl-9 pr-4 py-2.5 text-sm text-foreground placeholder-slate-500 focus:outline-none focus:border-primary/60 transition-colors">
+        </div>
+    </div>
 
-        <!-- Mobile Filter Button (Floating) -->
-        <button id="mobile-filter-btn" class="fixed bottom-6 right-6 z-[60] md:hidden bg-primary text-primary-foreground p-4 rounded-full shadow-2xl flex items-center gap-2 font-bold focus:ring-4 focus:ring-primary/40 animate-bounce-subtle">
+    <main class="max-w-[1400px] mx-auto flex gap-0 px-4 sm:px-6 py-6 sm:py-8">
+
+        <!-- Mobile Filter Button (Floating) — positioned above chatbox launcher -->
+        <button id="mobile-filter-btn" class="fixed bottom-24 right-4 sm:right-6 z-[60] md:hidden bg-primary text-primary-foreground p-4 rounded-full shadow-2xl flex items-center gap-2 font-bold focus:ring-4 focus:ring-primary/40 animate-bounce-subtle">
             <i data-lucide="sliders-horizontal" class="w-6 h-6"></i>
             Filters
         </button>
@@ -642,6 +654,23 @@
             filterClose.addEventListener('click', () => {
                 sidebar.classList.add('translate-x-full');
                 document.body.style.overflow = ''; // Restore scroll
+            });
+            // Close by tapping backdrop
+            sidebar.addEventListener('click', (e) => {
+                if (e.target === sidebar) {
+                    sidebar.classList.add('translate-x-full');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        // Sync mobile search bar with hidden desktop search input
+        const mobileSearchInput = document.getElementById('search-input-mobile');
+        const desktopSearchInput = document.getElementById('search-input');
+        if (mobileSearchInput && desktopSearchInput) {
+            mobileSearchInput.addEventListener('input', () => {
+                desktopSearchInput.value = mobileSearchInput.value;
+                desktopSearchInput.dispatchEvent(new Event('input', { bubbles: true }));
             });
         }
     </script>
